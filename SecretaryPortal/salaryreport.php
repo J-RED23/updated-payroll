@@ -75,10 +75,6 @@ $fullname = $sessionData['fullname'];
           <div class="employee_list">
               <div class="employee_list__header">
                 <h1>List of Salary Report</h1>
-                  <form method="post">
-                        <button type="submit" name="empsearch">Search</button>
-                        <input type="search" name="employeesearch" placeholder="Search">
-                  </form>
               </div>
 
 

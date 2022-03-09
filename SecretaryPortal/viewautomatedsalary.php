@@ -21,6 +21,13 @@ body{
   margin-left:-5px;
   margin-right:-5px;
 }
+
+.viewautomatedsalary-logo {
+    position: absolute;
+    right: 50px;
+    top: 50px;
+    height: 100px;
+}
   
 .column {
   float: left;
@@ -60,7 +67,8 @@ tr:nth-child(even) {
 </style>
 </head>
 <body>
-<a href="automaticpayroll.php">BACK</a><form method="post"><button type="submit" name="download">DOWNLOAD PDF</button></form>
+<a href="automaticpayroll.php">BACK</a>
+<form method="post"><button type="submit" name="download">DOWNLOAD PDF</button></form>
 <?php
     $sql = "SELECT *
     FROM automatic_generated_salary
@@ -76,6 +84,8 @@ tr:nth-child(even) {
 <center><h2>JTDV SECURITY AGENCY</h2>
 <p><u>400 Gem Bldg.,Gen T De Leon Ave.</br>Barangay Gen T. De Leon, Valenzuela City</u></p></center>
 
+
+<object data="../img/icon.png" type="" class="viewautomatedsalary-logo"></object>
 
 
 <div class="row">

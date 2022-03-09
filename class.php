@@ -5,7 +5,7 @@ use Dompdf\Dompdf;
 require_once "PHPMailer/PHPMailer.php";
 require_once "PHPMailer/SMTP.php";
 require_once "PHPMailer/Exception.php";
-require 'PHPMailer/PHPMailerAutoload.php';
+
 require 'vendor/autoload.php';
 
 Class Payroll
@@ -1619,6 +1619,18 @@ Class Payroll
                 }else{
                     echo "error in position";
                 }
+                $sqlv="SELECT * FROM violationsandremark WHERE empId = ?";
+                $stmtv = $this->con()->prepare($sqlv);
+                $stmtv->execute([$empid]);
+                $rowsv = $stmtv->fetch();
+                $countRowv =$stmtv->rowCount();
+                if($countRowv>0){
+                    
+                if(strtolower($rowsv->violation) == "uniform") {
+                    $violation = $countRowv;
+
+                }
+                }
 
 
                 $sql3="SELECT * FROM holidays;";
@@ -1841,7 +1853,7 @@ Class Payroll
                 $stmt5->execute([$user->emp_id,$user->sss,$user->pagibig,$user->philhealth,$user->cashbond]);
             }else{
                 echo "error";
-            }
+            }   
 
                 }
                 }
@@ -2323,107 +2335,25 @@ Class Payroll
     }
     public function salaryreport()
     {
-        $sql="SELECT * FROM automatic_generated_salary INNER JOIN employee WHERE automatic_generated_salary.emp_id = employee.empId 
-        AND automatic_generated_salary.for_release = 'released';";
+        $sql="SELECT * FROM salary_report INNER JOIN employee WHERE salary_report.empId = employee.empId;";
         $stmt=$this->con()->prepare($sql);
         $stmt->execute();
-        $totaljan=0;
-        $totalfeb=0;
-        $totalmar=0;
-        $totalapr=0;
-        $totalmay=0;
-        $totaljune=0;
-        $totaljuly=0;
-        $totalaug=0;
-        $totalsep=0;
-        $totaloct=0;
-        $totalnov=0;
-        $totaldec=0;
-        $feb="February";
-        $mar="March";
-        $jan="January";
-        $apr="April";
-        $may="May";
-        $june= "June";
-        $july="July"; 
-        $aug="August"; 
-        $sep="September"; 
-        $oct= "October";
-        $nov= "November";
-        $dec= "December";
         while($row = $stmt->fetch()){
-            $end = date('F',strtotime($row->end));
             echo "<tr>
-            <td>$row->firstname $row->lastname </td>";
-            if(preg_match("/{$jan}/i", $end))
-            {
-                echo "<td>",$totaljan= ($totaljan + $row->total_netpay),"</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>";
-            } else if (preg_match("/{$feb}/i", $end)){
-                echo "<td></td>
-                <td>$row->total_netpay</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>";
-            } else if (preg_match("/{$mar}/i", $end)){
-                echo "<td></td>
-                <td></td>
-                <td>$row->total_netpay</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>";
-            } else {
-
-            }
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+                <td>$row->firstname $row->lastname</td>
+                <td>".number_format($row->january)."</td>
+                <td>".number_format($row->february)."</td>
+                <td>".number_format($row->march)."</td>
+                <td>".number_format($row->april)."</td>
+                <td>".number_format($row->may)."</td>
+                <td>".number_format($row->june)."</td>
+                <td>".number_format($row->july)."</td>
+                <td>".number_format($row->august)."</td>
+                <td>".number_format($row->september)."</td>
+                <td>".number_format($row->october)."</td>
+                <td>".number_format($row->november)."</td>
+                <td>".number_format($row->december)."</td>";
         }
-
-        // echo "<td>January</td>
-        // <td>$row->total_netpay</td>
-        // <td>March</td>
-        // <td>April</td>
-        // <td>May</td>
-        // <td>June</td>
-        // <td>July</td>
-        // <td>August</td>
-        // <td>September</td>
-        // <td>October</td>
-        // <td>November</td>
-        // <td>December</td>";
     }
     public function displaycontributions()
     {
@@ -2441,34 +2371,125 @@ Class Payroll
             </tr>";
         }
     }
-    public function displayempattendance($fullname,$id){
-        $sql="SELECT * FROM employee;";
-        $stmt=$this->con()->prepare($sql);
-        $stmt->execute();
-        while($user=$stmt->fetch()){
-            $tothrs=0;              // ex may 4 attendance siya
-            $sql1="SELECT * FROM emp_attendance WHERE empId = $user->empId AND salary_status != 'paid';";
-            $stmt1=$this->con()->prepare($sql1);
-            $stmt1->execute();
-            $countattendance=$stmt1->rowCount();
-            $users1=$stmt1->fetchall();
-            foreach($users1 as $users){
-            $timein= date('H:i:s',strtotime($users->timeIn));
-            $timeout= date('H:i:s',strtotime($users->timeOut));
-            $tothrs += abs(strtotime($timein) - strtotime($timeout)) / 3600 ;
+    public function searchcontribution()
+    {
+        if(isset($_POST['searchcon']) && !empty($_POST['emp']))
+        {   
+            $found=false;
+            $emp=$_POST['emp'];
+            $sql="SELECT * FROM contributions;";
+            $stmt=$this->con()->prepare($sql);
+            $stmt->execute();
+            while($users=$stmt->fetch())
+            {
+                if(preg_match("/{$emp}/i", $users->empId) || preg_match("/{$emp}/i", $users->firstname) ||
+                preg_match("/{$emp}/i", $users->lastname))
+                {
+                    $found=true;
+                    $sqls="SELECT * FROM contributions WHERE empId = $users->empId;";
+                    $stmts=$this->con()->prepare($sqls);
+                    $stmts->execute();
+                    $users=$stmts->fetchall();
+                    foreach($users as $users1s){
+                        echo "<tr>
+                        <td>$row->firstname $row->lastname</td>
+                        <td>$row->sss</td>
+                        <td>$row->pagibig</td>
+                        <td>$row->philhealth</td>
+                        <td>$row->cashbond</td>
+                        </tr>";
+                    }
+
+                }
             }
-            $tothrs=number_format($tothrs,2);
-            $tothrs = sprintf('%02d:%02d', (int) $tothrs, fmod($tothrs   , 1) * 60);
-            echo "<tr>
-            <td>$user->empId</td>
-            <td>$user->firstname $user->lastname</td>
-            <td>$countattendance</td>
-            <td>$tothrs</td>
-            <td> <a href='createsalary.php?empid=$user->empId'>Generate</a></td>
-            </tr>";
+            if($found == false){
+                echo "No Record Found!";
+                $this->displaycontributions();
+            }
+        } else{
+
+            $this->displaycontributions();
         }
+    }
+    public function displayempattendance($fullname,$id){
+                $sql="SELECT * FROM employee;";
+                $stmt=$this->con()->prepare($sql);
+                $stmt->execute();
+                while($user=$stmt->fetch())
+                {
+                    $tothrs=0;              // ex may 4 attendance siya
+                    $sql1="SELECT * FROM emp_attendance WHERE empId = $user->empId AND salary_status != 'paid';";
+                    $stmt1=$this->con()->prepare($sql1);
+                    $stmt1->execute();
+                    $countattendance=$stmt1->rowCount();
+                    $users1=$stmt1->fetchall();
+                    foreach($users1 as $users){
+                    $timein= date('H:i:s',strtotime($users->timeIn));
+                    $timeout= date('H:i:s',strtotime($users->timeOut));
+                    $tothrs += abs(strtotime($timein) - strtotime($timeout)) / 3600 ;
+                }
+                    $tothrs=number_format($tothrs,2);
+                    $tothrs = sprintf('%02d:%02d', (int) $tothrs, fmod($tothrs   , 1) * 60);
+                    echo "<tr>
+                    <td>$user->empId</td>
+                    <td>$user->firstname $user->lastname</td>
+                    <td>$countattendance</td>
+                    <td>$tothrs</td>
+                    <td> <a href='createsalary.php?empid=$user->empId'>Generate</a></td>
+                    </tr>";
+            }
 
 
+    }
+    public function searchempatt($fullname,$id){
+        if(isset($_POST['searchempatt']) && !empty($_POST['emp']))
+        {   
+            $found=false;
+            $emp=$_POST['emp'];
+            $sqls="SELECT * FROM employee;";
+            $stmts=$this->con()->prepare($sqls);
+            $stmts->execute();
+            while($users=$stmts->fetch())
+            {            // ex may 4 attendance siya
+                if(preg_match("/{$emp}/i", $users->empId) || preg_match("/{$emp}/i", $users->firstname) ||
+                preg_match("/{$emp}/i", $users->lastname))
+                {   
+                    $found=true;
+                    $tothrss=0;
+                    $foundempid=$users->empId;
+                    $foundname= $users->firstname." ".$users->lastname;
+                    $sql1s="SELECT * FROM emp_attendance WHERE empId = $users->empId AND salary_status != 'paid';";
+                    $stmt1s=$this->con()->prepare($sql1s);
+                    $stmt1s->execute();
+                    $countattendances=$stmt1s->rowCount();
+                    $users1s=$stmt1s->fetchall();
+                    foreach($users1s as $userss)
+                    {
+                        $timeins= date('H:i:s',strtotime($userss->timeIn));
+                        $timeouts= date('H:i:s',strtotime($userss->timeOut));
+                        $tothrss += abs(strtotime($timeins) - strtotime($timeouts)) / 3600 ;
+                    }
+                }
+            }   
+
+                
+                if($found){
+                    $tothrss=number_format($tothrss,2);
+                    $tothrss = sprintf('%02d:%02d', (int) $tothrss, fmod($tothrss   , 1) * 60);
+                echo "<tr>
+                <td>$foundempid</td>
+                <td>$foundname</td>
+                <td>$countattendances</td>
+                <td>$tothrss</td>
+                <td> <a href='createsalary.php?empid=$foundempid'>Generate</a></td>
+                </tr>";
+                }else if($found==false){
+                    echo "No Record Found!";
+                    $this->displayempattendance($fullname,$id);
+                }
+        }else{
+            $this->displayempattendance($fullname,$id);
+        }
     }
     public function generatepdf($id){
         if(isset($_POST['download'])){
@@ -2481,6 +2502,10 @@ Class Payroll
         $rows = $stmt->fetch();
 
         $dompdf = new Dompdf();
+        $path = '../img/icon.png';
+        $type = pathinfo($path, PATHINFO_EXTENSION);
+        $data = file_get_contents($path);
+        $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
         $payslip = "<!DOCTYPE html>
         <html>
         <head>
@@ -2534,10 +2559,11 @@ Class Payroll
         }
         </style>
         </head>
-        <body>
+        <body><img src='$base64' type='' class='viewautomatedsalary-logo' width='100' height='100'
+        style='float:right; margin-left:-200px; margin-right: 70px; margin-top: 20px'></img>
         <center><h2>JTDV SECURITY AGENCY</h2>
-        <p><u>400 Gem Bldg.,Gen T De Leon Ave.</br>Barangay Gen T. De Leon, Valenzuela City</u></p></center>
-        
+        <p><u>400 Gem Bldg.,Gen T De Leon Ave.<br/>Barangay Gen T. De Leon, Valenzuela City</u></p></center>
+
         <div class='row'>
           <div class='column'>
             Employee ID: $rows->empId <br/>
@@ -2551,7 +2577,7 @@ Class Payroll
                 <th>&nbsp;</th>
               </tr>
               <tr>
-                <td>Standard Pay</td>
+                <td>Basic Pay</td>
                 <td>".number_format($rows->total_hours)."</td>
                 <td>$rows->ratesperDay</td>
                 <td>".number_format($rows->standard_pay)."</td>
@@ -2657,11 +2683,10 @@ Class Payroll
         </html>
         ";
         $pdfname = $rows->firstname .' '. $rows->lastname;
-
         $dompdf->loadHtml($payslip);
-
+        $dompdf->set_option('isRemoteEnabled', TRUE);
         // (Optional) Setup the paper size and orientation
-        $customPaper = array(0,0,750,500);
+        $customPaper = array(0,0,800,500);
         $dompdf->set_paper($customPaper);
         
         $dompdf->render();
@@ -2732,10 +2757,11 @@ Class Payroll
         }
         </style>
         </head>
-        <body>
+        <body><img src='$base64' type='' class='viewautomatedsalary-logo' width='100' height='100'
+        style='float:right; margin-left:-200px; margin-right: 70px; margin-top: 20px'></img>
         <center><h2>JTDV SECURITY AGENCY</h2>
-        <p><u>400 Gem Bldg.,Gen T De Leon Ave.</br>Barangay Gen T. De Leon, Valenzuela City</u></p></center>
-        
+        <p><u>400 Gem Bldg.,Gen T De Leon Ave.<br/>Barangay Gen T. De Leon, Valenzuela City</u></p></center>
+
         <div class='row'>
           <div class='column'>
             Employee ID: $rows->empId <br/>
@@ -2749,7 +2775,7 @@ Class Payroll
                 <th>&nbsp;</th>
               </tr>
               <tr>
-                <td>Standard Pay</td>
+                <td>Basic Pay</td>
                 <td>".number_format($rows->total_hours)."</td>
                 <td>$rows->ratesperDay</td>
                 <td>".number_format($rows->standard_pay)."</td>
@@ -2909,7 +2935,6 @@ Class Payroll
             }
         }
     }
-
 
 
 

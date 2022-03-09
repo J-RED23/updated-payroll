@@ -79,7 +79,10 @@
                     <span class="material-icons">
                         search
                     </span>
-                    <input type="text" placeholder="Search">
+                    <form method="post">
+                    <input type="text" placeholder="Search" name="emp">
+                    <button type="submit" name="searchempatt">Search</button>
+                    </form>
                 </div>
             </div>
 
@@ -96,8 +99,14 @@
                     </thead>
           
                     <tbody>
-                        <?php 
-                            $payroll->displayempattendance($fullname,$id)
+                    <?php
+                        if(isset($_POST['searchempatt'])){
+                            $payroll->searchempatt($fullname,$id);
+                        }else if (isset($_POST['searchempatt']) && empty($_POST['emp'])){
+                            $payroll->displayempattendance($fullname,$id);
+                        }else{
+                            $payroll->displayempattendance($fullname,$id);
+                        }
                         ?>
                     </tbody>
                 </table>

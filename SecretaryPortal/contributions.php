@@ -75,8 +75,8 @@ $fullname = $sessionData['fullname'];
               <div class="employee_list__header">
                 <h1>List of Contributions</h1>
                   <form method="post">
-                        <button type="submit" name="empsearch">Search</button>
-                        <input type="search" name="employeesearch" placeholder="Search">
+                        <button type="submit" name="searchcon">Search</button>
+                        <input type="search" name="emp" placeholder="Search">
                   </form>
               </div>
 
@@ -94,7 +94,13 @@ $fullname = $sessionData['fullname'];
                         </thead>
 
                         <tbody>
-                            <?php $payroll->displaycontributions(); ?>
+                            <?php
+                            if(isset($_POST['searchcon'])){
+                            $payroll->searchcontribution();
+                            }else {
+                            $payroll->displaycontributions(); 
+                            }
+                            ?>
                         </tbody>
                   </table>
               </div>

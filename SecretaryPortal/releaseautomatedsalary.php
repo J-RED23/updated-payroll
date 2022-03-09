@@ -5,8 +5,7 @@ $payroll->verifyUserAccess($sessionData['access'], $sessionData['fullname'],2);
 $fullname = $sessionData['fullname'];
 $access = $sessionData['access'];
 $id = $sessionData['id'];
-$logid=$_GET['logid'];
-$payroll->releaseSalary($fullname,$id,$logid);
+$payroll->releaseSalary($fullname,$id);
 ?>
 <!DOCTYPE html>
 <html lang="en">

@@ -97,7 +97,7 @@ $fullname = $sessionData['fullname'];
                         </thead>
 
                         <tbody>
-                            <?php $payroll->displayreleasedsalary();?>
+                        <?php $payroll->displayreleasedsalary();?>
                         </tbody>
                   </table>
               </div>
