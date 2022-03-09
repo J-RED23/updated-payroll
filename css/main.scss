@@ -5,7 +5,7 @@
 
 /* width */
 ::-webkit-scrollbar {
-    width: 10px;
+    width: 5px;
 }
 
 /* Track */
@@ -2238,7 +2238,7 @@
     .payroll-detail_header {
         position: absolute;
         left: 286px;
-        top: 185px;
+        top: 100px;
         font-size: $header;
         font-weight: $bold;
     }
@@ -2246,7 +2246,7 @@
     .payroll-deductions_header {
         position: absolute;
         left: 672px;
-        top: 185px;
+        top: 100px;
         font-size: $header;
         font-weight: $bold;
     }
@@ -2551,7 +2551,7 @@
 
     .payroll-deductions {
         margin-top: 50px;
-        grid-row: 3 / 12;
+        grid-row: 2 / 12;
         grid-column: 7 / 12;
         border-radius: 8px;
         background-color: $front;
@@ -2584,6 +2584,16 @@
                     color: $black;
                 }
             }
+
+            button {
+                background: $btn-primary;
+                margin-top: 30px;
+                
+                a {
+                    color: white;
+                    font-weight: $medium;
+                }
+            }
         }
     }
 
@@ -2614,16 +2624,6 @@
             padding-left: 10px;
             font-size: 2rem;
         }
-
-        button {
-            background: $btn-primary;
-            margin-top: 15px;
-            
-            a {
-                color: white;
-                font-weight: $medium;
-            }
-        }
     }
 
     .auto-generated-payroll-attendance {
@@ -2639,12 +2639,12 @@
         &__header {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 20px;
             margin-left: 20px;
-            width: 95%;
+            width: 70%;
+            position: absolute;
+            top: 100px;
 
-            h1 {
-            
+            h1 {   
                 font-size: $header;
                 font-weight: $header;
             }
@@ -2652,12 +2652,13 @@
             .searchbar {
                 display: flex;
                 justify-content: space-between;
-                width: 20%;
+                width: 15%;
 
                 input[type="text"]{
                     height: 25px;
                     margin-right: 15px;
                     padding-left: 10px;
+                    outline: none;
                     background-color: transparent;
                     border-top-style: hidden;
                     border-left-style: hidden;
@@ -2723,13 +2724,16 @@
                 }
             }
         }
+    }
 
-        
+    .viewautomatedsalary-logo {
+        position: absolute;
+        right: 20px;
     }
 
     .auto-generated-salaries {
         margin-top: 20px;
-        grid-row: 10 / 16;
+        grid-row: 11 / 16;
         grid-column: 2 / 17;
         width: 105%;
         border-radius: 8px;
@@ -2742,7 +2746,9 @@
             justify-content: space-between;
             margin-bottom: 20px;
             margin-left: 20px;
-            width: 95%;
+            width: 70%;
+            position: absolute;
+            bottom: -130px;
 
             h1 {
             
@@ -2753,12 +2759,13 @@
             .searchbar {
                 display: flex;
                 justify-content: space-between;
-                width: 20%;
+                width: 15%;
 
                 input[type="text"]{
                     height: 25px;
                     margin-right: 15px;
                     padding-left: 10px;
+                    outline: none;
                     background-color: transparent;
                     border-top-style: hidden;
                     border-left-style: hidden;
@@ -2826,8 +2833,46 @@
         }
     }
 
+    .manual-generated-table-header {
+        grid-row: 12 / 19;
+        grid-column: 2 / 18;
+        display: flex;
+        justify-content: space-between;
+        width: 95%;
+        margin-top: 60px;
+
+        h1 {
+            font-size: $header;
+            
+        }
+
+        .searchbar {
+            display: flex;
+            justify-content: space-between;
+            width: 20%;
+
+            span {
+                margin-top: 4px;
+            }
+
+            input[type="text"]{
+                height: 25px;
+                margin-right: 15px;
+                padding-left: 10px;
+                outline: none;
+                font-weight: $semibold;
+                background-color: transparent;
+                border-top-style: hidden;
+                border-left-style: hidden;
+                border-right-style: hidden;
+                border-bottom-style: solid;
+            }
+        }
+        
+    }
+
     .manual-generated-table {
-        grid-row: 13 / 18;
+        grid-row: 13 / 19;
         grid-column: 2 / 18;
         width: 98%;
         border-radius: 8px;
@@ -2838,7 +2883,7 @@
         
         &__header {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             margin-bottom: 20px;
             margin-left: 20px;
             width: 96%;
@@ -2849,22 +2894,7 @@
                 font-weight: $header;
             }
 
-            .searchbar {
-                display: flex;
-                justify-content: space-between;
-                width: 20%;
-
-                input[type="text"]{
-                    height: 25px;
-                    margin-right: 15px;
-                    padding-left: 10px;
-                    background-color: transparent;
-                    border-top-style: hidden;
-                    border-left-style: hidden;
-                    border-right-style: hidden;
-                    border-bottom-style: solid;
-                }
-            }
+            
         }
 
         &__content {
@@ -2957,6 +2987,7 @@
                     height: 25px;
                     margin-right: 15px;
                     padding-left: 10px;
+                    outline: none;
                     background-color: transparent;
                     border-top-style: hidden;
                     border-left-style: hidden;
@@ -3169,7 +3200,7 @@
 
     .payroll-details {
         margin-top: 50px;
-        grid-row: 3 / 13;
+        grid-row: 2 / 12;
         grid-column: 2 / 7;
         border-radius: 8px;
         background-color: $front;

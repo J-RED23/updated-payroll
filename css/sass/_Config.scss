@@ -274,7 +274,6 @@ button {
     background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5));
     display: block; // display modal;
 
-
     &__saveprofile {
         min-height: 215px !important;
         max-height: 300px !important;
@@ -415,18 +414,6 @@ button {
             padding: 12px;
             position: relative;
             @include center-xy;
-
-            &::before {
-                font-family: "Material Icons";
-                font-weight: 500;
-                content: "\e5cd";
-                position: absolute;
-                top: 50%; right: 20px;
-                transform: translate(-0%, -50%);
-                font-size: 25px !important;
-                color: #393939 !important;
-                cursor: pointer;
-            }
             
             & > h1 {
                 font-weight: $medium;
@@ -435,7 +422,6 @@ button {
         }
 
         &__content {
-            margin-top: 30px;
             padding: 0px 70px 30px 70px;
             display: flex;
             flex-direction: column;
@@ -476,6 +462,18 @@ button {
                     text-align: center;
                     font-size: 2.5rem;
                     font-weight: $medium;
+                }
+
+                .cancel {
+                    width: 100%;
+                    position: relative;
+                    top: 85%;
+                    left: 49%;
+                    transform: translate(-50%, -50%);
+                    background-color: $back;
+                    color: $ic-danger;
+                    font-weight: $semibold;
+                    cursor: pointer;
                 }
 
                 & > label {
@@ -523,11 +521,16 @@ button {
                     }
                 }
 
-                & > input[type="text"] {
+                & > input[type="text"], input[type="number"], select {
                     font-size: $modal-input-subhead;
                     font-weight: $medium;
                     color: #464646;
-                    background: transparent;
+                    outline: none;
+                    background-color: transparent;
+                    border-top-style: hidden;
+                    border-left-style: hidden;
+                    border-right-style: hidden;
+                    border-bottom-style: solid;
 
                     &.disabled {
                         color: #B9B9B9;
