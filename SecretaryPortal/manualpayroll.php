@@ -56,6 +56,9 @@ $payroll->generateSalary($id,$fullname);
                                 <li><a href="../SecretaryPortal/contributions.php">Contributions</a></li>
                             </ul>
                          </li>
+                         <li class="li__report">
+                         <a href="../SecretaryPortal/activitylog.php">Activity log</a>
+                         </li>
                     </ul>
                 </nav>
                 <div class="sidebar__logout">
@@ -82,47 +85,51 @@ $payroll->generateSalary($id,$fullname);
                 <div class="payroll-details__form">
                     <form action="" method="post">
                         <div class="detail">
-                            <label for="">Employee ID :</label><br>
-                            <input type="number">
+                            <label for="empid">Employee ID :</label><br>
+                            <input type="number"name="empid" id="empid">
                             <p>Numeric characters only</p>
                         </div>
 
                         <div class="detail">
-                            <label for="">Location :</label><br>
-                            <input type="text">
+                            <label for="location">Location :</label><br>
+                            <input type="text"name="location" id="location">
                             <p>Must not be blank</p>
                         </div>
 
                         <div class="detail">
-                            <label for="">Regular Holiday :</label><br>
-                            <input type="number">
+                            <label for="regholiday">Regular Holiday :</label><br>
+                            <input type="number" name="regholiday" id="regholiday">
                             <p>Numeric characters only</p>
                         </div>
 
                         <div class="detail">
-                            <label for="">Special Holiday :</label><br>
-                            <input type="number">
+                            <label for="specialholiday">Special Holiday :</label><br>
+                            <input type="number" name="specialholiday" id="specialholiday">
                             <p>Numeric characters only</p>
                         </div>
 
                         <div class="detail">
-                            <label for="">3th Month Pay :</label><br>
-                            <input type="number">
+                            <label for="thirteenmonth">13th Month Pay :</label><br>
+                            <input type="number" name="thirteenmonth" id="thirteenmonth">
                             <p>Numeric characters only</p>
                         </div>
 
                         <div class="detail">
-                            <label for="">Rate Hour :</label><br>   
-                            <input type="number">
+                            <label for="rate">Rate Hour :</label><br>   
+                            <input type="number" name="rate" id="rate" step="any">
                             <p>Numeric characters only</p>
                         </div>
 
                         <div class="detail">
-                            <label for="">No. of Days work :</label><br>   
-                            <input type="number">
+                            <label for="noofdayswork">No. of Days work :</label><br>   
+                            <input type="number" name="noofdayswork" id="noofdayswork">
                             <p>Numeric characters only</p>
                         </div>
-                    </form>
+                        <div class="detail">
+                            <label for="hrsduty">Duty :</label><br>   
+                            <input type="number" name="hrsduty" id="hrsduty">
+                            <p>Numeric characters only</p>
+                        </div>
                 </div>
           </div>
 
@@ -133,45 +140,44 @@ $payroll->generateSalary($id,$fullname);
           <div class="payroll-deductions">
             <div class="payroll-deductions__form">
                 <div class="detail">
-                    <label for="">No. of late :</label><br>
-                    <input type="number">
+                    <label for="hrslate">No. of late :</label><br>
+                    <input type="number" name="hrslate" id="hrslate">
                     <p>Numeric characters only</p>
                 </div>
 
                 <div class="detail">
-                    <label for="">SSS :</label><br>
-                    <input type="number">
+                    <label for="sss">SSS :</label><br>
+                    <input type="number"name = "sss" id="sss">
                     <p>Numeric characters only</p>
                 </div>
 
                 <div class="detail">
-                    <label for="">Pag-ibig :</label><br>
-                    <input type="text" class="location">
+                    <label for="pagibig">Pag-ibig :</label><br>
+                    <input type="text" class="location" name="pagibig" id="pagibig">
                     <p>Numeric characters only</p>
                 </div>
 
                 <div class="detail">
-                    <label for="">PhilHealth :</label><br>
-                    <input type="number" class="location">
+                    <label for="philhealth">PhilHealth :</label><br>
+                    <input type="number" class="location" class="philhealth" id="philhealth">
                     <p>Numeric characters only</p>
                 </div>
 
                 <div class="detail">
-                    <label for="">Cash Bond :</label><br>
-                    <input type="number" class="location">
+                    <label for="cashbond">Cash Bond :</label><br>
+                    <input type="number" class="location" name="cashbond" id="cashbond">
                     <p>Numeric characters only</p>
                 </div>
 
                 <div class="detail">
-                    <label for="">Vale :</label><br>
-                    <input type="number" class="location">
+                    <label for="cvale">Vale :</label><br>
+                    <input type="number" class="location" name="cvale" vale="cvale">
                     <p>Numeric characters only</p>
                 </div>
-
-
                 <button type="submit" name="generate">
-                    <a href="#">Generate</a>
+                    Generate
                 </button> 
+                </form>
             </div>
           </div>
 

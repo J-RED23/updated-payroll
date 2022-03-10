@@ -1,24 +1,24 @@
 <?php
-require_once('../class.php');
-$sessionData = $payroll->getSessionSecretaryData();
-$payroll->verifyUserAccess($sessionData['access'], $sessionData['fullname'],2);
-$fullname = $sessionData['fullname'];
-
+    require_once('../class.php');
+    $sessionData = $payroll->getSessionSecretaryData();
+    $payroll->verifyUserAccess($sessionData['access'], $sessionData['fullname'],2);
+    $fullname = $sessionData['fullname'];
+    $access = $sessionData['access'];
+    $id = $sessionData['id'];
 ?>
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Attendance Monitoring</title>
+    <title>Automatic Payroll</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="../css/main.css">
 </head>
 <body>
-     <div class="main-container">
-          <div class="sidebar">
+    <div class="main-container">
+       <div class="sidebar">
                <div class="sidebar__logo">
                     <div class="logo"></div>
                     <h3>JDTV</h3>
@@ -26,8 +26,8 @@ $fullname = $sessionData['fullname'];
 
                <nav>
                     <ul>
-                        <li class="li__records active">
-                            <a href="#" class="active">Attendance</a>
+                        <li class="li__records">
+                            <a href="../SecretaryPortal/secdashboard.php">Attendance</a>
                          </li>
                         <li class="li__user">
                             <a href="../SecretaryPortal/employeelist.php">Employees</a>
@@ -38,11 +38,11 @@ $fullname = $sessionData['fullname'];
                             </ul>
                         </li>
     
-                        <li class="li__report">
-                            <a href="#">Payroll</a>
+                        <li class="li__report active">
+                            <a href="#" class="active">Payroll</a>
                             <ul>
                                 <li><a href="../SecretaryPortal/manualpayroll.php">Manual</a></li>
-                                <li><a href="../SecretaryPortal/automaticpayroll.php">Automatic</a></li>
+                                <li><a href="../SecretaryPortal/automaticpayroll.php" class="active">Automatic</a></li>
                             </ul>
                         </li>
 
@@ -62,13 +62,7 @@ $fullname = $sessionData['fullname'];
                 <div class="sidebar__logout">
                     <div class="li li__logout"><a href="../logout.php">LOGOUT</a></div>
                 </div>
-          </div>
-
-          <!--END OF SIDE NAV-->
-
-          <div class="page-info-head">
-               Attendance Monitoring
-          </div>
+            </div>
 
         <div class="user-info">
                 <a href="editsec.php">[ Edit Account ]</a>
@@ -77,47 +71,44 @@ $fullname = $sessionData['fullname'];
             </div>
         </div>
 
-          <div class="attendance_monitoring">
-            <form method="post">
-               <div class="attendance_monitoring__header">
-                   <button type="submit" name="bsearch">Search
-                   </button>
-                   <input type="search" placeholder="Search" name="search">
-                   </form>
-               </div>
+        <div class="page-info-head">
+            Secretary Log
+        </div>
 
-               <div class="card">
-                    <div class="card__content">
-                         <table>
-                              <thead>
-                                   <tr>
-                                        <th>Employee ID</th>
-                                        <th>Firstname</th>
-                                        <th>Lastname</th>
-                                        <th>Company</th>
-                                        <th>Time-In</th>
-                                        <th>Date</th>
-                                        <th>Time-Out</th>
-                                        <th>Date</th>
-                                        <th>Status</th>
-                                   </tr>
-                              </thead>
+        <div class="auto-generated-payroll-attendance">
+            <div class="auto-generated-payroll-attendance__header">
+                
+                <div class="searchbar">
+                    <span class="material-icons">
+                        search
+                    </span>
+                    <form method="post">
+                    <input type="text" placeholder="Search" name="emp">
+                    <button type="submit" name="searchempatt">Search</button>
+                    </form>
+                </div>
+            </div>
 
-                              <tbody>
-                                <?php 
-                                    if(isset($_POST['print'])){
-                                    } else if(isset($_POST['bsearch'])){
-                                        $payroll->search();
-                                    }
-                                        else {
-                                        $payroll->displayAttendance(); 
-                                    }
-                                ?>
-                              </tbody>
-                         </table>
-                    </div>
-               </div>
-          </div>
-     </div>
+            <div class="auto-generated-payroll-attendance__content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Action</th>
+                            <th>Time</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+          
+                    <tbody>
+                    <?php
+                    $payroll->activitylog();
+                    ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

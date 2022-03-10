@@ -3,7 +3,6 @@ require_once('../class.php');
 $sessionData = $payroll->getSessionSecretaryData();
 $payroll->verifyUserAccess($sessionData['access'], $sessionData['fullname'],2);
 $fullname = $sessionData['fullname'];
-
 ?>
 <html lang="en">
 <head>
@@ -52,6 +51,9 @@ $fullname = $sessionData['fullname'];
                                 <li><a href="../SecretaryPortal/salaryreport.php">Salary Report</a></li>
                                 <li><a href="../SecretaryPortal/contributions.php" class="active">Contributions</a></li>
                             </ul>
+                         </li>
+                         <li class="li__report">
+                         <a href="../SecretaryPortal/activitylog.php">Activity log</a>
                          </li>
                     </ul>
                 </nav>

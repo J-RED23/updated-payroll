@@ -102,6 +102,9 @@ table tr:nth-child(even){ background-color: #f2f2f2 }
                             <li><a href="contributions.php">Contributions</a></li>
                         </ul>
                     </li>
+                    <li class="li__report">
+                         <a href="../SecretaryPortal/activitylog.php">Activity log</a>
+                    </li>
                 </ul>
             </nav>
             <div class="sidebar__logout">

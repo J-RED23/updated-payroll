@@ -54,6 +54,9 @@
                                 <li><a href="../SecretaryPortal/contributions.php">Contributions</a></li>
                             </ul>
                          </li>
+                         <li class="li__report">
+                         <a href="../SecretaryPortal/activitylog.php">Activity log</a>
+                         </li>
                     </ul>
                 </nav>
                 <div class="sidebar__logout">
@@ -74,14 +77,15 @@
 
         <div class="auto-generated-payroll-attendance">
             <div class="auto-generated-payroll-attendance__header">
-                <h1>Employee's Generated Salary</h1>
+                <h1>Generate Salary</h1>
+                <form method="post">
                 <div class="searchbar">
                     <span class="material-icons">
-                        search
-                    </span>
-                    <form method="post">
-                    <input type="text" placeholder="Search" name="emp">
                     <button type="submit" name="searchempatt">Search</button>
+                    </span>
+                    
+                    <input type="text" placeholder="Search" name="emp">
+                    
                     </form>
                 </div>
             </div>
@@ -115,15 +119,11 @@
 
         <div class="auto-generated-salaries">
             <div class="auto-generated-salaries__header">
-                <h1>Generated Salaries</h1>
-                <div class="searchbar">
-                  <span class="material-icons">
-                      search
-                      </span>
-                  <input type="text" placeholder="Search">
+                <div class="searchbar">             
+                                 
                 </div>
             </div>
-            
+            <h1>Generated Salaries</h1>
             <div class="auto-generated-salaries__content">
                   <table>
                       <thead>
@@ -139,7 +139,7 @@
           
                       <tbody>
                           <!--insert php data for table here inside of php tag-->
-                          <?php 
+                          <?php
                             $payroll->displayAutomaticGeneratedSalary();
                           ?>
                       </tbody>

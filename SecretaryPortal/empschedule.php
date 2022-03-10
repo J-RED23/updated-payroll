@@ -54,6 +54,9 @@ $fullname = $sessionData['fullname'];
                                 <li><a href="../SecretaryPortal/contributions.php">Contributions</a></li>
                             </ul>
                          </li>
+                         <li class="li__report">
+                         <a href="../SecretaryPortal/activitylog.php">Activity log</a>
+                         </li>
                     </ul>
                 </nav>
                 <div class="sidebar__logout">
@@ -90,12 +93,12 @@ $fullname = $sessionData['fullname'];
                                 <th>Firstname</th>
                                 <th>Lastname</th>
                                 <th>Company</th>
-                                <th>Time-in</th>
-                                <th>Time-out</th>
+                                <th>Schedule Time-in</th>
+                                <th>Schedule Time-out</th>
                                 <th>End Date</th>
                             </tr>
                         </thead>
-
+                        <?php $payroll->displayschedule();?>
                         <tbody>
                             
                         </tbody>
