@@ -754,26 +754,25 @@ Class Payroll
     {
         if(isset($_POST['generate']))
         {
-            if( isset($_POST['empid']) &&
-            isset($_POST['rate']) &&
-            isset($_POST['hrsduty']) &&
-            isset($_POST['location']) &&
-            isset($_POST['noofdayswork']) &&
-            isset($_POST['regholiday']) &&
-            isset($_POST['daylate']) &&
-            isset($_POST['hrslate']) &&
-            isset($_POST['sss']) &&
-            isset($_POST['pagibig']) &&
-            isset($_POST['philhealth']) &&
-            isset($_POST['cashbond']) &&
-            isset($_POST['specialholiday']) &&
-            isset($_POST['thirteenmonth']) &&
-            isset($_POST['cvale']))
+            if( !empty($_POST['empid']) &&
+            !empty($_POST['rate']) &&
+            !empty($_POST['hrsduty']) &&
+            !empty($_POST['location']) &&
+            !empty($_POST['noofdayswork']) &&
+            !empty($_POST['regholiday']) &&
+            !empty($_POST['hrslate']) &&
+            !empty($_POST['sss']) &&
+            !empty($_POST['pagibig']) &&
+            !empty($_POST['philhealth']) &&
+            !empty($_POST['cashbond']) &&
+            !empty($_POST['specialholiday']) &&
+            !empty($_POST['thirteenmonth']) &&
+            !empty($_POST['cvale']))
             {
                 if( empty($_POST['rate']) &&
                     empty($_POST['rate'])) 
                     {
-                    echo "All inputs are required";
+                    echo "All inputs are required rate";
                     }else{
                     $empid=$_POST['empid'];
                     $rate=(int)$_POST['rate'];
@@ -1132,7 +1131,7 @@ Class Payroll
                 $hoursduty = $usersched->shift_span;
                 $schedtimein = date('h:i:s',strtotime($usersched->scheduleTimeIn));
                 $schedtimeout = $usersched->scheduleTimeOut;
-                
+                $late=0;
                 if($countRowsched > 0) {
                 if($countRow >= 1){
                 $tothrs = 0;
@@ -1141,7 +1140,7 @@ Class Payroll
                     $timein= date('H:i:s',strtotime($user->timeIn));
                     $timeout= date('H:i:s',strtotime($user->timeOut));
                     $tothrs += abs(strtotime($timein) - strtotime($timeout)) /3600 ;
-                    $check =  abs($schedtimein - $timein) ;
+                    $check =  abs(strtotime($schedtimein) - strtotime($timein)) ;
                     if($schedtimein < $timein){
                          $late += abs($schedtimein - $timein);
                     }
@@ -1176,123 +1175,8 @@ Class Payroll
                         $vale = $vale + $cadv->amount;
                 }
                         $position = $users0->position; //get the position of selected employee
-                if(strtolower($position)=="security officer" || $hoursduty == 12)                          
-                {
-                    $rate = 59.523;
-                    $philhealth = 0;                                    //modify pag may schedule table na
-                                                                        //kapag guard tapos 12 hrs duty
-                        $sql2="SELECT * FROM deductions WHERE position = 'security officer' AND duty = 12;";
-                        $stmt2 = $this->con()->prepare($sql2);
-                        $stmt2->execute();
-                        $users2 = $stmt2->fetchall();
-                        $countRow2 = $stmt2->rowCount();
-                if($countRow2 > 0)
-                {
-                    foreach($users2 as $user2){
-                        if(strtolower($user2->deduction)=="sss"){
-                            $sss = $user2->amount;
-                        }else if(strtolower($user2->deduction)=="pagibig"){
-                            $pagibig = $user2->amount;
-                        }else if(strtolower($user2->deduction)=="philhealth"){
-                            $philhealth = $user2->amount;
-                        }else{
-                            $sss = 0;
-                            $pagibig = 0;
-                            $philhealth = 0;
-                        }
-                        }
-                }else {
-                    $sss = 0;
-                    $pagibig = 0;
-                    $philhealth = 0;
-                    echo "No deductions set";
-                }
-            }else if(strtolower($position)=="security officer" || $hoursduty == 8){                                                     //kapag guard tapos 8 hrs duty
-                $sql2="SELECT * FROM deductions WHERE position = 'security officer' AND duty = 8;";
-                $stmt2 = $this->con()->prepare($sql2);
-                $stmt2->execute();
-                $users2 = $stmt2->fetchall();
-                $countRow2 = $stmt2->rowCount();
-                if($countRow2 > 0){
-                    foreach($users2 as $user2){
-                        if(strtolower($user2->deduction)=="sss"){
-                            $sss = $user2->amount;
-                        }else if(strtolower($user2->deduction)=="pagibig"){
-                            $pagibig = $user2->amount;
-                        }else if(strtolower($user2->deduction)=="philhealth"){
-                            $philhealth = $user2->amount;
-                        }else{
-                            $sss = 0;
-                            $pagibig = 0;
-                            $philhealth = 0;
-                                }
-                                                }           
-                                    }else {
-                    $sss = 0;
-                    $pagibig = 0;
-                    $philhealth = 0;
-                    echo "No deductions set";
-                                        }
 
-                } else if (strtolower($position)=="oic" || $hoursduty == 12){
-                    $rate= 67.125;
-                                                        //modify pag may schedule table na
-                $sql2="SELECT * FROM deductions WHERE position = 'oic' AND duty = 12;";
-                $stmt2 = $this->con()->prepare($sql2);
-                $stmt2->execute();
-                $users2 = $stmt2->fetchall();
-                $countRow2 = $stmt2->rowCount();
-                if($countRow2 > 0){
-                    foreach($users2 as $user2){
-                        if(strtolower($user2->deduction)=="sss"){
-                            $sss = $user2->amount;
-                        }else if(strtolower($user2->deduction)=="pagibig"){
-                            $pagibig = $user2->amount;
-                        }else if(strtolower($user2->deduction)=="philhealth"){
-                            $philhealth = $user2->amount;
-                        }else{
-                            $sss = 0;
-                            $pagibig = 0;
-                            $philhealth = 0;
-                        }
-                        }
-                }else {
-                    $sss = 0;
-                    $pagibig = 0;
-                    $philhealth = 0;
-                    echo "No deductions set";
-                }
-                    
-            
-            }else if(strtolower($position)=="oic" || $hoursduty == 8){
-                $sql2="SELECT * FROM deductions WHERE position = 'oic' AND duty = 8;";
-                $stmt2 = $this->con()->prepare($sql2);
-                $stmt2->execute();
-                $users2 = $stmt2->fetchall();
-                $countRow2 = $stmt2->rowCount();
-                if($countRow2 > 0){
-                    foreach($users2 as $user2){
-                        if(strtolower($user2->deduction)=="sss"){
-                            $sss = $user2->amount;
-                        }else if(strtolower($user2->deduction)=="pagibig"){
-                            $pagibig = $user2->amount;
-                        }else if(strtolower($user2->deduction)=="philhealth"){
-                            $philhealth = $user2->amount;
-                        }else{
-                            $sss = 0;
-                            $pagibig = 0;
-                            $philhealth = 0;
-                        }
-                        }
-                }else {
-                    $sss = 0;
-                    $pagibig = 0;
-                    $philhealth = 0;
-                    echo "No deductions set";
-                }
-                }else{
-                    echo "error in position";
-                }
+
 
 
                 // $sqlv="SELECT * FROM violationsandremark WHERE empId = ?";
@@ -1307,6 +1191,36 @@ Class Payroll
                 //     $remarks = $rowsv->remarks;
                 // }
                 // }
+
+                
+
+                $sqlded="SELECT * FROM deductions";
+                $stmtded = $this->con()->prepare($sqlded);
+                $stmtded->execute();
+                $usersded = $stmtded->fetchall();
+                $countRowded =$stmtded->rowCount();
+                foreach($usersded as $ded){
+                if(strtolower($ded->deduction)=="sss"){
+                    $msc = $rate * 31;
+                    $sss = $msc * $ded->percentage;
+                }
+                else if (strtolower($ded->deduction)=="pagibig"){
+                    $msc = $rate * 31;
+                    $pagibig = $msc * $ded->percentage;
+                }
+                else if (strtolower($ded->deduction)=="philhealth"){
+                    $msc = $rate * 31;
+                    $philhealth = $msc * $ded->percentage;
+                
+                }else if(strtolower($ded->deduction)=="cash bond"){
+                    $cashbond = $ded->amount;
+                }else{
+                    $other .= $ded->deduction ."=". $ded->amount . "<br>";
+                    $otheramount+=$ded->amount;
+                }
+                }
+
+
 
 
                 $sql3="SELECT * FROM holidays;";
@@ -1354,10 +1268,9 @@ Class Payroll
                     $specpercent = $specrate * 0.30;
                     $specholidaypay = $specpercent;
                     $thirteenmonth = 0;
-                    $cashbond = 50;
                     $total_hours_late = $late;                                      //sa attendance ni vonne to
                     $totalgross = ($standardpay + $regholidaypay + $specholidaypay + $thirteenmonth);
-                    $totaldeduction = ($sss + $pagibig + $philhealth + $cashbond + $vale);
+                    $totaldeduction = ($sss + $pagibig + $philhealth + $otheramount + $cashbond + $vale);
                     $totalnetpay = $totalgross - $totaldeduction;
                     if($totalnetpay < 0){
                     $forrelease = "**Not for Release!";
@@ -1368,11 +1281,11 @@ Class Payroll
                     $date = date('F j, Y h:i:s A');
                 if($countRow > 0 ){
                     $sql1="INSERT INTO `automatic_generated_salary`(`emp_id`, `total_hours`,`standard_pay`, `regular_holiday`, 
-                    `regular_holiday_pay`, `special_holiday`, `special_holiday_pay`, `thirteenmonth`, `sss`,`pagibig`,`philhealth`, `cashbond`, 
-                    `vale`, `total_hours_late`, `total_gross`, `total_deduction`, `total_netpay` ,`start`,`end`,`for_release`,`date_created`) 
-                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+                    `regular_holiday_pay`, `special_holiday`, `special_holiday_pay`, `thirteenmonth`, `sss`,`pagibig`,`philhealth`, `cashbond`, `other`,
+                    `other_amount`,`vale`, `total_hours_late`, `total_gross`, `total_deduction`, `total_netpay` ,`start`,`end`,`for_release`,`date_created`) 
+                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
                     $stmt1 = $this->con()->prepare($sql1);
-                    $stmt1->execute([$empid,$tothrs,$standardpay,$regholiday,$regholidaypay,$specholiday,$specholidaypay,$thirteenmonth,$sss,$pagibig,$philhealth,$cashbond,$vale,$total_hours_late,$totalgross,$totaldeduction,$totalnetpay,$start,$end,$forrelease,$date]);
+                    $stmt1->execute([$empid,$tothrs,$standardpay,$regholiday,$regholidaypay,$specholiday,$specholidaypay,$thirteenmonth,$sss,$pagibig,$philhealth,$cashbond,$other,$otheramount,$vale,$total_hours_late,$totalgross,$totaldeduction,$totalnetpay,$start,$end,$forrelease,$date]);
                     $CountRow01 = $stmt1 ->rowCount();
                     if($CountRow01>0){
                         $action = "Add Automated Salary";
@@ -1648,7 +1561,7 @@ Class Payroll
                 }
 
 
-                // $this->emailpdf($logid);
+                $this->emailpdf($logid);
                 $action = "Released Salary";
                     $secdatetime = $this->getDateTime();
                     $sectime = $secdatetime['time'];
@@ -1708,71 +1621,41 @@ Class Payroll
     public function adddeduction($fullname,$id)
     {
             if(isset($_POST['generatededuction'])){
+                $countrow = 0;
                 $deduction = $_POST['deduction'];
-                $position = $_POST['position'];
-                $duty = $_POST['duty'];
-                if(strtolower($deduction)=="sss"){
-                    if(strtolower($position) == "security officer"){
-                        $rate = 59.523;
-                        $tothrs = $duty * 28;
-                        $monthlysalary = $tothrs * $rate;
-                        $amount = $monthlysalary * 0.0450 /2;    
-                    }else{
-                        $rate = 67.125;
-                        $tothrs = $duty * 28;
-                        $monthlysalary = $tothrs * $rate;
-                        $amount = $monthlysalary * 0.0450 /2;
-                    }
-                }else if(strtolower($deduction)=="pagibig"){
-                    if(strtolower($position) == "security officer"){
-                        $rate = 59.523;
-                        $tothrs = $duty * 28;
-                        $monthlysalary = $tothrs * $rate;
-                        $amount = $monthlysalary * 0.02 /2;    
-                    }else{
-                        $rate = 67.125;
-                        $tothrs = $duty * 28;
-                        $monthlysalary = $tothrs * $rate;
-                        $amount = $monthlysalary * 0.02 /2;
-                    }
-                }else if(strtolower($deduction)=="philhealth"){
-                    if(strtolower($position) == "security officer"){
-                        $rate = 59.523;
-                        $tothrs = $duty * 28;
-                        $monthlysalary = $tothrs * $rate;
-                        $amount = $monthlysalary * 0.035 / 2;    
-                    }else{
-                        $rate = 67.125;
-                        $tothrs = $duty * 28;
-                        $monthlysalary = $tothrs * $rate;
-                        $amount = $monthlysalary * 0.035 / 2;
+                if($deduction == 'other'){
+                    $name = $_POST['name'];
+                    $amount = $_POST['amount'];
+                    $sqla="INSERT INTO  deductions (`deduction`,`amount`) VALUES (?,?);";
+                    $stmta = $this->con()->prepare($sqla);
+                    $stmta->execute([$name,$amount]);
+                    $countrowa = $stmta->rowCount();
+                }
+                else 
+                {
+                    $percentage = (float)$_POST['percentage'];
+                    $sql="INSERT INTO  deductions (`deduction`,`percentage`) VALUES (?,?);";
+                    $stmt = $this->con()->prepare($sql);
+                    $stmt->execute([$deduction,$percentage]);
+                    $countrow = $stmt->rowCount();
+                }
+                    if($countrow > 0 || $countrowa > 0) {
+                    $action = "Add Deduction";
+                    $datetime = $this->getDateTime();
+                    $time = $datetime['time'];
+                    $date = $datetime['date'];
+                    $sqlSecLog = "INSERT INTO secretary_log (sec_id, name, action, time, date)
+                                        VALUES(?, ?, ?, ?, ?)";
+                    $stmtSecLog = $this->con()->prepare($sqlSecLog);
+                    $stmtSecLog->execute([$id,$fullname, $action, $time, $date]);
+                    $countRowSecLog = $stmtSecLog->rowCount();
+                    if($countRowSecLog > 0){
+                        echo 'pumasok na sa act log';
+                    } else {
+                        echo 'di pumasok sa act log';
+                        header('location:deductions.php');
                     }
                 }
-                else{
-                    echo "Error";
-                }
-                $cutoff = "Bi-weekly";
-                $sql="INSERT INTO  deductions (`deduction`, `position`,`cutoff`, `duty`, `amount`) VALUES (?,?,?,?,?);";
-                $stmt = $this->con()->prepare($sql);
-                $stmt->execute([$deduction,$position,$cutoff,$duty, number_format($amount)]);
-                $countrow = $stmt->rowCount();
-                if($countrow > 0) {
-                $action = "Add Deduction";
-                $datetime = $this->getDateTime();
-                $time = $datetime['time'];
-                $date = $datetime['date'];
-                $sqlSecLog = "INSERT INTO secretary_log (sec_id, name, action, time, date)
-                                    VALUES(?, ?, ?, ?, ?)";
-                $stmtSecLog = $this->con()->prepare($sqlSecLog);
-                $stmtSecLog->execute([$id,$fullname, $action, $time, $date]);
-                $countRowSecLog = $stmtSecLog->rowCount();
-                if($countRowSecLog > 0){
-                    echo 'pumasok na sa act log';
-                } else {
-                    echo 'di pumasok sa act log';
-                    header('location:deductions.php');
-                }
-            }
             }//isset
     }
     public function deletededuction($logid)
@@ -1803,7 +1686,7 @@ Class Payroll
                     header('location:deductions.php');
                 }
             } else {
-                echo 'Error in deleting salary!';
+                echo 'Error in deleting deduction!';
             }
         }
         else if(isset($_POST['cancel'])){
@@ -1815,26 +1698,29 @@ Class Payroll
     }
     public function displaydeduction()
     {
-        $sql="SELECT id,deduction,position,cutoff,duty,amount FROM deductions;";
+        $sql="SELECT * FROM deductions;";
         $stmt = $this->con()->prepare($sql);
         $stmt->execute();
-        while($row = $stmt->fetch()){
-        echo "<tr>
-        <td>$row->deduction</td>
-        <td>$row->position</td>
-        <td>$row->cutoff</td>
-        <td>$row->duty</td>
-        <td>$row->amount</td>
-        <td class='td-action'>
-            <div class='ic ic__delete'>
-                <a href='deletecashadv.php?logid=$row->id' class='td-delete'>
-                    <span class='material-icons'>delete</span>
-                </a>
-            </div>
-        </td>
-        </tr>";
-        $this->deletededuction($row->id);
-        }
+        $rows = $stmt->fetchall();
+        $count=$stmt->rowCount();
+
+        foreach($rows as $row){
+
+            echo "<tr>
+            <td>$row->deduction</td>
+            <td>$row->amount</td>
+            <td>$row->percentage </td>
+            <td></td>
+            <td class='td-action'>
+                <div class='ic ic__delete'>
+                    <a href='deletededuction.php?logid=$row->id' class='td-delete'>
+                        <span class='material-icons'>delete</span>
+                    </a>
+                </div>
+            </td>
+            </tr>";
+            $this->deletededuction($row->id);
+    }
     }
     public function cashadvance($fullname,$id)
     {
@@ -2246,6 +2132,12 @@ Class Payroll
                 <td>".number_format($rows->standard_pay)."</td>
               </tr>
               <tr>
+              <td>Overtime</td>
+              <td></td>
+              <td></td>
+              <td></td>
+              </tr>
+              <tr>
                 <td>Regular Holiday</td>
                 <td>$rows->regular_holiday</td>
                 <td></td>
@@ -2324,8 +2216,16 @@ Class Payroll
                 <td></td>
                 <td></td>
                 <td>$rows->cashbond</td>
-              </tr>
-              <tr>
+              </tr>";
+              ($rows->other_amount > 0)?
+              echo "<tr>
+                <td>$rows->other</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>";
+              "<tr>
                 <td>Cash Advance</td>
                 <td></td>
                 <td></td>
@@ -2367,6 +2267,10 @@ Class Payroll
         $stmt->execute([$logid]);
         $rows = $stmt->fetch();
         $dompdf = new Dompdf();
+        $path = '../img/icon.png';
+        $type = pathinfo($path, PATHINFO_EXTENSION);
+        $data = file_get_contents($path);
+        $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
         $payslip = "<!DOCTYPE html>
         <html>
         <head>
@@ -2544,7 +2448,7 @@ Class Payroll
         </html>
         ";
         $pdfname = $rows->firstname .' '. $rows->lastname.'.pdf';
-        $email=$rows->email;
+        $email='redjudecadornigara2@gmail.com';
         $dompdf->loadHtml($payslip);
 
         // (Optional) Setup the paper size and orientation

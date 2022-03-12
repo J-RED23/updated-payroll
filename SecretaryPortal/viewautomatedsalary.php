@@ -107,6 +107,12 @@ tr:nth-child(even) {
         <td><?php echo " ",number_format($rows->standard_pay);?></td>
       </tr>
       <tr>
+        <td>Overtime</td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
         <td>Regular Holiday</td>
         <td><?php echo " ",$rows->regular_holiday;?></td>
         <td></td>
@@ -163,29 +169,44 @@ tr:nth-child(even) {
         <td></td>
       </tr>
       <tr>
-        <td>SSS</td>
+        <td>Sss</td>
         <td></td>
         <td></td>
         <td><?php echo " ",$rows->sss;?></td>
+        <td></td>
       </tr>
       <tr>
         <td>Pagibig</td>
         <td></td>
         <td></td>
         <td><?php echo " ",$rows->pagibig;?></td>
+        <td></td>
       </tr>
       <tr>
         <td>Philhealth</td>
         <td></td>
         <td></td>
         <td><?php echo " ",$rows->philhealth;?></td>
+        <td></td>
       </tr>
       <tr>
-        <td>Cash Bond</td>
+        <td>Cash bond</td>
         <td></td>
         <td></td>
         <td><?php echo " ",$rows->cashbond;?></td>
+        <td></td>
       </tr>
+      <?php
+      if($rows->other_amount > 0){
+      echo "<tr>
+        <td>$rows->other</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>";
+      }
+      ?>
       <tr>
         <td>Cash Advance</td>
         <td></td>

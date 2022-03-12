@@ -84,30 +84,43 @@ $id = $sessionData['id'];
                     <form action="" method="post">
                          <div class="detail">
                               <label for="deduction">Deductions :</label> <br>
-                              <select name="deduction" id="deduction">
+                              <select name="deduction" id="deduction" onchange="myFunction()">
                                    <option value="">Select Deduction</option>
                                    <option value="SSS">SSS</option>
                                    <option value="Pagibig">Pag-ibig</option>
                                    <option value="Philhealth">Philhealth</option>
+                                   <option value="other">Other</option>
+                                   <script>
+                                   function myFunction() 
+                                   {    
+                                        var x = document.getElementById("deduction").value;
+                                        if (x == "other"){
+                                        document.getElementById("percentage").style.display = "none";
+                                        document.getElementById("percentagelabel").style.display = "none";
+                                        document.getElementById("other").style.display = "block";
+                                        }else{
+                                        document.getElementById("percentage").style.display = "block";
+                                        document.getElementById("percentagelabel").style.display = "block";
+                                        document.getElementById("other").style.display = "none";
+                                        }
+                                   }
+                                   </script>
                               </select>
                          </div>
 
                          <div class="detail">
-                              <label for="position">Position :</label> <br>
-                              <select name="position" id="position">
-                                   <option value="">Select Position</option>
-                                   <option value="Security Officer">Security Officer</option>
-                                   <option value="OIC">OIC</option>
-                              </select>
+                              <label for="percentage" style="display:block" id="percentagelabel">Percentage :</label> <br>
+                              <input type="number" step="0.001" id="percentage" name="percentage" style="display:block">
                          </div>
 
-                         <div class="detail">
-                              <label for="duty">Duty :</label> <br>
-                              <select name="duty" id="duty">
-                                   <option value="">Select Duty Duration</option>
-                                   <option value="8">8 Hours</option>
-                                   <option value="12">12 Hours</option>
-                              </select>
+                         <div id="other" style="display:none">
+                              
+                              <div class="detail">
+                              <label for="deductionname" id="deductionname"> Name :</label> <br>
+                              <input type="text" id="dedname" name="name" ><br>
+                              <label for="amount"> Amount :</label> <br>
+                              <input type="number" name="amount" placeholder="Php">
+                              </div>
                          </div>
 
                          <button type="submit" name="generatededuction">
@@ -148,19 +161,24 @@ $id = $sessionData['id'];
                 <h1>Deductions</h1>
                 </div>
                <table>
+               <col>
+               <colgroup span="2"></colgroup>
+               <colgroup span="2"></colgroup>
                     <thead>
                         <tr>
-                            <th>Deductions</th>
-                            <th>Position</th>
-                            <th>Cut-off</th>
-                            <th>Duty</th>
-                            <th>Amount</th>
+                            <th>Deduction Name</th>
+                            <th colspan="2" scope="colgroup">Deduction</th>
                             <th>Action</th>
                         </tr>
+                        <tr>
+                              <th></th>
+                              <th scope="col">Total</th>
+                              <th scope="col">Percent</th>
+                              <th></th>
+                         </tr>
                     </thead>
                     <tbody>
                     <tr>
-                        <!--php here displaydeduction();--> 
                         <?php $payroll->displaydeduction();?>
                     </tr>
                     </tbody>
@@ -179,6 +197,7 @@ $id = $sessionData['id'];
                          <th>Amount</th>
                          <th>Action</th>
                     </tr>
+
                     </thead>
 
                     <tbody>

@@ -80,11 +80,11 @@ $payroll->generateSalary($id,$fullname);
           <div class="payroll-detail_header">
               Details
           </div>
-
+      
           <div class="payroll-details">
                 <div class="payroll-details__form">
-                    <form action="" method="post">
                         <div class="detail">
+                        <form action="" method="post">
                             <label for="empid">Employee ID :</label><br>
                             <input type="number"name="empid" id="empid">
                             <p>Numeric characters only</p>
