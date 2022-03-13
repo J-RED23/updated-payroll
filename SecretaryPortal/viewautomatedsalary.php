@@ -221,7 +221,7 @@ tr:nth-child(even) {
       </tr>
       
     </table>
-    <h3>Salary From: <?php echo " ",$rows->start, " - ",$rows->end," / ",$rows->for_release;?></h3>
+    <h3>Salary From: <?php echo " ",$rows->start, " - ",$rows->end?></h3>
   </div>
 </div>
 </body>

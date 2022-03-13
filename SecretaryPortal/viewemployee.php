@@ -3,66 +3,23 @@ require_once('../class.php');
 $sessionData = $payroll->getSessionSecretaryData();
 $payroll->verifyUserAccess($sessionData['access'], $sessionData['fullname'],2);
 $fullname = $sessionData['fullname'];
-
+$empid=$_GET['empId'];
+$sql="SELECT * FROM employee INNER JOIN schedule ON employee.empId = schedule.empId WHERE employee.empId = ?";
+$stmt = $payroll->con()->prepare($sql);
+$stmt->execute([$empid]);
+$users = $stmt->fetch();
+$countRow = $stmt->rowCount();
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-<style>
-     * {
-    box-sizing: border-box;
-        }
-table { border: 3px solid gray; border-collapse:collapse; }
-table td { border-left: 1px solid #000; }
-table td { border-bottom: 1px solid #000; }
-table td:first-child { border-left: none; }
-table th { border-bottom: 2px solid #000; }
-table tr:nth-child(even){ background-color: #f2f2f2 }
-.sidebar{
-    float: left;
-    width: 20%;
-    height: 100%;
-}
-.emppicture{
-    position:absolute;
-    border: 2px solid black;
-    right: 500px;
-    top: 120px;
-
-    width: 10%;
-    height: 20%;
-    padding: 10px 60px;
-    margin-top: 7px;
-}
-.attendance_monitoring{
-    position: absolute;
-    right: 100px;
-    top:0px;
-    width: auto;
-    border: 1px solid BLACK;
-    padding: 100px;
-}
-@media only screen and (max-width:800px) {
-    /* For tablets: */
-    .main {
-        width: 80%;
-        padding: 0;
-    }
-    .right {
-        width: 100%;
-    }
-    }
-    @media only screen and (max-width:500px) {
-    /* For mobile phones: */
-    .menu, .main, .right {
-        width: 100%;
-    }
-    }
-</style>
+    <title>Employee Schedules</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../css/main.css">
 </head>
 <body>
 
@@ -70,78 +27,75 @@ table tr:nth-child(even){ background-color: #f2f2f2 }
 <div class="main-container">
         <!--SIDENAV START-->
         <div class="sidebar">
-            <div class="sidebar__logo">
-                <div class="logo"></div>
-                <h3>JDTV</h3>
-            </div>
-            <nav>
-                <ul>
-                    <li class="li__records active">
-                        <a href="secdashboard.php" class="active">ATTENDANCE</a>
-                    </li>
-                    <li>
-                        <a href="employeelist.php" class ="active">EMPLOYEES</a>
-                        <ul>
-                            <li><a href="employeelist.php">List of Employees</a></li>
-                            <li><a href="empschedule.php">Schedules</a></li>
-                            <li><a href="deductions.php">Deductions</a></li>
-                            <li><a href="violations.php">Violations</a></li>
-                        </ul>
-                    </li>
+               <div class="sidebar__logo">
+                    <div class="logo"></div>
+                    <h3>JDTV</h3>
+               </div>
 
-                    <li class="li__report" class ="active">
-                        <a href="">Payroll</a>
-                        <ul>
-                            <li><a href="manualpayroll.php">Manual</a></li>
-                            <li><a href="automaticpayroll.php">Automatic</a></li>
-                        </ul>
-                        <a href="">Salary</a>
-                        <ul>
-                            <li><a href="releasedsalary.php">Released Salary</a></li>
-                            <li><a href="salaryreport.php">Salary Report</a></li>
-                            <li><a href="contributions.php">Contributions</a></li>
-                        </ul>
-                    </li>
-                    <li class="li__report">
+               <nav>
+                    <ul>
+                        <li class="li__records">
+                            <a href="../SecretaryPortal/secdashboard.php">Attendance</a>
+                         </li>
+                        <li class="li__user active">
+                            <a href="../SecretaryPortal/employeelist.php" class="active">Employees</a>
+                            <ul>
+                                <li><a href="../SecretaryPortal/empschedule.php">Schedule</a></li>
+                                <li><a href="../SecretaryPortal/deductions.php">Deductions</a></li>
+                                <li><a href="../SecretaryPortal/violations.php" >Violations</a></li>
+                            </ul>
+                        </li>
+    
+                        <li class="li__report">
+                            <a href="#">Payroll</a>
+                            <ul>
+                                <li><a href="../SecretaryPortal/manualpayroll.php">Manual</a></li>
+                                <li><a href="../SecretaryPortal/automaticpayroll.php">Automatic</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="li__report">
+                            <a href="#">Salary</a>
+                            <ul>
+                                <li><a href="../SecretaryPortal/releasedsalary.php">Released Salary</a></li>
+                                <li><a href="../SecretaryPortal/salaryreport.php">Salary Report</a></li>
+                                <li><a href="../SecretaryPortal/contributions.php">Contributions</a></li>
+                            </ul>
+                         </li>
+                         <li class="li__report">
                          <a href="../SecretaryPortal/activitylog.php">Activity log</a>
-                    </li>
-                </ul>
-            </nav>
-            <div class="sidebar__logout">
-                <div class="li li__logout"><a href="../logout.php">LOGOUT</a></div>
+                         </li>
+                    </ul>
+                </nav>
+                <div class="sidebar__logout">
+                    <div class="li li__logout"><a href="../logout.php">LOGOUT</a></div>
+                </div>
             </div>
-        </div>
         <div class="user-info">
                 <a href="editsec.php">[ Edit Account ]</a>
                 <p><?php echo $fullname; ?></p>
             <div class="user-profile">
             </div>
         </div>
-
-        <div class="employee_profile">
-            <div class="employee_profile__header">
-                <h1>Employee Profile</h1>
-                <button class="btn_primary">
-                    <span class="material-icons"></span>
-                </button>
-            </div>
-
-            <div class="card">
-                <div class="card__content">
+        <div class="employee_list">
+              <div class="employee_list__header">
+                <h1>Employee Details</h1>
+              </div>
+            <div class="employee_list__content">
                     <table>
-                    <tr><td><h3>&emsp;Name:&emsp;</h3> </td><td>&emsp;Red Jude V. Cadornigara&emsp; </td></tr>
-                    <tr><td><h3>&emsp;Email:&emsp;</h3> </td><td>&emsp;Red@gmail.com&emsp; </td></tr>
-                    <tr><td><h3>&emsp;Contact:&emsp;</h3> </td><td>&emsp;09195660525&emsp; </td></tr>
-                    <tr><td><h3>&emsp;Address:&emsp;</h3> </td><td>&emsp;Gedli&emsp; </td></tr>
-                    <tr><td><h3>&emsp;Position:&emsp;</h3> </td><td>&emsp;Security Officer&emsp; </td></tr>
-                    <tr><td><h3>&emsp;Schedule:&emsp;</h3> </td><td>&emsp;awdawdawdawdawdawdawd&emsp; </td></tr>
-                    <tr><td><h3>&emsp;Company:&emsp;</h3> </td><td>&emsp;MCDO&emsp; </td></tr>
-                    <tr><td><h3>&emsp;Attendance:&emsp;</h3> </td><td>&emsp;Security Officer&emsp; </td></tr>
-
+                    <tr>
+                    <tr><td><h3>&emsp;Name:</td><td><?php echo $users->firstname ." ". $users->lastname ?></td></tr>
+                    <tr><td><h3>&emsp;Email:</td><td><?php echo $users->email ?></td></tr>
+                    <tr><td><h3>&emsp;Contact:</td><td><?php echo $users->cpnumber ?></td></tr>
+                    <tr><td><h3>&emsp;Address:</td><td><?php echo $users->address ?></td></tr>
+                    <tr><td><h3>&emsp;Position:</td><td><?php echo $users->position ?></td></tr>
+                    <tr><td><h3>&emsp;Schedule:</td><td><?php echo "FROM ".$users->scheduleTimeIn . " TO ".$users->scheduleTimeOut." - Starting " .$users->date_assigned ?></td></tr>
+                    <tr><td><h3>&emsp;Company:</td><td><?php echo $users->company ?></td></tr>
+                    <tr><td><h3>&emsp;Attendance:</td><td><?php echo $users->firstname . $users->lastname ?></td></tr>
+                    </tr>
                     </table>
                     <div class="emppicture">
-                
-                </div>
+            
                 </div>
             </div>
         </div>

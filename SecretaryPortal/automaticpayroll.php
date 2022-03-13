@@ -98,7 +98,7 @@
                             <th>Employees</th>
                             <th>Attendance</th>
                             <th>Total Hours</th>
-                            <th>Salary</th>
+                            <th><form method="post"><button type="submit" name="generateall"><a href="createsalary.php">GENERATE</a></button></form></th>
                         </tr>
                     </thead>
           
@@ -116,36 +116,6 @@
                 </table>
             </div>
         </div>
-
-        <div class="auto-generated-salaries">
-            <div class="auto-generated-salaries__header">
-                <div class="searchbar">             
-                                 
-                </div>
-            </div>
-            <h1>Generated Salaries</h1>
-            <div class="auto-generated-salaries__content">
-                  <table>
-                      <thead>
-                          <tr>
-                              <th>Employee ID</th>
-                              <th>Location</th>
-                              <th>Starting Date</th>
-                              <th>End Date</th>
-                              <th>Created</th>
-                              <th>Action</th>
-                          </tr>
-                      </thead>
-          
-                      <tbody>
-                          <!--insert php data for table here inside of php tag-->
-                          <?php
-                            $payroll->displayAutomaticGeneratedSalary();
-                          ?>
-                      </tbody>
-                  </table>
-            </div>
-          </div>
     </div>
 </body>
 </html>

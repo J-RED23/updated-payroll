@@ -92,15 +92,15 @@ $fullname = $sessionData['fullname'];
                                 <th>Employee ID</th>
                                 <th>Firstname</th>
                                 <th>Lastname</th>
-                                <th>Company</th>
                                 <th>Violation</th>
                                 <th>Remark</th>
                                 <th>Date</th>
                             </tr>
                         </thead>
-
                         <tbody>
-                            
+                        <?php
+                        $payroll->displayviolations();
+                        ?>
                         </tbody>
                   </table>
               </div>

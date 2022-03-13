@@ -3,9 +3,8 @@ require_once('../class.php');
 $sessionData = $payroll->getSessionSecretaryData();
 $id = $sessionData['id'];
 $fullname = $sessionData['fullname'];
-$empid = $_GET['empid'];
 $payroll->verifyUserAccess($sessionData['access'], $sessionData['fullname'],2);
-$payroll->AutomaticGenerateSalary($fullname,$id,$empid);
+$payroll->AutomaticGenerateSalary($fullname,$id);
 
 ?>
 <!DOCTYPE html>
@@ -28,7 +27,7 @@ $payroll->AutomaticGenerateSalary($fullname,$id,$empid);
             </div>
 
             <div class="modal__delete__content">
-                <h1>Create salary to this employee?</h1>
+                <h1>Create salary to this employee/s?</h1>
                 <button class="btn_success" type="submit" name="createsalary">
                     Create
                 </button>
