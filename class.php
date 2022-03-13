@@ -1123,7 +1123,6 @@ Class Payroll
             $regholiday = 0;
             $specholiday = 0;
             $hoursduty = 0;
-
             $sql="SELECT emp_attendance.timeIn, emp_attendance.timeOut, employee.ratesperDay
             FROM emp_attendance INNER JOIN employee ON emp_attendance.empId = employee.empId WHERE emp_attendance.empId = ? AND emp_attendance.salary_status != 'paid';";
                 $stmt = $this->con()->prepare($sql);
@@ -1152,7 +1151,6 @@ Class Payroll
                              $late += abs((float)$schedtimein - (float)$timein) ;
                         }
                     }
-
                 $sql0="SELECT emp_attendance.timeIn, emp_attendance.timeOut, employee.ratesperDay, emp_attendance.datetimeIn, emp_attendance.datetimeOut, employee.position
                 FROM emp_attendance INNER JOIN employee ON emp_attendance.empId = employee.empId WHERE emp_attendance.empId = ?;";
                 $stmt0 = $this->con()->prepare($sql0);
@@ -1854,10 +1852,9 @@ Class Payroll
             <td>$row->empId</td>
             <td>$row->firstname</td>
             <td>$row->lastname</td>
-            <td>$row->company</td>
-            <td>$row->violatio</td>
+            <td>$row->violation</td>
             <td>$row->remark</td>
-            <td>$row->datecreated</td>
+            <td>$row->date_created</td>
             </tr>";
         }
     }
@@ -2249,7 +2246,7 @@ Class Payroll
               </tr>
               
             </table>
-            <h3>Salary From: $rows->start  - $rows->end / $rows->for_release</h3>
+            <h3>Salary From: $rows->start  - $rows->end </h3>
           </div>
         </div>
         </body>
@@ -2466,14 +2463,15 @@ Class Payroll
               </tr>
               
             </table>
-            <h3>Salary From: $rows->start  - $rows->end / $rows->for_release</h3>
+            <h3>Salary From: $rows->start  - $rows->end</h3>
           </div>
         </div>
         </body>
         </html>
         ";
         $pdfname = $rows->firstname .' '. $rows->lastname.'.pdf';
-        $email='redjudecadornigara2@gmail.com';
+        $empname= $rows->firstname .' '. $rows->lastname;
+        $email=$rows->email;
         $dompdf->loadHtml($payslip);
 
         // (Optional) Setup the paper size and orientation
@@ -2486,7 +2484,7 @@ Class Payroll
         file_put_contents($pdfname,$file);
         $name = 'JTDV Security Agency';
         $subject = 'PAYSLIP';
-        $body = 'Hello '.$pdfname.' , here\'s your payslip';
+        $body = 'Hello '.$empname.' , here\'s your payslip';
         if(!empty($email)){
 
             $mail = new PHPMailer();
