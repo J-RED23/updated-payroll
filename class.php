@@ -1110,48 +1110,57 @@ Class Payroll
                     }
         }
     }
-    public function automaticGenerateSalary($fullname,$id,$empid)
+    public function automaticGenerateSalary($fullname,$id)
     {
-        if(isset($_POST['createsalary'])){
-        $regholiday = 0;
-        $specholiday = 0;
-        $hoursduty = 0;
-        $sql="SELECT emp_attendance.timeIn, emp_attendance.timeOut, employee.ratesperDay
-        FROM emp_attendance INNER JOIN employee ON emp_attendance.empId = employee.empId WHERE emp_attendance.empId = ? AND emp_attendance.salary_status != 'paid';";
+        if(isset($_POST['createsalary']))
+        {
+            $sqlall="SELECT * FROM schedule";
+            $stmtall = $this->con()->prepare($sqlall);
+            $stmtall->execute();
+            $usersall = $stmtall->fetchAll();
+            foreach($usersall as $all){
+            $empid = $all->empid;
+            $regholiday = 0;
+            $specholiday = 0;
+            $hoursduty = 0;
+
+            $sql="SELECT emp_attendance.timeIn, emp_attendance.timeOut, employee.ratesperDay
+            FROM emp_attendance INNER JOIN employee ON emp_attendance.empId = employee.empId WHERE emp_attendance.empId = ? AND emp_attendance.salary_status != 'paid';";
                 $stmt = $this->con()->prepare($sql);
                 $stmt->execute([$empid]);
                 $users = $stmt->fetchAll();
                 $countRow = $stmt->rowCount();
 
-                $sqlsched = "SELECT * FROM schedule WHERE empId = $empid";
+                $sqlsched = "SELECT * FROM schedule WHERE empId = ?";
                 $stmtsched = $this->con()->prepare($sqlsched);
-                $stmtsched->execute();
+                $stmtsched->execute([$empid]);
                 $usersched = $stmtsched->fetch();
                 $countRowsched = $stmtsched->rowCount();
                 $hoursduty = $usersched->shift_span;
                 $schedtimein = date('h:i:s',strtotime($usersched->scheduleTimeIn));
-                $schedtimeout = $usersched->scheduleTimeOut;
+                $schedtimeout = date('h:i:s',strtotime($usersched->scheduleTimeOut));
                 $late=0;
                 if($countRowsched > 0) {
-                if($countRow >= 1){
-                $tothrs = 0;
-                foreach ($users as $user){
-                    $rate = $user->ratesperDay;
-                    $timein= date('H:i:s',strtotime($user->timeIn));
-                    $timeout= date('H:i:s',strtotime($user->timeOut));
-                    $tothrs += abs(strtotime($timein) - strtotime($timeout)) /3600 ;
-                    $check =  abs(strtotime($schedtimein) - strtotime($timein)) ;
-                    if($schedtimein < $timein){
-                         $late += abs($schedtimein - $timein);
+                    if($countRow >= 1){
+                    $tothrs = 0;
+                    foreach ($users as $user){
+                        $rate = $user->ratesperDay;
+                        $timein= date('H:i:s',strtotime($user->timeIn));
+                        $timeout= date('H:i:s',strtotime($user->timeOut));
+                        $tothrs += abs(strtotime($timein) - strtotime($timeout)) /3600 ;
+                        if($schedtimein < $timein){
+                             $late += abs((float)$schedtimein - (float)$timein) ;
+                        }
                     }
-                }
+
                 $sql0="SELECT emp_attendance.timeIn, emp_attendance.timeOut, employee.ratesperDay, emp_attendance.datetimeIn, emp_attendance.datetimeOut, employee.position
                 FROM emp_attendance INNER JOIN employee ON emp_attendance.empId = employee.empId WHERE emp_attendance.empId = ?;";
                 $stmt0 = $this->con()->prepare($sql0);
                 $stmt0->execute([$empid]);
                 $users0 = $stmt0->fetch();
                 $countRow0 = $stmt0->rowCount();                 //modify pag ayos na sched table
-                if($countRow0 >= 1){
+                if($countRow0 >= 1)
+                {
                     $getin=$countRow0;
                     while($countRow0 >= $getin)
                     {
@@ -1160,25 +1169,23 @@ Class Payroll
                     }
                         $end = $start;
                         $users01 = $stmt0->fetchall();                        //get start date and end date
-                foreach($users01 as $user0)
-                {
-                        $end = $user0->datetimeOut;
-                }
-                        $sql1="SELECT * FROM cashadvance WHERE empId = ?;";
-                        $stmt1 = $this->con()->prepare($sql1);
-                        $stmt1->execute([$empid]);
-                        $users1 = $stmt1->fetchall();
-                        $countRow1 = $stmt1->rowCount();
-                        $vale = 0;
-                foreach($users1 as $cadv)
-                {
-                        $vale = $vale + $cadv->amount;
-                }
-                        $position = $users0->position; //get the position of selected employee
+                    foreach($users01 as $user0)
+                    {
+                            $end = $user0->datetimeOut;
+                    }
+                            $sql1="SELECT * FROM cashadvance WHERE empId = ?;";
+                            $stmt1 = $this->con()->prepare($sql1);
+                            $stmt1->execute([$empid]);
+                            $users1 = $stmt1->fetchall();
+                            $countRow1 = $stmt1->rowCount();
+                            $vale = 0;
+                    foreach($users1 as $cadv)
+                    {
+                            $vale = $vale + $cadv->amount;
+                    }
+                            $position = $users0->position; //get the position of selected employee
 
-
-
-
+            }
                 // $sqlv="SELECT * FROM violationsandremark WHERE empId = ?";
                 // $stmtv = $this->con()->prepare($sqlv);
                 // $stmtv->execute([$empid]);
@@ -1192,35 +1199,34 @@ Class Payroll
                 // }
                 // }
 
-                
+
 
                 $sqlded="SELECT * FROM deductions";
                 $stmtded = $this->con()->prepare($sqlded);
                 $stmtded->execute();
                 $usersded = $stmtded->fetchall();
                 $countRowded =$stmtded->rowCount();
-                foreach($usersded as $ded){
-                if(strtolower($ded->deduction)=="sss"){
-                    $msc = $rate * 31;
-                    $sss = $msc * $ded->percentage;
+                foreach($usersded as $ded)
+                {
+                    if(strtolower($ded->deduction)=="sss"){
+                        $msc = ($rate * 8) * 31;
+                        $sss = $msc * $ded->percentage;
+                    }
+                    else if (strtolower($ded->deduction)=="pagibig"){
+                        $msc = ($rate * 8) * 31;
+                        $pagibig = $msc * $ded->percentage;
+                    }
+                    else if (strtolower($ded->deduction)=="philhealth"){
+                        $msc = ($rate * 8) * 31;
+                        $philhealth = $msc * $ded->percentage;
+                    
+                    }else if(strtolower($ded->deduction)=="cash bond"){
+                        $cashbond = $ded->amount;
+                    }else{
+                        $other .= $ded->deduction."<br>";
+                        $otheramount+=$ded->amount;
+                    }
                 }
-                else if (strtolower($ded->deduction)=="pagibig"){
-                    $msc = $rate * 31;
-                    $pagibig = $msc * $ded->percentage;
-                }
-                else if (strtolower($ded->deduction)=="philhealth"){
-                    $msc = $rate * 31;
-                    $philhealth = $msc * $ded->percentage;
-                
-                }else if(strtolower($ded->deduction)=="cash bond"){
-                    $cashbond = $ded->amount;
-                }else{
-                    $other .= $ded->deduction ."=". $ded->amount . "<br>";
-                    $otheramount+=$ded->amount;
-                }
-                }
-
-
 
 
                 $sql3="SELECT * FROM holidays;";
@@ -1254,13 +1260,11 @@ Class Payroll
                                 }else {
                                     
                                 }
-                
                             }
-                    
-                    }
+                        }
                 }
 
-                    $standardpay = $tothrs * $rate;
+                    $standardpay = (float)$tothrs * (float)$rate;
                     $regholiday = $regholiday * $hoursduty;
                     $regholidaypay = ($regholiday * $rate);
                     $specholiday = $specholiday * $hoursduty;
@@ -1272,53 +1276,51 @@ Class Payroll
                     $totalgross = ($standardpay + $regholidaypay + $specholidaypay + $thirteenmonth);
                     $totaldeduction = ($sss + $pagibig + $philhealth + $otheramount + $cashbond + $vale);
                     $totalnetpay = $totalgross - $totaldeduction;
-                    if($totalnetpay < 0){
-                    $forrelease = "**Not for Release!";
-                    }else{
-                        $forrelease="For Release";
-                    }
+                            if($totalnetpay < 0)
+                            {
+                                $forrelease = "*Not for Release!";
+                            }else
+                            {
+                                $forrelease="For Release";
+                            }
                     date_default_timezone_set('Asia/Manila');
                     $date = date('F j, Y h:i:s A');
                 if($countRow > 0 ){
                     $sql1="INSERT INTO `automatic_generated_salary`(`emp_id`, `total_hours`,`standard_pay`, `regular_holiday`, 
                     `regular_holiday_pay`, `special_holiday`, `special_holiday_pay`, `thirteenmonth`, `sss`,`pagibig`,`philhealth`, `cashbond`, `other`,
-                    `other_amount`,`vale`, `total_hours_late`, `total_gross`, `total_deduction`, `total_netpay` ,`start`,`end`,`for_release`,`date_created`) 
-                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+                    `other_amount`,`vale`, `total_hours_late`, `total_gross`, `total_deduction`, `total_netpay` ,`start`,`end`,`for_release`,`date_created`,`process_by`) 
+                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
                     $stmt1 = $this->con()->prepare($sql1);
-                    $stmt1->execute([$empid,$tothrs,$standardpay,$regholiday,$regholidaypay,$specholiday,$specholidaypay,$thirteenmonth,$sss,$pagibig,$philhealth,$cashbond,$other,$otheramount,$vale,$total_hours_late,$totalgross,$totaldeduction,$totalnetpay,$start,$end,$forrelease,$date]);
+                    $stmt1->execute([$empid,$tothrs,$standardpay,$regholiday,$regholidaypay,$specholiday,$specholidaypay,$thirteenmonth,$sss,$pagibig,$philhealth,$cashbond,$other,$otheramount,$vale,$total_hours_late,$totalgross,$totaldeduction,$totalnetpay,$start,$end,$forrelease,$date,$id]);
                     $CountRow01 = $stmt1 ->rowCount();
-                    if($CountRow01>0){
-                        $action = "Add Automated Salary";
-                        $secdatetime = $this->getDateTime();
-                        $sectime = $secdatetime['time'];
-                        $secdate = $secdatetime['date'];
-                        $sqlSecLog = "INSERT INTO secretary_log (sec_id, name, action, time, date)
-                                    VALUES(?, ?, ?, ?, ?)";
-                        $stmtSecLog = $this->con()->prepare($sqlSecLog);
-                        $stmtSecLog->execute([$id,$fullname, $action, $sectime, $secdate]);
-                        $countRowSecLog = $stmtSecLog->rowCount();
-                        if($countRowSecLog > 0){
-                            $Message = urlencode("Success");
-                            header("Location:automaticpayroll.php?Message=".$Message);
-                        } else {
-                        }
-                                        }
-                                        }
-                                    }else {
-                                        echo "The selected employee is less than or equal to 5 attendance only, can't generate salary";
-                                    }
-                }else {
+                                if($CountRow01>0)
+                                {
+                                 $number+= 1;
+                                }
+                                        
+                }else 
+                    {
+                        echo "The selected employee is less than or equal to 5 attendance only, can't generate salary";
+                    }
+                }else 
+                {
                     $Message = urlencode("Selected employee has no attendance");
                     header("Location:automaticpayroll.php?Message=".$Message);
                 }
 
-            }else {
-                $Message = urlencode("Selected employee has no schedule");
+                } else 
+                {
+                    $Message = urlencode("Selected employee has no schedule ");
+                    header("Location:automaticpayroll.php?Message=".$Message);
+                }
+
+            } //sabay sabay
                 header("Location:automaticpayroll.php?Message=".$Message);
-            }
-        } else if(isset($_POST['cancel'])){
-            header('location: automaticpayroll.php');
-            }
+            $this->releaseSalary($fullname,$id);
+                } else if(isset($_POST['cancel'])) //isset to
+                {
+                header('location: automaticpayroll.php');
+                }     
     }
     public function displayAutomaticGeneratedSalary()
     {
@@ -1333,7 +1335,7 @@ Class Payroll
             <td>",date('M j, Y',strtotime($row->start)),"</td>
             <td>",date('M j, Y',strtotime($row->end)),"</td>
             <td>",date('M j, Y',strtotime($row->date_created)),"</td>
-            <td><a href='viewautomatedsalary.php?logid=$row->log'>View </a><a href='releaseautomatedsalary.php?logid=$row->log'>Release </a><a href='deleteautomatedsalary.php?logid=$row->log'>Delete </a></td>
+            <td><a href='viewautomatedsalary.php?logid=$row->log'>View </a><a href='deleteautomatedsalary.php?logid=$row->log'>Delete </a></td>
             </tr>";
             // $this->deleteSalary($row->log);
             }
@@ -1379,9 +1381,12 @@ Class Payroll
     }
     public function releaseSalary($fullname,$id)
     {
-        if(isset($_POST['release']))
-        {
-            $logid = $_GET['logid'];
+            $sqlall="SELECT * FROM automatic_generated_salary;";
+            $stmtall = $this->con()->prepare($sqlall);
+            $stmtall->execute();
+            $userall=$stmtall->fetchall();
+            foreach($userall as $all){
+            $logid=$all->log;
             $sql = "SELECT * FROM automatic_generated_salary WHERE log = ?;";
             $stmt = $this->con()->prepare($sql);
             $stmt->execute([$logid]);
@@ -1555,32 +1560,26 @@ Class Payroll
                         $stmtinsert = $this->con()->prepare($sqlinsert);
                         $stmtinsert->execute();
                     } else {
-
                     } 
-
                 }
-
-
                 $this->emailpdf($logid);
-                $action = "Released Salary";
-                    $secdatetime = $this->getDateTime();
-                    $sectime = $secdatetime['time'];
-                    $secdate = $secdatetime['date'];
-                    $sqlSecLog = "INSERT INTO secretary_log (sec_id, name, action, time, date)
-                                    VALUES(?, ?, ?, ?, ?)";
-                    $stmtSecLog = $this->con()->prepare($sqlSecLog);
-                    $stmtSecLog->execute([$id,$fullname, $action, $sectime, $secdate]);
-                    $countRowSecLog = $stmtSecLog->rowCount();
-                    if($countRowSecLog > 0){
-                            header('Location: releasedsalary.php?msg=Succesfully%20Released');
-                        } else {
-                            echo 'di pumasok sa act log';
-                        }
-            }
-            }//isset
-            else if(isset($_POST['cancel'])){
-                header('location: automaticpayroll.php');
-            }
+                }
+                $number += 1;
+                }//all
+                $action = "Generate ".$number." Salary";
+                $secdatetime = $this->getDateTime();
+                $sectime = $secdatetime['time'];
+                $secdate = $secdatetime['date'];
+                $sqlSecLog = "INSERT INTO secretary_log (sec_id, name, action, time, date)
+                                VALUES(?, ?, ?, ?, ?)";
+                $stmtSecLog = $this->con()->prepare($sqlSecLog);
+                $stmtSecLog->execute([$id,$fullname, $action, $sectime, $secdate]);
+                $countRowSecLog = $stmtSecLog->rowCount();
+                if($countRowSecLog > 0){
+                        header('Location: releasedsalary.php?msg=Succesfully%20Released');
+                    } else {
+                        echo 'di pumasok sa act log';
+                    }
     }
     public function deleteautomatedsalary($logid)
     {
@@ -1965,18 +1964,25 @@ Class Payroll
                 $stmt=$this->con()->prepare($sql);
                 $stmt->execute();
                 while($user=$stmt->fetch())
-                {
+                {   
+                    $has=false;
                     $tothrs=0;              // ex may 4 attendance siya
                     $sql1="SELECT * FROM emp_attendance WHERE empId = $user->empId AND salary_status != 'paid';";
                     $stmt1=$this->con()->prepare($sql1);
                     $stmt1->execute();
                     $countattendance=$stmt1->rowCount();
+                    if($countattendance > 0){
+                    $has=true;
+                    }else{
+                    $has=false;
+                    }
                     $users1=$stmt1->fetchall();
                     foreach($users1 as $users){
                     $timein= date('H:i:s',strtotime($users->timeIn));
                     $timeout= date('H:i:s',strtotime($users->timeOut));
                     $tothrs += abs(strtotime($timein) - strtotime($timeout)) / 3600 ;
                 }
+                    if($has){
                     $tothrs=number_format($tothrs,2);
                     $tothrs = sprintf('%02d:%02d', (int) $tothrs, fmod($tothrs   , 1) * 60);
                     echo "<tr>
@@ -1984,8 +1990,11 @@ Class Payroll
                     <td>$user->firstname $user->lastname</td>
                     <td>$countattendance</td>
                     <td>$tothrs</td>
-                    <td> <a href='createsalary.php?empid=$user->empId'>Generate</a></td>
+                    <td></td>
                     </tr>";
+                    }else{
+
+                    }
             }
 
 
@@ -2217,15 +2226,16 @@ Class Payroll
                 <td></td>
                 <td>$rows->cashbond</td>
               </tr>";
+              $payslip.=
               ($rows->other_amount > 0)?
-              echo "<tr>
+                "<tr>
                 <td>$rows->other</td>
                 <td></td>
                 <td></td>
                 <td></td>
                 <td></td>
-              </tr>";
-              "<tr>
+              </tr>":"";
+              $payslip.="<tr>
                 <td>Cash Advance</td>
                 <td></td>
                 <td></td>
@@ -2249,7 +2259,7 @@ Class Payroll
         $dompdf->loadHtml($payslip);
         $dompdf->set_option('isRemoteEnabled', TRUE);
         // (Optional) Setup the paper size and orientation
-        $customPaper = array(0,0,800,500);
+        $customPaper = array(0,0,1000,600);
         $dompdf->set_paper($customPaper);
         
         $dompdf->render();
@@ -2348,6 +2358,12 @@ Class Payroll
                 <td>".number_format($rows->standard_pay)."</td>
               </tr>
               <tr>
+              <td>Overtime</td>
+              <td></td>
+              <td></td>
+              <td></td>
+              </tr>
+              <tr>
                 <td>Regular Holiday</td>
                 <td>$rows->regular_holiday</td>
                 <td></td>
@@ -2426,8 +2442,17 @@ Class Payroll
                 <td></td>
                 <td></td>
                 <td>$rows->cashbond</td>
-              </tr>
-              <tr>
+              </tr>";
+              $payslip.=
+              ($rows->other_amount > 0)?
+                "<tr>
+                <td>$rows->other</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>":"";
+              $payslip.="<tr>
                 <td>Cash Advance</td>
                 <td></td>
                 <td></td>
@@ -2452,7 +2477,7 @@ Class Payroll
         $dompdf->loadHtml($payslip);
 
         // (Optional) Setup the paper size and orientation
-        $customPaper = array(0,0,750,500);
+        $customPaper = array(0,0,1000,600);
         $dompdf->set_paper($customPaper);
         
         $dompdf->render();
