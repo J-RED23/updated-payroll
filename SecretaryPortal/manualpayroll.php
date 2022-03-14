@@ -19,6 +19,7 @@ $payroll->generateSalary($id,$fullname);
     <link rel="stylesheet" type="text/css" href="../css/main.css">
 </head>
 <body>
+    <form method="post">
      <div class="main-container">
      <div class="sidebar">
                <div class="sidebar__logo">
@@ -84,7 +85,6 @@ $payroll->generateSalary($id,$fullname);
           <div class="payroll-details">
                 <div class="payroll-details__form">
                         <div class="detail">
-                        <form action="" method="post">
                             <label for="empid">Employee ID :</label><br>
                             <input type="number"name="empid" id="empid">
                             <p>Numeric characters only</p>
@@ -159,7 +159,7 @@ $payroll->generateSalary($id,$fullname);
 
                 <div class="detail">
                     <label for="philhealth">PhilHealth :</label><br>
-                    <input type="number" class="location" class="philhealth" id="philhealth">
+                    <input type="number" name="philhealth" class="philhealth" id="philhealth">
                     <p>Numeric characters only</p>
                 </div>
 
@@ -177,7 +177,6 @@ $payroll->generateSalary($id,$fullname);
                 <button type="submit" name="generate">
                     Generate
                 </button> 
-                </form>
             </div>
           </div>
 
@@ -212,5 +211,6 @@ $payroll->generateSalary($id,$fullname);
               </div>
           </div>
      </div>
+     </form>
 </body>
 </html>

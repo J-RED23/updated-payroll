@@ -754,33 +754,27 @@ Class Payroll
     {
         if(isset($_POST['generate']))
         {
-            if( !empty($_POST['empid']) &&
-            !empty($_POST['rate']) &&
-            !empty($_POST['hrsduty']) &&
-            !empty($_POST['location']) &&
-            !empty($_POST['noofdayswork']) &&
-            !empty($_POST['regholiday']) &&
-            !empty($_POST['hrslate']) &&
-            !empty($_POST['sss']) &&
-            !empty($_POST['pagibig']) &&
-            !empty($_POST['philhealth']) &&
-            !empty($_POST['cashbond']) &&
-            !empty($_POST['specialholiday']) &&
-            !empty($_POST['thirteenmonth']) &&
-            !empty($_POST['cvale']))
+            if(isset($_POST['empid']) &&
+            isset($_POST['rate']) &&
+            isset($_POST['hrsduty']) &&
+            isset($_POST['location']) &&
+            isset($_POST['noofdayswork']) &&
+            isset($_POST['regholiday']) &&
+            isset($_POST['hrslate']) &&
+            isset($_POST['sss']) &&
+            isset($_POST['pagibig']) &&
+            isset($_POST['philhealth']) &&
+            isset($_POST['cashbond']) &&
+            isset($_POST['specialholiday']) &&
+            isset($_POST['thirteenmonth']) &&
+            isset($_POST['cvale']))
             {
-                if( empty($_POST['rate']) &&
-                    empty($_POST['rate'])) 
-                    {
-                    echo "All inputs are required rate";
-                    }else{
                     $empid=$_POST['empid'];
-                    $rate=(int)$_POST['rate'];
+                    $rate=(float)$_POST['rate'];
                     $hrsduty=(int)$_POST['hrsduty'];
                     $location = $_POST['location'];
                     $noofdayswork = (int)$_POST['noofdayswork'];
                     $regholiday = $_POST['regholiday'];
-                    $daylate=$_POST['daylate'];
                     $hrslate=$_POST['hrslate'];
                     $sss=$_POST['sss'];
                     $pagibig=$_POST['pagibig'];
@@ -791,13 +785,14 @@ Class Payroll
                     $netpay="";
                     $vale=$_POST['cvale'];
                     $totaldaysalary = $hrsduty * $rate ; // sahod sa isang araw depende sa duty at rate 
-
+                    $totalhoursofwork = $hrsduty * $noofdayswork;
+                    $standardpay = $totalhoursofwork * $rate;
                     $totalregholidayhoursalary = $regholiday * $rate;
                     $totalregholidaysalary = $totalregholidayhoursalary;                        // sahod pag regular holiday
 
                     $totalspecialholidayhoursalary = $specialholiday * $rate;
-                    $totalspecialholidayhoursalarypercent = $totalspecialholidayhoursalary * 0.30;
-                    $totalspecialholidaysalary = $totalspecialholidayhoursalarypercent + $totalspecialholidayhoursalary;
+                    $totalspecialholidaysalary  = $totalspecialholidayhoursalary * 0.30;
+                    
                     
                     $totalhrs = $hrsduty * $noofdayswork; // oras ng trabaho
                     $totalsalaryfortotalhours = $totalhrs * $rate;  // sahod sa oras nang tinrabaho
@@ -819,9 +814,9 @@ Class Payroll
                                                 rate_hour,
                                                 date,
                                                 hours_duty,
+                                                standard_pay,
                                                 regular_holiday,
                                                 special_holiday,
-                                                day_late,
                                                 hrs_late,
                                                 no_of_work,
                                                 sss,
@@ -839,9 +834,9 @@ Class Payroll
                                                 total_netpay,
                                                 dateandtime_created
                                                 )
-                                                VALUES(?, ?, ?, ?,?, ?,?, ?,?, ?, ?,?,?,?,?,?,?,?,? ,?, ?, ?, ?,?);";
+                                                VALUES(?, ?, ?,?, ?,?, ?,?, ?,?, ?, ?,?,?,?,?,?,?,? ,?, ?, ?, ?,?);";
                 $stmt = $this->con()->prepare($sql);
-                $stmt->execute([$empid, $location, $rate, $date, $hrsduty,$regholiday, $specialholiday, $daylate, $hrslate,  $noofdayswork, $sss,$pagibig,$philhealth, $cashbond, $vale, $thirteenmonth,$totalhrs, $totalsalaryfortotalhours, $totalregholidaysalary, $totalspecialholidaysalary, $totaldeduction,$totalgross,$netpay, $time]);
+                $stmt->execute([$empid, $location, $rate, $date, $hrsduty,$standardpay,$regholiday, $specialholiday, $hrslate,  $noofdayswork, $sss,$pagibig,$philhealth, $cashbond, $vale, $thirteenmonth,$totalhrs, $totalsalaryfortotalhours, $totalregholidaysalary, $totalspecialholidaysalary, $totaldeduction,$totalgross,$netpay, $time]);
                 $users = $stmt->fetch();
                 $countRow = $stmt->rowCount();
 
@@ -866,9 +861,23 @@ Class Payroll
                 } else {
                 echo 'Error in adding salary!';
                 }
-                }
+                
                 } else {
-                echo "All inputs are required!";
+                echo "All inputs are requireds!" .$_POST['rate'] .$_POST['empid'].
+                $_POST['empid'].
+                $_POST['rate'].
+                $_POST['hrsduty'].
+                $_POST['location'].
+                $_POST['noofdayswork'].
+                $_POST['regholiday'].
+                $_POST['hrslate'].
+                $_POST['sss'].
+                $_POST['pagibig'].
+                $_POST['philhealth'].
+                $_POST['cashbond'].
+                $_POST['specialholiday'].
+                $_POST['thirteenmonth'].
+                $_POST['cvale'];
             
             }
 
@@ -1113,44 +1122,156 @@ Class Payroll
     public function automaticGenerateSalary($fullname,$id)
     {
         if(isset($_POST['createsalary']))
-        {
-            $sqlall="SELECT * FROM schedule";
-            $stmtall = $this->con()->prepare($sqlall);
-            $stmtall->execute();
-            $usersall = $stmtall->fetchAll();
-            foreach($usersall as $all){
-            $empid = $all->empid;
-            $regholiday = 0;
-            $specholiday = 0;
-            $hoursduty = 0;
-            $sql="SELECT emp_attendance.timeIn, emp_attendance.timeOut, employee.ratesperDay
-            FROM emp_attendance INNER JOIN employee ON emp_attendance.empId = employee.empId WHERE emp_attendance.empId = ? AND emp_attendance.salary_status != 'paid';";
-                $stmt = $this->con()->prepare($sql);
-                $stmt->execute([$empid]);
-                $users = $stmt->fetchAll();
-                $countRow = $stmt->rowCount();
-
-                $sqlsched = "SELECT * FROM schedule WHERE empId = ?";
-                $stmtsched = $this->con()->prepare($sqlsched);
-                $stmtsched->execute([$empid]);
-                $usersched = $stmtsched->fetch();
-                $countRowsched = $stmtsched->rowCount();
-                $hoursduty = $usersched->shift_span;
-                $schedtimein = date('h:i:s',strtotime($usersched->scheduleTimeIn));
-                $schedtimeout = date('h:i:s',strtotime($usersched->scheduleTimeOut));
+        {   
+            $sql="SELECT * FROM schedule ;";
+            $stmt = $this->con()->prepare($sql);
+            $stmt->execute();
+            $user = $stmt->fetchall();
+            $countRow = $stmt->rowCount();
+            foreach($user as $all)
+            {
                 $late=0;
-                if($countRowsched > 0) {
-                    if($countRow >= 1){
-                    $tothrs = 0;
-                    foreach ($users as $user){
-                        $rate = $user->ratesperDay;
-                        $timein= date('H:i:s',strtotime($user->timeIn));
-                        $timeout= date('H:i:s',strtotime($user->timeOut));
+                $empid=$all->empid;
+                $sqla="SELECT * FROM emp_attendance  INNER JOIN employee ON emp_attendance.empId = employee.empId WHERE emp_attendance.empId= ?";
+                $stmta = $this->con()->prepare($sqla);
+                $stmta->execute([$empid]);
+                $usera = $stmta->fetchall();
+                $countRowa = $stmta->rowCount();
+               
+                if($countRowa > 0) 
+                {  
+                    $totalhoursofwork =0;
+                    $tothrs=0;
+                    $sqlsched="SELECT * FROM schedule WHERE empId = $empid";
+                    $stmtsched = $this->con()->prepare($sqlsched);
+                    $stmtsched->execute();
+                    $usersched = $stmtsched->fetch();    
+                    $hoursduty = $usersched->shift_span;
+                    $standardhours = date('8:00:00');
+                    $schedtimein = date('h:i:s',strtotime($usersched->scheduleTimeIn));
+                    $schedtimeout = date('h:i:s',strtotime($usersched->scheduleTimeOut));
+                    foreach($usera as $att)
+                    {
+                        $rate = $att->ratesperDay;
+                        $overtimerate = $att->overtime_rate;
+                        $timein= date('H:i:s',strtotime($att->timeIn));
+                        $timeout= date('H:i:s',strtotime($att->timeOut));
                         $tothrs += abs(strtotime($timein) - strtotime($timeout)) /3600 ;
-                        if($schedtimein < $timein){
-                             $late += abs((float)$schedtimein - (float)$timein) ;
+                        if($schedtimein < $timein)
+                        {
+                            $late += abs(strtotime($schedtimein) - strtotime($timein))/3550;
                         }
                     }
+                }
+
+                $sqlot="SELECT * FROM emp_attendance  INNER JOIN employee ON emp_attendance.empId = employee.empId WHERE emp_attendance.empId= ?";
+                $stmtot = $this->con()->prepare($sqlot);
+                $stmtot->execute([$empid]);
+                $userot = $stmtot->fetchall();
+                $countRowot = $stmtot->rowCount();
+                if($countRowot > 0){
+                    $sqlotcheck="SELECT * FROM schedule WHERE empId = $empid";
+                    $stmtotcheck = $this->con()->prepare($sqlotcheck);
+                    $stmtotcheck->execute();
+                    $userotcheck = $stmtotcheck->fetch();    
+                    $hoursduty = $userotcheck->shift_span;
+                    $schedtimeinot = strtotime($userotcheck->scheduleTimeIn);
+                    $schedtimeoutot = strtotime($userotcheck->scheduleTimeOut);
+                    $standardhoursot = date('8:00:00');
+                    $minimumtimeoutot = abs(strtotime($schedtimeinot) + strtotime($standardhoursot));
+                    $minimumtimeoutot = date('h:i:s a',$minimumtimeoutot);
+                    $tothrsovertime=0;
+                    foreach($userot as $ot)
+                    {
+                        $rate = $ot->ratesperDay;
+                        $overtimerate = $ot->overtime_rate;
+                        $timein= date('H:i:s',strtotime($ot->timeIn));
+                        $timeout= date('H:i:s',strtotime($ot->timeOut));
+                        $tothrs += abs(strtotime($timein) - strtotime($timeout)) /3600 ;
+                        if(strtotime($minimumtimeoutot) < strtotime($timeout))
+                        {
+                        $tothrsovertime += abs(strtotime($timeout) - strtotime($minimumtimeoutot)) /3600 ;
+                        echo "Overtime niya ".$tothrsovertime." hours ".$ot->timeIn ." ". $ot->timeOut."<br>";
+                        }
+                         
+                    }
+                }
+
+
+                    $sqlded="SELECT * FROM deductions";
+                    $stmtded = $this->con()->prepare($sqlded);
+                    $stmtded->execute();
+                    $usersded = $stmtded->fetchall();
+                    $countRowded =$stmtded->rowCount();
+                    $other = "";
+                    $otheramount =0;
+                    $regholiday = 0;
+                    $regholidaypay = 0;
+                    $specholiday = 0;
+                    $specrate = 0;
+                    $specpercent = 0;
+                    $specholidaypay = 0;
+                    foreach($usersded as $ded)
+                        {
+                            if(strtolower($ded->deduction)=="sss"){
+                                $msc = ($rate * 8) * 31;
+                                $sss = $msc * $ded->percentage;
+                            }
+                                else if (strtolower($ded->deduction)=="pagibig")
+                                {
+                                    $msc = ($rate * 8) * 31;
+                                    $pagibig = $msc * $ded->percentage;
+                                }
+                                else if (strtolower($ded->deduction)=="philhealth")
+                                {
+                                    $msc = ($rate * 8) * 31;
+                                    $philhealth = $msc * $ded->percentage;
+                                }
+                                else if(strtolower($ded->deduction)=="cash bond")
+                                {
+                                    $cashbond = $ded->amount;
+                                }else   
+                                {
+                                    $other .= $ded->deduction."<br>";
+                                    $otheramount+=$ded->amount;
+                                }
+                        }
+                    $sql3="SELECT * FROM holidays;";
+                    $stmthol3 = $this->con()->prepare($sql3);
+                    $stmthol3->execute();
+                    $usershol3 = $stmthol3->fetchall();
+                    $countRowhol3 =$stmthol3->rowCount();
+                    $specholiday =0;
+                    $regholiday =0;
+                    $sqlgetholiday = "SELECT * FROM emp_attendance WHERE empId = $empid;";
+                    $stmtgetholiday = $this->con()->prepare($sqlgetholiday);
+                    $stmtgetholiday->execute();
+                    $getholiday = $stmtgetholiday->fetchall();
+                    $regular = "regular holiday";
+                    $special = "special holiday";
+                    foreach($getholiday as $count0)
+                    {
+                        $empdatein = date ('F j' , strtotime($count0->datetimeIn));
+                        $empdateout = date ('F j' , strtotime($count0->datetimeOut));
+
+                        foreach($usershol3 as $holidate)
+                        {
+                            $holidateto = date('F j',strtotime($holidate->date_holiday));
+                            if(preg_match("/{$empdatein}/i", strtolower($holidateto)) OR preg_match("/{$empdateout}/i", strtolower($holidateto)))
+                            {   
+                                if(preg_match("/{$holidate->type}/i", $regular))
+                                {
+                                    $regholiday +=  1;
+                                }else if(preg_match("/{$holidate->type}/i", $special))
+                                {
+                                    $specholiday +=  1;
+                                }else {
+                                    
+                                }
+                            }
+                        }
+                    }
+
                 $sql0="SELECT emp_attendance.timeIn, emp_attendance.timeOut, employee.ratesperDay, emp_attendance.datetimeIn, emp_attendance.datetimeOut, employee.position
                 FROM emp_attendance INNER JOIN employee ON emp_attendance.empId = employee.empId WHERE emp_attendance.empId = ?;";
                 $stmt0 = $this->con()->prepare($sql0);
@@ -1184,141 +1305,49 @@ Class Payroll
                             $position = $users0->position; //get the position of selected employee
 
             }
-                // $sqlv="SELECT * FROM violationsandremark WHERE empId = ?";
-                // $stmtv = $this->con()->prepare($sqlv);
-                // $stmtv->execute([$empid]);
-                // $rowsv = $stmtv->fetch();
-                // $countRowv =$stmtv->rowCount();
-                // if($countRowv>0){
-                    
-                // if(strtolower($rowsv->violation) == "uniform") {
-                //     $violation = $countRowv;
-                //     $remarks = $rowsv->remarks;
-                // }
-                // }
+                $overtimepay = 0;
+                $standardpay = 0;
+                $thirteenmonth = 0;
+                $laterate = 0;
+                $totalgross = 0;
+                $totaldeduction = 0;
+                $totalnetpay = 0;
 
 
-
-                $sqlded="SELECT * FROM deductions";
-                $stmtded = $this->con()->prepare($sqlded);
-                $stmtded->execute();
-                $usersded = $stmtded->fetchall();
-                $countRowded =$stmtded->rowCount();
-                foreach($usersded as $ded)
-                {
-                    if(strtolower($ded->deduction)=="sss"){
-                        $msc = ($rate * 8) * 31;
-                        $sss = $msc * $ded->percentage;
-                    }
-                    else if (strtolower($ded->deduction)=="pagibig"){
-                        $msc = ($rate * 8) * 31;
-                        $pagibig = $msc * $ded->percentage;
-                    }
-                    else if (strtolower($ded->deduction)=="philhealth"){
-                        $msc = ($rate * 8) * 31;
-                        $philhealth = $msc * $ded->percentage;
-                    
-                    }else if(strtolower($ded->deduction)=="cash bond"){
-                        $cashbond = $ded->amount;
-                    }else{
-                        $other .= $ded->deduction."<br>";
-                        $otheramount+=$ded->amount;
-                    }
+                $total_hours_late = $late;
+                $overtimepay = $tothrsovertime * $overtimerate;
+                $standardpay = $totalhoursofwork * $rate;
+                $regholiday = $regholiday * $hoursduty;
+                $regholidaypay = ($regholiday * $rate);
+                $specholiday = $specholiday * $hoursduty;
+                $specrate = $specholiday * $rate;
+                $specpercent = $specrate * 0.30;
+                $specholidaypay = $specpercent;
+                $thirteenmonth = 0;
+                $laterate = $late * $rate;                                      //sa attendance ni vonne to
+                $totalgross = ($standardpay + $regholidaypay + $specholidaypay + $thirteenmonth);
+                $totaldeduction = ($sss + $pagibig + $philhealth + $otheramount + $cashbond + $vale + $laterate);
+                $totalnetpay = $totalgross - $totaldeduction;
+                date_default_timezone_set('Asia/Manila');
+                $date = date('F j, Y h:i:s A');
+                $sql1="INSERT INTO `automatic_generated_salary`(`emp_id`, `total_hours`,`total_overtime`,`standard_pay`,`overtime_pay`,`regular_holiday`, 
+                `regular_holiday_pay`, `special_holiday`, `special_holiday_pay`, `thirteenmonth`, `sss`,`pagibig`,`philhealth`, `cashbond`, `other`,
+                `other_amount`,`vale`, `total_hours_late`, `total_gross`, `total_deduction`, `total_netpay` ,`start`,`end`,`date_created`,`process_by`) 
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+                $stmt1 = $this->con()->prepare($sql1);
+                $stmt1->execute([$empid,$totalhoursofwork,$tothrsovertime,$standardpay,$overtimepay,$regholiday,$regholidaypay,$specholiday,$specholidaypay,$thirteenmonth,$sss,$pagibig,$philhealth,$cashbond,$other,$otheramount,$vale,$total_hours_late,$totalgross,$totaldeduction,$totalnetpay,$start,$end,$date,$id]);
+                $CountRow01 = $stmt1 ->rowCount();
+                if($CountRow01 > 0){
+                    echo "done na";
                 }
+                
 
 
-                $sql3="SELECT * FROM holidays;";
-                $stmthol3 = $this->con()->prepare($sql3);
-                $stmthol3->execute();
-                $usershol3 = $stmthol3->fetchall();
-                $countRowhol3 =$stmthol3->rowCount();
-                $specholiday =0;
-                $regholiday =0;
-                $sqlgetholiday = "SELECT * FROM emp_attendance WHERE empId = $empid;";
-                $stmtgetholiday = $this->con()->prepare($sqlgetholiday);
-                $stmtgetholiday->execute();
-                $getholiday = $stmtgetholiday->fetchall();
-                $regular = "regular holiday";
-                $special = "special holiday";
-                foreach($getholiday as $count0)
-                {
-                    $empdatein = date ('F j' , strtotime($count0->datetimeIn));
-                    $empdateout = date ('F j' , strtotime($count0->datetimeOut));
-                    foreach($usershol3 as $holidate)
-                    {
-                            $holidateto = date('F j',strtotime($holidate->date_holiday));
-                            if(preg_match("/{$empdatein}/i", strtolower($holidateto)) OR preg_match("/{$empdateout}/i", strtolower($holidateto)))
-                            {   
-                                if(preg_match("/{$holidate->type}/i", $regular))
-                                {
-                                    $regholiday +=  1;
-                                }else if(preg_match("/{$holidate->type}/i", $special))
-                                {
-                                    $specholiday +=  1;
-                                }else {
-                                    
-                                }
-                            }
-                        }
-                }
-
-                    $standardpay = (float)$tothrs * (float)$rate;
-                    $regholiday = $regholiday * $hoursduty;
-                    $regholidaypay = ($regholiday * $rate);
-                    $specholiday = $specholiday * $hoursduty;
-                    $specrate = $specholiday * $rate;
-                    $specpercent = $specrate * 0.30;
-                    $specholidaypay = $specpercent;
-                    $thirteenmonth = 0;
-                    $total_hours_late = $late;                                      //sa attendance ni vonne to
-                    $totalgross = ($standardpay + $regholidaypay + $specholidaypay + $thirteenmonth);
-                    $totaldeduction = ($sss + $pagibig + $philhealth + $otheramount + $cashbond + $vale);
-                    $totalnetpay = $totalgross - $totaldeduction;
-                            if($totalnetpay < 0)
-                            {
-                                $forrelease = "*Not for Release!";
-                            }else
-                            {
-                                $forrelease="For Release";
-                            }
-                    date_default_timezone_set('Asia/Manila');
-                    $date = date('F j, Y h:i:s A');
-                if($countRow > 0 ){
-                    $sql1="INSERT INTO `automatic_generated_salary`(`emp_id`, `total_hours`,`standard_pay`, `regular_holiday`, 
-                    `regular_holiday_pay`, `special_holiday`, `special_holiday_pay`, `thirteenmonth`, `sss`,`pagibig`,`philhealth`, `cashbond`, `other`,
-                    `other_amount`,`vale`, `total_hours_late`, `total_gross`, `total_deduction`, `total_netpay` ,`start`,`end`,`for_release`,`date_created`,`process_by`) 
-                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
-                    $stmt1 = $this->con()->prepare($sql1);
-                    $stmt1->execute([$empid,$tothrs,$standardpay,$regholiday,$regholidaypay,$specholiday,$specholidaypay,$thirteenmonth,$sss,$pagibig,$philhealth,$cashbond,$other,$otheramount,$vale,$total_hours_late,$totalgross,$totaldeduction,$totalnetpay,$start,$end,$forrelease,$date,$id]);
-                    $CountRow01 = $stmt1 ->rowCount();
-                                if($CountRow01>0)
-                                {
-                                 $number+= 1;
-                                }
-                                        
-                }else 
-                    {
-                        echo "The selected employee is less than or equal to 5 attendance only, can't generate salary";
-                    }
-                }else 
-                {
-                    $Message = urlencode("Selected employee has no attendance");
-                    header("Location:automaticpayroll.php?Message=".$Message);
-                }
-
-                } else 
-                {
-                    $Message = urlencode("Selected employee has no schedule ");
-                    header("Location:automaticpayroll.php?Message=".$Message);
-                }
-
-            } //sabay sabay
-                header("Location:automaticpayroll.php?Message=".$Message);
-            $this->releaseSalary($fullname,$id);
-                } else if(isset($_POST['cancel'])) //isset to
-                {
-                header('location: automaticpayroll.php');
-                }     
+            }//loop lahat
+        }//issete
+        else if(isset($_POST['cancel'])){
+            header('location: automaticpayroll.php');
+        }
     }
     public function displayAutomaticGeneratedSalary()
     {
@@ -1560,7 +1589,7 @@ Class Payroll
                     } else {
                     } 
                 }
-                $this->emailpdf($logid);
+                // $this->emailpdf($logid);
                 }
                 $number += 1;
                 }//all
@@ -2264,6 +2293,225 @@ Class Payroll
         $file = $dompdf->output();
         $dompdf->stream($pdfname);
         }
+    }
+    public function generatemanualpdf($id){
+        if(isset($_POST['download'])){
+            $sql = "SELECT *
+            FROM generated_salary
+            INNER JOIN employee ON generated_salary.emp_id = employee.empId
+            WHERE generated_salary.log = ?;";
+            $stmt = $this->con()->prepare($sql);
+            $stmt->execute([$id]);
+            $rows = $stmt->fetch();
+    
+            $dompdf = new Dompdf();
+            $path = '../img/icon.png';
+            $type = pathinfo($path, PATHINFO_EXTENSION);
+            $data = file_get_contents($path);
+            $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+            $payslip = "<!DOCTYPE html>
+            <html>
+            <head>
+            
+            <style>
+            * {
+              box-sizing: border-box;
+            }
+            body{
+                        background:#F2F2F2;
+                        border: 1px solid black;
+                    }
+            
+            .row {
+              margin-left:-5px;
+              margin-right:-5px;
+            }
+              
+            .column {
+              float: left;
+              width: 48.5%;
+              padding: 5px;
+            }
+            .row::after {
+              content: '';
+              clear: both;
+              display: table;
+            }
+            
+            table {
+              border-collapse: collapse;
+              border-spacing: 0;
+              width: 100%;
+              border: 2px solid #ddd;
+            }
+            
+            th, td {
+              text-align: left;
+              padding: 10px;
+            }
+            
+            tr:nth-child(even) {
+              background-color: #f8f9f9;
+            }
+            
+            /* Responsive layout - makes the two columns stack on top of each other instead of next to each other on screens that are smaller than 600 px */
+            @media screen and (max-width: 600px) {
+              .column {
+                width: 100%;
+              }
+            }
+            </style>
+            </head>
+            <body><img src='$base64' type='' class='viewautomatedsalary-logo' width='100' height='100'
+            style='float:right; margin-left:-200px; margin-right: 70px; margin-top: 20px'></img>
+            <center><h2>JTDV SECURITY AGENCY</h2>
+            <p><u>400 Gem Bldg.,Gen T De Leon Ave.<br/>Barangay Gen T. De Leon, Valenzuela City</u></p></center>
+    
+            <div class='row'>
+              <div class='column'>
+                Employee ID: $rows->empId <br/>
+                Employee Name: $rows->firstname  $rows->lastname <br/>
+                Position: $rows->position
+                <table>
+                  <tr>
+                    <th>Earnings</th>
+                    <th>Hours</th>
+                    <th>Rate</th>
+                    <th>&nbsp;</th>
+                  </tr>
+                  <tr>
+                    <td>Basic Pay</td>
+                    <td>".number_format($rows->total_hours)."</td>
+                    <td>$rows->ratesperDay</td>
+                    <td>".number_format($rows->standard_pay)."</td>
+                  </tr>
+                  <tr>
+                  <td>Overtime</td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  </tr>
+                  <tr>
+                    <td>Regular Holiday</td>
+                    <td>$rows->regular_holiday</td>
+                    <td></td>
+                    <td>".number_format($rows->regular_holiday_pay)."</td>
+                  </tr>
+                  <tr>
+                    <td>Special Holiday</td>
+                    <td>$rows->special_holiday</td>
+                    <td></td>
+                    <td>".number_format($rows->special_holiday_pay)."</td>
+                  </tr>
+                  <tr>
+                    <td>13Month</td>
+                    <td>$rows->thirteenmonth</td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td>&nbsp;</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td>&nbsp;</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td>Total Gross</td>
+                    <td></td>
+                    <td></td>
+                    <td>".number_format($rows->total_gross)."</td>
+                  </tr>
+                </table>
+                <h3><u>Total Netpay: ".number_format($rows->total_netpay)."</u></h3>
+              </div>
+              <div class='column'>
+                  Email: $rows->email<br/>
+                  Contact: $rows->cpnumber<br/>
+                  Date: $rows->date_created
+                <table>
+                  <tr>
+                    <th>Deductions</th>
+                    <th>No.of</th>
+                    <th>Rate</th>
+                    <th>&nbsp;</th>
+                  </tr>
+                  <tr>
+                    <td>Late</td>
+                    <td>$rows->total_hours_late</td>
+                    <td>59.523</td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td>SSS</td>
+                    <td></td>
+                    <td></td>
+                    <td>$rows->sss</td>
+                  </tr>
+                  <tr>
+                    <td>Pagibig</td>
+                    <td></td>
+                    <td></td>
+                    <td>$rows->pagibig</td>
+                  </tr>
+                  <tr>
+                    <td>Philhealth</td>
+                    <td></td>
+                    <td></td>
+                    <td>$rows->philhealth</td>
+                  </tr>
+                  <tr>
+                    <td>Cash Bond</td>
+                    <td></td>
+                    <td></td>
+                    <td>$rows->cashbond</td>
+                  </tr>";
+                  $payslip.=
+                  ($rows->other_amount > 0)?
+                    "<tr>
+                    <td>$rows->other</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>":"";
+                  $payslip.="<tr>
+                    <td>Cash Advance</td>
+                    <td></td>
+                    <td></td>
+                    <td>".number_format($rows->vale)."</td>
+                  </tr>
+                  <tr>
+                    <td>Total Deduction</td>
+                    <td></td>
+                    <td></td>
+                    <td>".number_format($rows->total_deduction)."</td>
+                  </tr>
+                  
+                </table>
+                <h3>Salary From: $rows->start  - $rows->end </h3>
+              </div>
+            </div>
+            </body>
+            </html>
+            ";
+            $pdfname = $rows->firstname .' '. $rows->lastname;
+            $dompdf->loadHtml($payslip);
+            $dompdf->set_option('isRemoteEnabled', TRUE);
+            // (Optional) Setup the paper size and orientation
+            $customPaper = array(0,0,1000,600);
+            $dompdf->set_paper($customPaper);
+            
+            $dompdf->render();
+            ob_end_clean();
+            $file = $dompdf->output();
+            $dompdf->stream($pdfname);
+            }
     }
     public function emailpdf($logid){
         $sql = "SELECT *

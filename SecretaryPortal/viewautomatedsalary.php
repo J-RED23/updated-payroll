@@ -108,9 +108,9 @@ tr:nth-child(even) {
       </tr>
       <tr>
         <td>Overtime</td>
+        <td><?php echo " ",number_format($rows->total_overtime);?></td>
         <td></td>
-        <td></td>
-        <td></td>
+        <td><?php echo " ",number_format($rows->overtime_pay);?></td>
       </tr>
       <tr>
         <td>Regular Holiday</td>

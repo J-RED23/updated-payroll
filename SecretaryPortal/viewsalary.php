@@ -3,6 +3,7 @@ require_once('../class.php');
 $sessionData = $payroll->getSessionSecretaryData();
 $payroll->verifyUserAccess($sessionData['access'], $sessionData['fullname'],2);
 $id = $_GET['logid'];
+$payroll->generatemanualpdf($id)
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -14,6 +15,12 @@ $id = $_GET['logid'];
     <style>
 * {
   box-sizing: border-box;
+}
+.viewautomatedsalary-logo {
+    position: absolute;
+    right: 50px;
+    top: 50px;
+    height: 100px;
 }
 body{
             background:#F2F2F2;
@@ -74,11 +81,12 @@ tr:nth-child(even) {
     $absentprice = $absentrate * $rows->rate_hour;
     $lateprice = $rows->rate_hour * $rows->hrs_late;
     ?>
-    <a href="manualpayroll.php">BACK</a>
+    <form method="post"><button type="submit" name="download">DOWNLOAD PDF</button></form>
+    <a href="manualpayroll.php">BACK</a><form>
     <center><h2>JTDV SECURITY AGENCY</h2>
 <p><u>400 Gem Bldg.,Gen T De Leon Ave.</br>Barangay Gen T. De Leon, Valenzuela City</u></p></center>
 
-
+<object data="../img/icon.png" type="" class="viewautomatedsalary-logo"></object>
 
 <div class="row">
   <div class="column">
@@ -93,10 +101,16 @@ tr:nth-child(even) {
                 <th>&nbsp;</th>
             </tr>
             <?php echo "<tr>
-            <td>Standard Pay</td>
+            <td>Basic Pay</td>
             <td>$rows->total_hours</td>
             <td>$rows->rate_hour</td>
             <td>",number_format($rows->regular_pay),"</td>
+            </tr>
+            <tr>
+            <td>Overtime</td>
+            <td></td>
+            <td></td>
+            <td></td>
             </tr>
             <tr>
             <td>Regular Holiday </td>
