@@ -166,7 +166,7 @@ tr:nth-child(even) {
         <td>Late</td>
         <td><?php echo " ",$rows->total_hours_late;?></td>
         <td>59.523</td>
-        <td></td>
+        <td><?php echo " ",$rows->late_total;?></td>
       </tr>
       <tr>
         <td>Sss</td>

@@ -24,13 +24,16 @@ $payroll->AutomaticGenerateSalary($fullname,$id);
         <form method="post" class="modal__delete">
             <div class="modal__delete__header1">
                 <h1>Create Salary</h1>
+          
             </div>
+  
 
             <div class="modal__delete__content">
                 <h1>Create salary to this employee/s?</h1>
                 <button class="btn_success" type="submit" name="createsalary">
                     Create
                 </button>
+
             </div>
 
             <div class="modal__delete__content">

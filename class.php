@@ -1043,6 +1043,8 @@ Class Payroll
             // } else {
             // echo "All inputs are required!";
             // }
+        }else {
+            header('location: manualpayroll.php');
         }
     }
     public function employeeList()
@@ -1169,7 +1171,7 @@ Class Payroll
                 $stmtot->execute([$empid]);
                 $userot = $stmtot->fetchall();
                 $countRowot = $stmtot->rowCount();
-                if($countRowot > 0){
+                if($countRowot > 0){          //overtime
                     $sqlotcheck="SELECT * FROM schedule WHERE empId = $empid";
                     $stmtotcheck = $this->con()->prepare($sqlotcheck);
                     $stmtotcheck->execute();
@@ -1187,11 +1189,9 @@ Class Payroll
                         $overtimerate = $ot->overtime_rate;
                         $timein= date('H:i:s',strtotime($ot->timeIn));
                         $timeout= date('H:i:s',strtotime($ot->timeOut));
-                        $tothrs += abs(strtotime($timein) - strtotime($timeout)) /3600 ;
                         if(strtotime($minimumtimeoutot) < strtotime($timeout))
                         {
                         $tothrsovertime += abs(strtotime($timeout) - strtotime($minimumtimeoutot)) /3600 ;
-                        echo "Overtime niya ".$tothrsovertime." hours ".$ot->timeIn ." ". $ot->timeOut."<br>";
                         }
                          
                     }
@@ -1216,18 +1216,22 @@ Class Payroll
                             if(strtolower($ded->deduction)=="sss"){
                                 $msc = ($rate * 8) * 31;
                                 $sss = $msc * $ded->percentage;
+                                $sss = number_format($sss) / 2;
                             }
                                 else if (strtolower($ded->deduction)=="pagibig")
                                 {
                                     $msc = ($rate * 8) * 31;
                                     $pagibig = $msc * $ded->percentage;
+                                    $pagibig = number_format($pagibig) / 2;
                                 }
                                 else if (strtolower($ded->deduction)=="philhealth")
                                 {
                                     $msc = ($rate * 8) * 31;
                                     $philhealth = $msc * $ded->percentage;
+                                    $philhealth = number_format($philhealth) / 2;
                                 }
-                                else if(strtolower($ded->deduction)=="cash bond")
+                                
+                                else if(strtolower(trim($ded->deduction))=="cashbond")
                                 {
                                     $cashbond = $ded->amount;
                                 }else   
@@ -1251,12 +1255,12 @@ Class Payroll
                     $special = "special holiday";
                     foreach($getholiday as $count0)
                     {
-                        $empdatein = date ('F j' , strtotime($count0->datetimeIn));
-                        $empdateout = date ('F j' , strtotime($count0->datetimeOut));
+                        $empdatein = date ('F d' , strtotime($count0->datetimeIn));
+                        $empdateout = date ('F d' , strtotime($count0->datetimeOut));
 
                         foreach($usershol3 as $holidate)
                         {
-                            $holidateto = date('F j',strtotime($holidate->date_holiday));
+                            $holidateto = date('F d',strtotime($holidate->date_holiday));
                             if(preg_match("/{$empdatein}/i", strtolower($holidateto)) OR preg_match("/{$empdateout}/i", strtolower($holidateto)))
                             {   
                                 if(preg_match("/{$holidate->type}/i", $regular))
@@ -1313,12 +1317,13 @@ Class Payroll
                 $totaldeduction = 0;
                 $totalnetpay = 0;
 
-
+                $tothrsovertime = 0;
                 $total_hours_late = $late;
                 $overtimepay = $tothrsovertime * $overtimerate;
-                $standardpay = $totalhoursofwork * $rate;
+                $standardpay = number_format($tothrs) * $rate;
                 $regholiday = $regholiday * $hoursduty;
                 $regholidaypay = ($regholiday * $rate);
+
                 $specholiday = $specholiday * $hoursduty;
                 $specrate = $specholiday * $rate;
                 $specpercent = $specrate * 0.30;
@@ -1332,10 +1337,10 @@ Class Payroll
                 $date = date('F j, Y h:i:s A');
                 $sql1="INSERT INTO `automatic_generated_salary`(`emp_id`, `total_hours`,`total_overtime`,`standard_pay`,`overtime_pay`,`regular_holiday`, 
                 `regular_holiday_pay`, `special_holiday`, `special_holiday_pay`, `thirteenmonth`, `sss`,`pagibig`,`philhealth`, `cashbond`, `other`,
-                `other_amount`,`vale`, `total_hours_late`, `total_gross`, `total_deduction`, `total_netpay` ,`start`,`end`,`date_created`,`process_by`) 
-                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+                `other_amount`,`vale`, `total_hours_late`,`late_total`, `total_gross`, `total_deduction`, `total_netpay` ,`start`,`end`,`date_created`,`process_by`) 
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
                 $stmt1 = $this->con()->prepare($sql1);
-                $stmt1->execute([$empid,$totalhoursofwork,$tothrsovertime,$standardpay,$overtimepay,$regholiday,$regholidaypay,$specholiday,$specholidaypay,$thirteenmonth,$sss,$pagibig,$philhealth,$cashbond,$other,$otheramount,$vale,$total_hours_late,$totalgross,$totaldeduction,$totalnetpay,$start,$end,$date,$id]);
+                $stmt1->execute([$empid,$tothrs,$tothrsovertime,$standardpay,$overtimepay,$regholiday,$regholidaypay,$specholiday,$specholidaypay,$thirteenmonth,$sss,$pagibig,$philhealth,$cashbond,$other,$otheramount,$vale,$total_hours_late,$laterate,$totalgross,$totaldeduction,$totalnetpay,$start,$end,$date,$id]);
                 $CountRow01 = $stmt1 ->rowCount();
                 if($CountRow01 > 0){
                     echo "done na";
@@ -1344,6 +1349,7 @@ Class Payroll
 
 
             }//loop lahat
+            $this->releaseSalary($fullname,$id);
         }//issete
         else if(isset($_POST['cancel'])){
             header('location: automaticpayroll.php');
@@ -2226,7 +2232,7 @@ Class Payroll
                 <td>Late</td>
                 <td>$rows->total_hours_late</td>
                 <td>59.523</td>
-                <td></td>
+                <td>$rows->late_total</td>
               </tr>
               <tr>
                 <td>SSS</td>
@@ -2662,7 +2668,7 @@ Class Payroll
                 <td>Late</td>
                 <td>$rows->total_hours_late</td>
                 <td>59.523</td>
-                <td></td>
+                <td>$rows->late_total</td>
               </tr>
               <tr>
                 <td>SSS</td>
