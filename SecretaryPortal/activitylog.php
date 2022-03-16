@@ -38,11 +38,10 @@
                             </ul>
                         </li>
     
-                        <li class="li__report active">
-                            <a href="#" class="active">Payroll</a>
+                        <li class="li__report">
+                            <a href="#">Payroll</a>
                             <ul>
-                                <li><a href="../SecretaryPortal/manualpayroll.php">Manual</a></li>
-                                <li><a href="../SecretaryPortal/automaticpayroll.php" class="active">Automatic</a></li>
+                                <li><a href="../SecretaryPortal/automaticpayroll.php">Salary</a></li>
                             </ul>
                         </li>
 
@@ -50,12 +49,12 @@
                             <a href="#">Salary</a>
                             <ul>
                                 <li><a href="../SecretaryPortal/releasedsalary.php">Released Salary</a></li>
-                                <li><a href="../SecretaryPortal/salaryreport.php">Salary Report</a></li>
+                                <li><a href="../SecretaryPortal/salaryreport.php">Salary Chart</a></li>
                                 <li><a href="../SecretaryPortal/contributions.php">Contributions</a></li>
                             </ul>
                          </li>
                          <li class="li__report">
-                         <a href="../SecretaryPortal/activitylog.php">Activity log</a>
+                         <a href="../SecretaryPortal/activitylog.php" class="active">Activity log</a>
                          </li>
                     </ul>
                 </nav>

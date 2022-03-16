@@ -67,7 +67,7 @@ tr:nth-child(even) {
 </style>
 </head>
 <body>
-<a href="automaticpayroll.php">BACK</a>
+<a href="releasedsalary.php">BACK</a>
 <form method="post"><button type="submit" name="download">DOWNLOAD PDF</button></form>
 <?php
     $sql = "SELECT *
@@ -114,13 +114,13 @@ tr:nth-child(even) {
       </tr>
       <tr>
         <td>Regular Holiday</td>
-        <td><?php echo " ",$rows->regular_holiday;?></td>
+        <td></td>
         <td></td>
         <td><?php echo " ",number_format($rows->regular_holiday_pay);?></td>
       </tr>
       <tr>
         <td>Special Holiday</td>
-        <td><?php echo " ",$rows->special_holiday;?></td>
+        <td></td>
         <td></td>
         <td><?php echo " ",$rows->special_holiday_pay;?></td>
       </tr>
@@ -164,8 +164,8 @@ tr:nth-child(even) {
       </tr>
       <tr>
         <td>Late</td>
-        <td><?php echo " ",$rows->total_hours_late;?></td>
-        <td>59.523</td>
+        <td><?php echo " ",$rows->total_hours_late." Min/s"?></td>
+        <td><?php echo " ",number_format($rows->ratesperDay / 60,3);?></td>
         <td><?php echo " ",$rows->late_total;?></td>
       </tr>
       <tr>

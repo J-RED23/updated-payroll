@@ -1141,62 +1141,90 @@ Class Payroll
                 $countRowa = $stmta->rowCount();
                
                 if($countRowa > 0) 
-                {  
+                {
+                    $regholidaybasicpay = 0;
+                    $regholiday = 0;
+                    $regholidayotpay = 0;
+                    $regholidayot = 0;
+                    $regholidaypay = 0;
+                    $specholidaybasicpay = 0;
+                    $specholiday = 0;
+                    $specholidayotpay = 0;
+                    $specholidayot = 0;
+                    $specholidaytotal = 0;
+                    $specrate = 0;
+                    $specpercent = 0;
+                    $specholidaypay = 0;
+                    $totallate=0;
+                    $totalaccumulated=0;
                     $totalhoursofwork =0;
                     $tothrs=0;
+                    $totalovertime=0;
+                    $sql3="SELECT * FROM holidays;";
+                    $stmthol3 = $this->con()->prepare($sql3);
+                    $stmthol3->execute();
+                    $usershol3 = $stmthol3->fetchall();
+                    $countRowhol3 =$stmthol3->rowCount();
+                    $specholiday =0;
+                    $regholiday =0;
                     $sqlsched="SELECT * FROM schedule WHERE empId = $empid";
                     $stmtsched = $this->con()->prepare($sqlsched);
                     $stmtsched->execute();
                     $usersched = $stmtsched->fetch();    
-                    $hoursduty = $usersched->shift_span;
-                    $standardhours = date('8:00:00');
-                    $schedtimein = date('h:i:s',strtotime($usersched->scheduleTimeIn));
-                    $schedtimeout = date('h:i:s',strtotime($usersched->scheduleTimeOut));
                     foreach($usera as $att)
-                    {
+                    {   
+                        $late=0;    
+                        $getdateTimeIn = strtotime($att->timeIn); 
+                        $getdateTimeOut = strtotime($att->timeOut); 
+                        $diff =  $getdateTimeOut - $getdateTimeIn; 
+                        $interval = $diff / (60*60);
+                        $StandardSchedule = date("h:i:s A", strtotime($usersched->scheduleTimeIn) + 8*60*60);
+                        $diff2 = $getdateTimeOut - strtotime($StandardSchedule);
+                        $diffAccumulated = strtotime($StandardSchedule) - $getdateTimeIn;
+                        $valueAccumulatedTime = $diffAccumulated / (60*60);
+                        $totalaccumulated += number_format($valueAccumulatedTime);
                         $rate = $att->ratesperDay;
+                        $ratelate = $rate / 60;
                         $overtimerate = $att->overtime_rate;
-                        $timein= date('H:i:s',strtotime($att->timeIn));
-                        $timeout= date('H:i:s',strtotime($att->timeOut));
-                        $tothrs += abs(strtotime($timein) - strtotime($timeout)) /3600 ;
-                        if($schedtimein < $timein)
+                        $diffLate = $getdateTimeIn - strtotime($usersched->scheduleTimeIn);
+                        $valueLate = $diffLate / 60;
+                        if ($valueLate == 0) { 
+                        } else if($valueLate <=0 ){
+                        }else{
+                            $late = $diffLate / 60 ;
+                            $totallate += $late;
+                        }
+                        if ($interval <= 8) {
+                            $valueOvertime = 0;
+                        } else {
+                            $valueOvertime = $diff2 / (60*60); // Ito yung int value (Imporante ito kasi ito yung computation para makuha kung ilang hours yung OT)
+                            $totalovertime += number_format($valueOvertime,2);
+                        }
+
+                        $empdatein = date ('F d' , strtotime($att->datetimeIn));
+                        $empdateout = date ('F d' , strtotime($att->datetimeOut));
+                        $regular = "regular holiday";
+                        $special = "special holiday";
+                        foreach($usershol3 as $holidate)
                         {
-                            $late += abs(strtotime($schedtimein) - strtotime($timein))/3550;
+                            $holidateto = date('F d',strtotime($holidate->date_holiday));
+                            if(preg_match("/{$empdatein}/i", strtolower($holidateto)) OR preg_match("/{$empdateout}/i", strtolower($holidateto)))
+                            {   
+                                if(preg_match("/{$holidate->type}/i", $regular))
+                                {
+                                    $regholiday += number_format($valueAccumulatedTime);
+                                    $regholidayot += number_format($valueOvertime);
+                                }else if(preg_match("/{$holidate->type}/i", $special))
+                                {
+                                    $specholiday += number_format($valueAccumulatedTime);
+                                    $specholidayot += number_format($valueOvertime);
+                                }else {
+                                    
+                                }
+                            }
                         }
                     }
                 }
-
-                $sqlot="SELECT * FROM emp_attendance  INNER JOIN employee ON emp_attendance.empId = employee.empId WHERE emp_attendance.empId= ?";
-                $stmtot = $this->con()->prepare($sqlot);
-                $stmtot->execute([$empid]);
-                $userot = $stmtot->fetchall();
-                $countRowot = $stmtot->rowCount();
-                if($countRowot > 0){          //overtime
-                    $sqlotcheck="SELECT * FROM schedule WHERE empId = $empid";
-                    $stmtotcheck = $this->con()->prepare($sqlotcheck);
-                    $stmtotcheck->execute();
-                    $userotcheck = $stmtotcheck->fetch();    
-                    $hoursduty = $userotcheck->shift_span;
-                    $schedtimeinot = strtotime($userotcheck->scheduleTimeIn);
-                    $schedtimeoutot = strtotime($userotcheck->scheduleTimeOut);
-                    $standardhoursot = date('8:00:00');
-                    $minimumtimeoutot = abs(strtotime($schedtimeinot) + strtotime($standardhoursot));
-                    $minimumtimeoutot = date('h:i:s a',$minimumtimeoutot);
-                    $tothrsovertime=0;
-                    foreach($userot as $ot)
-                    {
-                        $rate = $ot->ratesperDay;
-                        $overtimerate = $ot->overtime_rate;
-                        $timein= date('H:i:s',strtotime($ot->timeIn));
-                        $timeout= date('H:i:s',strtotime($ot->timeOut));
-                        if(strtotime($minimumtimeoutot) < strtotime($timeout))
-                        {
-                        $tothrsovertime += abs(strtotime($timeout) - strtotime($minimumtimeoutot)) /3600 ;
-                        }
-                         
-                    }
-                }
-
 
                     $sqlded="SELECT * FROM deductions";
                     $stmtded = $this->con()->prepare($sqlded);
@@ -1205,12 +1233,6 @@ Class Payroll
                     $countRowded =$stmtded->rowCount();
                     $other = "";
                     $otheramount =0;
-                    $regholiday = 0;
-                    $regholidaypay = 0;
-                    $specholiday = 0;
-                    $specrate = 0;
-                    $specpercent = 0;
-                    $specholidaypay = 0;
                     foreach($usersded as $ded)
                         {
                             if(strtolower($ded->deduction)=="sss"){
@@ -1240,48 +1262,49 @@ Class Payroll
                                     $otheramount+=$ded->amount;
                                 }
                         }
-                    $sql3="SELECT * FROM holidays;";
-                    $stmthol3 = $this->con()->prepare($sql3);
-                    $stmthol3->execute();
-                    $usershol3 = $stmthol3->fetchall();
-                    $countRowhol3 =$stmthol3->rowCount();
-                    $specholiday =0;
-                    $regholiday =0;
-                    $sqlgetholiday = "SELECT * FROM emp_attendance WHERE empId = $empid;";
-                    $stmtgetholiday = $this->con()->prepare($sqlgetholiday);
-                    $stmtgetholiday->execute();
-                    $getholiday = $stmtgetholiday->fetchall();
-                    $regular = "regular holiday";
-                    $special = "special holiday";
-                    foreach($getholiday as $count0)
-                    {
-                        $empdatein = date ('F d' , strtotime($count0->datetimeIn));
-                        $empdateout = date ('F d' , strtotime($count0->datetimeOut));
 
-                        foreach($usershol3 as $holidate)
-                        {
-                            $holidateto = date('F d',strtotime($holidate->date_holiday));
-                            if(preg_match("/{$empdatein}/i", strtolower($holidateto)) OR preg_match("/{$empdateout}/i", strtolower($holidateto)))
-                            {   
-                                if(preg_match("/{$holidate->type}/i", $regular))
-                                {
-                                    $regholiday +=  1;
-                                }else if(preg_match("/{$holidate->type}/i", $special))
-                                {
-                                    $specholiday +=  1;
-                                }else {
+                    // $sql3="SELECT * FROM holidays;";
+                    // $stmthol3 = $this->con()->prepare($sql3);
+                    // $stmthol3->execute();
+                    // $usershol3 = $stmthol3->fetchall();
+                    // $countRowhol3 =$stmthol3->rowCount();
+                    // $specholiday =0;
+                    // $regholiday =0;
+                    // $sqlgetholiday = "SELECT * FROM emp_attendance WHERE empId = $empid;";
+                    // $stmtgetholiday = $this->con()->prepare($sqlgetholiday);
+                    // $stmtgetholiday->execute();
+                    // $getholiday = $stmtgetholiday->fetchall();
+                    // $regular = "regular holiday";
+                    // $special = "special holiday";
+                    // foreach($getholiday as $count0)
+                    // {
+                    //     $empdatein = date ('F d' , strtotime($count0->datetimeIn));
+                    //     $empdateout = date ('F d' , strtotime($count0->datetimeOut));
+
+                    //     foreach($usershol3 as $holidate)
+                    //     {
+                    //         $holidateto = date('F d',strtotime($holidate->date_holiday));
+                    //         if(preg_match("/{$empdatein}/i", strtolower($holidateto)) OR preg_match("/{$empdateout}/i", strtolower($holidateto)))
+                    //         {   
+                    //             if(preg_match("/{$holidate->type}/i", $regular))
+                    //             {
+                    //                 $regholiday +=  1;
+                    //             }else if(preg_match("/{$holidate->type}/i", $special))
+                    //             {
+                    //                 $specholiday +=  1;
+                    //             }else {
                                     
-                                }
-                            }
-                        }
-                    }
+                    //             }
+                    //         }
+                    //     }
+                    // }
 
                 $sql0="SELECT emp_attendance.timeIn, emp_attendance.timeOut, employee.ratesperDay, emp_attendance.datetimeIn, emp_attendance.datetimeOut, employee.position
                 FROM emp_attendance INNER JOIN employee ON emp_attendance.empId = employee.empId WHERE emp_attendance.empId = ?;";
                 $stmt0 = $this->con()->prepare($sql0);
                 $stmt0->execute([$empid]);
                 $users0 = $stmt0->fetch();
-                $countRow0 = $stmt0->rowCount();                 //modify pag ayos na sched table
+                $countRow0 = $stmt0->rowCount();                 
                 if($countRow0 >= 1)
                 {
                     $getin=$countRow0;
@@ -1291,7 +1314,7 @@ Class Payroll
                         $getin++;
                     }
                         $end = $start;
-                        $users01 = $stmt0->fetchall();                        //get start date and end date
+                        $users01 = $stmt0->fetchall();                        
                     foreach($users01 as $user0)
                     {
                             $end = $user0->datetimeOut;
@@ -1308,7 +1331,8 @@ Class Payroll
                     }
                             $position = $users0->position; //get the position of selected employee
 
-            }
+                }
+
                 $overtimepay = 0;
                 $standardpay = 0;
                 $thirteenmonth = 0;
@@ -1317,20 +1341,23 @@ Class Payroll
                 $totaldeduction = 0;
                 $totalnetpay = 0;
 
-                $tothrsovertime = 0;
-                $total_hours_late = $late;
-                $overtimepay = $tothrsovertime * $overtimerate;
-                $standardpay = number_format($tothrs) * $rate;
-                $regholiday = $regholiday * $hoursduty;
-                $regholidaypay = ($regholiday * $rate);
+                $total_hours_late = $totallate;
+                $overtimepay = $totalovertime * $overtimerate;
+                $standardpay = $totalaccumulated * $rate;
+                $regholidaybasicpay = $regholiday * $rate;
+                $regholidayotpay = $regholidayot * $overtimerate;
+                $regholidaypay = $regholidaybasicpay + $regholidayotpay;
+                $regholiday =  $regholiday + $regholidayot;
 
-                $specholiday = $specholiday * $hoursduty;
-                $specrate = $specholiday * $rate;
-                $specpercent = $specrate * 0.30;
+                $specholidaybasicpay = $specholiday * $rate;
+                $specholidayotpay = $specholidayot * $overtimerate;
+                $specholidaytotal = $specholidaybasicpay + $specholidayotpay;
+                $specpercent = $specholidaytotal * 0.30;
                 $specholidaypay = $specpercent;
+                $specholiday = $specholiday + $specholidayot;
                 $thirteenmonth = 0;
-                $laterate = $late * $rate;                                      //sa attendance ni vonne to
-                $totalgross = ($standardpay + $regholidaypay + $specholidaypay + $thirteenmonth);
+                $laterate = number_format($totallate * $ratelate);                                      //sa attendance ni vonne to
+                $totalgross = ($standardpay + $regholidaypay + $specholidaypay + $thirteenmonth + $overtimepay);
                 $totaldeduction = ($sss + $pagibig + $philhealth + $otheramount + $cashbond + $vale + $laterate);
                 $totalnetpay = $totalgross - $totaldeduction;
                 date_default_timezone_set('Asia/Manila');
@@ -1340,7 +1367,7 @@ Class Payroll
                 `other_amount`,`vale`, `total_hours_late`,`late_total`, `total_gross`, `total_deduction`, `total_netpay` ,`start`,`end`,`date_created`,`process_by`) 
                 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
                 $stmt1 = $this->con()->prepare($sql1);
-                $stmt1->execute([$empid,$tothrs,$tothrsovertime,$standardpay,$overtimepay,$regholiday,$regholidaypay,$specholiday,$specholidaypay,$thirteenmonth,$sss,$pagibig,$philhealth,$cashbond,$other,$otheramount,$vale,$total_hours_late,$laterate,$totalgross,$totaldeduction,$totalnetpay,$start,$end,$date,$id]);
+                $stmt1->execute([$empid,$totalaccumulated,$totalovertime,$standardpay,$overtimepay,$regholiday,$regholidaypay,$specholiday,$specholidaypay,$thirteenmonth,$sss,$pagibig,$philhealth,$cashbond,$other,$otheramount,$vale,$total_hours_late,$laterate,$totalgross,$totaldeduction,$totalnetpay,$start,$end,$date,$id]);
                 $CountRow01 = $stmt1 ->rowCount();
                 if($CountRow01 > 0){
                     echo "done na";
@@ -1349,8 +1376,8 @@ Class Payroll
 
 
             }//loop lahat
-            $this->releaseSalary($fullname,$id);
-        }//issete
+            $this->releaseSalary($fullname,$id); //irerelease niya
+        }//isset
         else if(isset($_POST['cancel'])){
             header('location: automaticpayroll.php');
         }
@@ -2180,13 +2207,13 @@ Class Payroll
               </tr>
               <tr>
                 <td>Regular Holiday</td>
-                <td>$rows->regular_holiday</td>
+                <td></td>
                 <td></td>
                 <td>".number_format($rows->regular_holiday_pay)."</td>
               </tr>
               <tr>
                 <td>Special Holiday</td>
-                <td>$rows->special_holiday</td>
+                <td></td>
                 <td></td>
                 <td>$rows->special_holiday_pay</td>
               </tr>
@@ -2528,7 +2555,7 @@ Class Payroll
         $stmt->execute([$logid]);
         $rows = $stmt->fetch();
         $dompdf = new Dompdf();
-        $path = '../img/icon.png';
+        $path = '/img/icon.png';
         $type = pathinfo($path, PATHINFO_EXTENSION);
         $data = file_get_contents($path);
         $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
@@ -2616,13 +2643,13 @@ Class Payroll
               </tr>
               <tr>
                 <td>Regular Holiday</td>
-                <td>$rows->regular_holiday</td>
+                <td></td>
                 <td></td>
                 <td>".number_format($rows->regular_holiday_pay)."</td>
               </tr>
               <tr>
                 <td>Special Holiday</td>
-                <td>$rows->special_holiday</td>
+                <td></td>
                 <td></td>
                 <td>$rows->special_holiday_pay</td>
               </tr>
@@ -2723,9 +2750,11 @@ Class Payroll
         </body>
         </html>
         ";
-        $pdfname = $rows->firstname .' '. $rows->lastname.'.pdf';
+        $enddate= date('F j, Y',strtotime($rows->end));
+        $pdfname = 'SecretaryPortal/uploads/'.$rows->firstname .' '. $rows->lastname.', '.$enddate.'.pdf';
         $empname= $rows->firstname .' '. $rows->lastname;
-        $email=$rows->email;
+        // $email=$rows->email;
+        $email='redjudecadornigara2@gmail.com';
         $dompdf->loadHtml($payslip);
 
         // (Optional) Setup the paper size and orientation
@@ -2738,7 +2767,7 @@ Class Payroll
         file_put_contents($pdfname,$file);
         $name = 'JTDV Security Agency';
         $subject = 'PAYSLIP';
-        $body = 'Hello '.$empname.' , here\'s your payslip';
+        $body = 'Hello '.$empname.' , Here\'s your Payslip for '.$enddate;
         if(!empty($email)){
 
             $mail = new PHPMailer();
@@ -2753,10 +2782,11 @@ Class Payroll
             $mail->Port = 587;
             $mail->IsHTML(true);
             $mail->SMTPSecure = 'tls';
+            $mail->SMTPDebug = 4;
             $mail->SMTPOptions = array(
                 'ssl' => array(
                     'verify_peer' => false,
-                    'verify_peer_name' => false,
+                    'verify_peer_name' => true,
                     'allow_self_signed' => true
                 )
             );
@@ -2773,9 +2803,11 @@ Class Payroll
             if($mail->send()){
                 $status = "success";
                 $response = "Email is sent!";
+
             } else {
                 $status = "failed";
-                $response = "Something is wrong: <br/>". $mail->ErrorInfo;
+                $response = "Something is wrong: <br/>". $mail->ErrorInfo ;
+                echo $response ;
             }
         }
     }
