@@ -1,5 +1,5 @@
 <?php
-    require_once('../class.php');
+    require_once('../secclass.php');
     $sessionData = $payroll->getSessionSecretaryData();
     $payroll->verifyUserAccess($sessionData['access'], $sessionData['fullname'],2);
     $fullname = $sessionData['fullname'];
@@ -14,7 +14,7 @@
     <title>Automatic Payroll</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="../css/main.css">
+    <link rel="stylesheet" type="text/css" href="../seccss/main.css">
 </head>
 <body>
     <div class="main-container">
@@ -59,7 +59,7 @@
                     </ul>
                 </nav>
                 <div class="sidebar__logout">
-                    <div class="li li__logout"><a href="../logout.php">LOGOUT</a></div>
+                    <div class="li li__logout"><a href="../seclogout.php">LOGOUT</a></div>
                 </div>
             </div>
 
@@ -88,6 +88,12 @@
                     </form>
                 </div>
             </div>
+            <div style='display: flex; justify-content: right; margin-right: 100px;'>
+                <form method="post">
+                    <button type="submit" name="generateall"><a href="createsalary.php">GENERATE ALL</a></button>
+                </form>
+            </div>
+
 
             <div class="auto-generated-payroll-attendance__content">
                 <table>
@@ -97,19 +103,26 @@
                             <th>Employees</th>
                             <th>Attendance</th>
                             <th>Total Hours</th>
-                            <th><form method="post"><button type="submit" name="generateall"><a href="createsalary.php">GENERATE</a></button></form></th>
+                            <th>Standard Hours</td>
+                            <th>Overtime Hours</th>
+                            <th>Normal Rate</th>
+                            <th>OT Rate</th>
+                            <th>Gross Pay</th>
+                            <th>Standard Pay</th>
+                            <th>Overtime Pay</th>
                         </tr>
                     </thead>
           
                     <tbody>
                     <?php
-                        if(isset($_POST['searchempatt'])){
-                            $payroll->searchempatt($fullname,$id);
-                        }else if (isset($_POST['searchempatt']) && empty($_POST['emp'])){
-                            $payroll->displayempattendance($fullname,$id);
-                        }else{
-                            $payroll->displayempattendance($fullname,$id);
-                        }
+                        // if(isset($_POST['searchempatt'])){
+                        //     $payroll->searchempatt($fullname,$id);
+                        // }else if (isset($_POST['searchempatt']) && empty($_POST['emp'])){
+                        //     $payroll->displayempattendance($fullname,$id);
+                        // }else{
+                        //     $payroll->displayempattendance($fullname,$id);
+                        // }
+                        $payroll->displayempattendance($fullname, $id);
                         ?>
                     </tbody>
                 </table>

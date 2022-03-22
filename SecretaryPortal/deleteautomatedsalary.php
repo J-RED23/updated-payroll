@@ -1,5 +1,5 @@
 <?php
-require_once('../class.php');
+require_once('../secclass.php');
 $id=$_GET['logid'];
 $payroll->deleteautomatedsalary($id);
 
@@ -13,7 +13,7 @@ $payroll->deleteautomatedsalary($id);
     <title>Delete Auto Salary</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="../css/main.css">
+    <link rel="stylesheet" type="text/css" href="../seccss/main.css">
 </head>
 <body>
 <div class="main-containter">

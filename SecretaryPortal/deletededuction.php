@@ -1,5 +1,5 @@
 <?php
-require_once('../class.php');
+require_once('../secclass.php');
 $id=$_GET['logid'];
 $payroll->deletededuction($id);
 

@@ -1,5 +1,5 @@
 <?php
-require_once('../class.php');
+require_once('../secclass.php');
 $sessionData = $payroll->getSessionSecretaryData();
 $payroll->verifyUserAccess($sessionData['access'], $sessionData['fullname'],2);
 $id = $_GET['logid'];
@@ -109,7 +109,7 @@ tr:nth-child(even) {
       <tr>
         <td>Overtime</td>
         <td><?php echo " ",number_format($rows->total_overtime);?></td>
-        <td></td>
+        <td><?php echo " ",$rows->overtime_rate;?></td>
         <td><?php echo " ",number_format($rows->overtime_pay);?></td>
       </tr>
       <tr>
@@ -202,7 +202,7 @@ tr:nth-child(even) {
         <td>$rows->other</td>
         <td></td>
         <td></td>
-        <td></td>
+        <td>$rows->other_amount</td>
         <td></td>
       </tr>";
       }

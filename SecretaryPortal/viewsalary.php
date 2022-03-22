@@ -1,5 +1,5 @@
 <?php
-require_once('../class.php');
+require_once('../secclass.php');
 $sessionData = $payroll->getSessionSecretaryData();
 $payroll->verifyUserAccess($sessionData['access'], $sessionData['fullname'],2);
 $id = $_GET['logid'];
