@@ -103,25 +103,11 @@
                             <th>Employees</th>
                             <th>Attendance</th>
                             <th>Total Hours</th>
-                            <th>Standard Hours</td>
-                            <th>Overtime Hours</th>
-                            <th>Normal Rate</th>
-                            <th>OT Rate</th>
-                            <th>Gross Pay</th>
-                            <th>Standard Pay</th>
-                            <th>Overtime Pay</th>
                         </tr>
                     </thead>
           
                     <tbody>
                     <?php
-                        // if(isset($_POST['searchempatt'])){
-                        //     $payroll->searchempatt($fullname,$id);
-                        // }else if (isset($_POST['searchempatt']) && empty($_POST['emp'])){
-                        //     $payroll->displayempattendance($fullname,$id);
-                        // }else{
-                        //     $payroll->displayempattendance($fullname,$id);
-                        // }
                         $payroll->displayempattendance($fullname, $id);
                         ?>
                     </tbody>

@@ -25,6 +25,11 @@ Class Payroll
         return $this->pdo;
     }
 
+    public function close()
+    {
+        $this->pdo = null;
+    }
+
     // used to set timezone and get date and time
     public function getDateTime()
     {
@@ -708,7 +713,7 @@ Class Payroll
             if(!empty($search))
             {
                 $sql ="SELECT employee.empId, employee.firstname, employee.lastname, 
-                emp_attendance.company, emp_attendance.timeIn, emp_attendance.datetimeIn, 
+                emp_attendance.location, emp_attendance.timeIn, emp_attendance.datetimeIn, 
                 emp_attendance.timeOut, emp_attendance.datetimeOut,
                 emp_attendance.status
                 FROM employee
@@ -721,7 +726,7 @@ Class Payroll
                 foreach($users as $user){
                 $lfirstname = strtolower($user->firstname);
                 $llastname  = strtolower($user->lastname);
-                $lcompany   = strtolower($user->company);
+                $lcompany   = strtolower($user->location);
                 $lstatus    = strtolower($user->status);
                 $timeIn     = strtolower($user->timeIn);
                 $timeOut    = strtolower($user->timeOut);
@@ -730,7 +735,7 @@ Class Payroll
                     <td>&nbsp;$user->empId&nbsp;</td>
                     <td>&nbsp;$user->firstname&nbsp;</td>
                     <td>&nbsp;$user->lastname&nbsp;</td>
-                    <td>&nbsp;$user->company&nbsp;</td>
+                    <td>&nbsp;$user->location&nbsp;</td>
                     <td>&nbsp;$user->timeIn&nbsp;</td>
                     <td>&nbsp;$user->datetimeIn&nbsp;</td>
                     <td>&nbsp;$user->timeOut&nbsp;</td>
@@ -1408,187 +1413,196 @@ Class Payroll
             $stmtall->execute();
             $userall=$stmtall->fetchall();
             $number=0;
+            $this->pdo = null;
             foreach($userall as $all){
-            $logid=$all->log;
-            $pdfsarray[]=$all->log;
-            $sql = "SELECT * FROM automatic_generated_salary WHERE log = ? AND for_release='for release';";
-            $stmt = $this->con()->prepare($sql);
-            $stmt->execute([$logid]);
-            $user=$stmt->fetch();
-            $end = date('F',strtotime($user->end));
-            $totnetpay = $user->total_netpay;
-            $currsss = $user->sss;
-            $currpagibig =$user->pagibig;
-            $currphilhealth =$user->philhealth;
-            $currcashbond =$user->cashbond;
-            if(strtolower($user->for_release)=='**not for release!')
-            {
-                echo "Not for release";
-                header('location: automaticpayroll.php');
-            }else{
-                $sql1="UPDATE automatic_generated_salary SET for_release = 'released', date_released=CURRENT_TIMESTAMP() WHERE log = $logid;";
-                $stmt1 = $this->con()->prepare($sql1);
-                $stmt1->execute();
-                $CountRow01 = $stmt1 ->rowCount();
-            if($CountRow01>0){
-                $status='unpaid';
-                $sql2="UPDATE emp_attendance SET salary_status = 'paid' WHERE empId = ? AND salary_status = ?;";
-                $stmt2 = $this->con()->prepare($sql2);
-                $stmt2->execute([$user->emp_id,$status]);
-                $CountRow02 = $stmt2 ->rowCount();
-            if($CountRow02>0){
-                $sql3="DELETE FROM cashadvance WHERE empId = '$user->emp_id';";
-                $stmt3 = $this->con()->prepare($sql3);
-                $stmt3->execute();
+                $logid=$all->log;
+                $pdfsarray[]=$all->log;
+                $sql = "SELECT * FROM automatic_generated_salary WHERE log = ? AND for_release='for release';";
+                $stmt = $this->con()->prepare($sql);
+                $stmt->execute([$logid]);
+                $user=$stmt->fetch();
+                $empid = $user->emp_id;
+                $end = date('F',strtotime($user->end));
+                $totnetpay = $user->total_netpay;
+                $currsss = $user->sss;
+                $currpagibig =$user->pagibig;
+                $currphilhealth =$user->philhealth;
+                $currcashbond =$user->cashbond;
+                $this->pdo = null;
+                if(strtolower($user->for_release)=='**not for release!')
+                {
+                    echo "Not for release";
+                    header('location: automaticpayroll.php');
+                }else{
+                        $sql1="UPDATE automatic_generated_salary SET for_release = 'released', date_released=CURRENT_TIMESTAMP() WHERE log = $logid;";
+                        $stmt1 = $this->con()->prepare($sql1);
+                        $stmt1->execute();
+                        $CountRow01 = $stmt1 ->rowCount();
+                        $this->pdo = null;
+                    if($CountRow01>0){
+                        $status='unpaid';
+                        $sql2="UPDATE emp_attendance SET salary_status = 'paid' WHERE empId = ? AND salary_status = ?;";
+                        $stmt2 = $this->con()->prepare($sql2);
+                        $stmt2->execute([$user->emp_id,$status]);
+                        $CountRow02 = $stmt2 ->rowCount();
+                        $this->pdo = null;
+                        if($CountRow02>0){
+                            $sql3="DELETE FROM cashadvance WHERE empId = '$user->emp_id';";
+                            $stmt3 = $this->con()->prepare($sql3);
+                            $stmt3->execute();
+                            $this->pdo = null;
+                            $sqlcheckifhas="SELECT * FROM contributions WHERE empId = '$user->emp_id';";
+                            $stmtcheck = $this->con()->prepare($sqlcheckifhas);
+                            $stmtcheck->execute();
+                            $CountRowcheck = $stmtcheck ->rowCount();
+                            $this->pdo = null;
+                            if($CountRowcheck > 0 ){
+                                $sql4="UPDATE contributions SET sss = sss + $currsss, pagibig = pagibig + $currpagibig, 
+                                philhealth =  philhealth + $currphilhealth , cashbond = cashbond + $currcashbond, 
+                                date = CURRENT_TIMESTAMP() WHERE empId = '$user->emp_id';";
+                                $stmt4 = $this->con()->prepare($sql4);
+                                $stmt4->execute();
+                                $this->pdo = null;
+                            }elseif($CountRowcheck == 0) {
+                                $sql5="INSERT INTO contributions (empId,sss,pagibig,philhealth,cashbond,date) VALUES (?,?,?,?,?,CURRENT_TIMESTAMP());";
+                                $stmt5 = $this->con()->prepare($sql5);
+                                $stmt5->execute([$user->emp_id,$user->sss,$user->pagibig,$user->philhealth,$user->cashbond]);
+                                $this->pdo = null;
+                            }else{
+                                echo "error";
+                            }   
+                        }
+                    }
 
-                $sqlcheckifhas="SELECT * FROM contributions WHERE empId = '$user->emp_id';";
-                $stmtcheck = $this->con()->prepare($sqlcheckifhas);
-                $stmtcheck->execute();
-                $CountRowcheck = $stmtcheck ->rowCount();
-            if($CountRowcheck > 0 ){
-                $sql4="UPDATE contributions SET sss = sss + $currsss, pagibig = pagibig + $currpagibig, 
-                philhealth =  philhealth + $currphilhealth , cashbond = cashbond + $currcashbond, 
-                date = CURRENT_TIMESTAMP() WHERE empId = '$user->emp_id';";
-                $stmt4 = $this->con()->prepare($sql4);
-                $stmt4->execute();
-            }elseif($CountRowcheck == 0) {
-                $sql5="INSERT INTO contributions (empId,sss,pagibig,philhealth,cashbond,date) VALUES (?,?,?,?,?,CURRENT_TIMESTAMP());";
-                $stmt5 = $this->con()->prepare($sql5);
-                $stmt5->execute([$user->emp_id,$user->sss,$user->pagibig,$user->philhealth,$user->cashbond]);
-            }else{
-                echo "error";
-            }   
-                }
-                }
-                $sqlreport="SELECT * FROM salary_report WHERE empId = ?"; //salary report
-                $stmtreport = $this->con()->prepare($sqlreport);
-                $stmtreport->execute([$user->emp_id]);
-                $ureport=$stmtreport->fetch();
-                $CountRowreport = $stmtreport ->rowCount();
-                $jan = 'january';
-                $feb = 'february';
-                $mar = 'march';
-                $apr = 'april';
-                $may = 'may';
-                $jun = 'june';
-                $jul = 'july';
-                $aug = 'august';
-                $sep = 'september';
-                $oct = 'october';
-                $nov = 'november';
-                $dec = 'december';
-                if($CountRowreport > 0)
-                {   
-                    if(preg_match("/{$end}/i", $jan))
-                    {
-                        $sqlupdate="UPDATE salary_report SET $jan = $jan + $totnetpay WHERE empId = ?";
-                        $stmtupdate = $this->con()->prepare($sqlupdate);
-                        $stmtupdate->execute([$user->emp_id]);
-                    } else if (preg_match("/{$end}/i", $feb)){
-                        $sqlupdate="UPDATE salary_report SET $feb = $feb + $totnetpay WHERE empId = ?";
-                        $stmtupdate = $this->con()->prepare($sqlupdate);
-                        $stmtupdate->execute([$user->emp_id]);
-                    } else if (preg_match("/{$end}/i", $mar)){
-                        $sqlupdate="UPDATE salary_report SET $mar = $mar + $totnetpay WHERE empId = ?";
-                        $stmtupdate = $this->con()->prepare($sqlupdate);
-                        $stmtupdate->execute([$user->emp_id]);
-                    } else if (preg_match("/{$end}/i", $apr)){
-                        $sqlupdate="UPDATE salary_report SET $apr = $apr + $totnetpay WHERE empId = ?";
-                        $stmtupdate = $this->con()->prepare($sqlupdate);
-                        $stmtupdate->execute([$user->emp_id]);
-                    } else if (preg_match("/{$end}/i", $may)){
-                        $sqlupdate="UPDATE salary_report SET $may = $may + $totnetpay WHERE empId = ?";
-                        $stmtupdate = $this->con()->prepare($sqlupdate);
-                        $stmtupdate->execute([$user->emp_id]);
-                    } else if (preg_match("/{$end}/i", $jun)){
-                        $sqlupdate="UPDATE salary_report SET $jun = $jun + $totnetpay WHERE empId = ?";
-                        $stmtupdate = $this->con()->prepare($sqlupdate);
-                        $stmtupdate->execute([$user->emp_id]);
-                    } else if (preg_match("/{$end}/i", $jul)){
-                        $sqlupdate="UPDATE salary_report SET $jul = $jul + $totnetpay WHERE empId = ?";
-                        $stmtupdate = $this->con()->prepare($sqlupdate);
-                        $stmtupdate->execute([$user->emp_id]);
-                    } else if (preg_match("/{$end}/i", $aug)){
-                        $sqlupdate="UPDATE salary_report SET $aug = $aug + $totnetpay WHERE empId = ?";
-                        $stmtupdate = $this->con()->prepare($sqlupdate);
-                        $stmtupdate->execute([$user->emp_id]);
-                    } else if (preg_match("/{$end}/i", $sep)){
-                        $sqlupdate="UPDATE salary_report SET $sep = $sep + $totnetpay WHERE empId = ?";
-                        $stmtupdate = $this->con()->prepare($sqlupdate);
-                        $stmtupdate->execute([$user->emp_id]);
-                    } else if (preg_match("/{$end}/i", $oct)){
-                        $sqlupdate="UPDATE salary_report SET $oct = $oct + $totnetpay WHERE empId = ?";
-                        $stmtupdate = $this->con()->prepare($sqlupdate);
-                        $stmtupdate->execute([$user->emp_id]);
-                    } else if (preg_match("/{$end}/i", $nov)){
-                        $sqlupdate="UPDATE salary_report SET $nov = $nov + $totnetpay WHERE empId = ?";
-                        $stmtupdate = $this->con()->prepare($sqlupdate);
-                        $stmtupdate->execute([$user->emp_id]);
-                    } else if (preg_match("/{$end}/i", $dec)){
-                        $sqlupdate="UPDATE salary_report SET $dec = $dec + $totnetpay WHERE empId = ?";
-                        $stmtupdate = $this->con()->prepare($sqlupdate);
-                        $stmtupdate->execute([$user->emp_id]);
-                    } else {
+                    $sqlreport="SELECT * FROM salary_report WHERE empId = ?"; //salary report
+                    $stmtreport = $this->con()->prepare($sqlreport);
+                    $stmtreport->execute([$empid]);
+                    $ureport=$stmtreport->fetch();
+                    $CountRowreport = $stmtreport ->rowCount();
+                    $jan = 'january';
+                    $feb = 'february';
+                    $mar = 'march';
+                    $apr = 'april';
+                    $may = 'may';
+                    $jun = 'june';
+                    $jul = 'july';
+                    $aug = 'august';
+                    $sep = 'september';
+                    $oct = 'october';
+                    $nov = 'november';
+                    $dec = 'december';
+                    if($CountRowreport > 0)
+                    {   
+                        if(preg_match("/{$end}/i", $jan))
+                        {
+                            $sqlupdate="UPDATE salary_report SET $jan = $jan + $totnetpay WHERE empId = ?";
+                            $stmtupdate = $this->con()->prepare($sqlupdate);
+                            $stmtupdate->execute([$empid]);
+                        } else if (preg_match("/{$end}/i", $feb)){
+                            $sqlupdate="UPDATE salary_report SET $feb = $feb + $totnetpay WHERE empId = ?";
+                            $stmtupdate = $this->con()->prepare($sqlupdate);
+                            $stmtupdate->execute([$empid]);
+                        } else if (preg_match("/{$end}/i", $mar)){
+                            $sqlupdate="UPDATE salary_report SET $mar = $mar + $totnetpay WHERE empId = ?";
+                            $stmtupdate = $this->con()->prepare($sqlupdate);
+                            $stmtupdate->execute([$empid]);
+                        } else if (preg_match("/{$end}/i", $apr)){
+                            $sqlupdate="UPDATE salary_report SET $apr = $apr + $totnetpay WHERE empId = ?";
+                            $stmtupdate = $this->con()->prepare($sqlupdate);
+                            $stmtupdate->execute([$empid]);
+                        } else if (preg_match("/{$end}/i", $may)){
+                            $sqlupdate="UPDATE salary_report SET $may = $may + $totnetpay WHERE empId = ?";
+                            $stmtupdate = $this->con()->prepare($sqlupdate);
+                            $stmtupdate->execute([$empid]);
+                        } else if (preg_match("/{$end}/i", $jun)){
+                            $sqlupdate="UPDATE salary_report SET $jun = $jun + $totnetpay WHERE empId = ?";
+                            $stmtupdate = $this->con()->prepare($sqlupdate);
+                            $stmtupdate->execute([$empid]);
+                        } else if (preg_match("/{$end}/i", $jul)){
+                            $sqlupdate="UPDATE salary_report SET $jul = $jul + $totnetpay WHERE empId = ?";
+                            $stmtupdate = $this->con()->prepare($sqlupdate);
+                            $stmtupdate->execute([$empid]);
+                        } else if (preg_match("/{$end}/i", $aug)){
+                            $sqlupdate="UPDATE salary_report SET $aug = $aug + $totnetpay WHERE empId = ?";
+                            $stmtupdate = $this->con()->prepare($sqlupdate);
+                            $stmtupdate->execute([$empid]);
+                        } else if (preg_match("/{$end}/i", $sep)){
+                            $sqlupdate="UPDATE salary_report SET $sep = $sep + $totnetpay WHERE empId = ?";
+                            $stmtupdate = $this->con()->prepare($sqlupdate);
+                            $stmtupdate->execute([$empid]);
+                        } else if (preg_match("/{$end}/i", $oct)){
+                            $sqlupdate="UPDATE salary_report SET $oct = $oct + $totnetpay WHERE empId = ?";
+                            $stmtupdate = $this->con()->prepare($sqlupdate);
+                            $stmtupdate->execute([$empid]);
+                        } else if (preg_match("/{$end}/i", $nov)){
+                            $sqlupdate="UPDATE salary_report SET $nov = $nov + $totnetpay WHERE empId = ?";
+                            $stmtupdate = $this->con()->prepare($sqlupdate);
+                            $stmtupdate->execute([$empid]);
+                        } else if (preg_match("/{$end}/i", $dec)){
+                            $sqlupdate="UPDATE salary_report SET $dec = $dec + $totnetpay WHERE empId = ?";
+                            $stmtupdate = $this->con()->prepare($sqlupdate);
+                            $stmtupdate->execute([$empid]);
+                        } else {
 
-                    } 
-                } else {
-                    if(preg_match("/{$end}/i", $jan))
-                    {
-                        $sqlinsert="INSERT INTO salary_report (empId, $jan) VALUES ('$user->emp_id', $totnetpay);";
-                        $stmtinsert = $this->con()->prepare($sqlinsert);
-                        $stmtinsert->execute();
-                    } else if (preg_match("/{$end}/i", $feb)){
-                        $sqlinsert="INSERT INTO salary_report (empId, $feb) VALUES ('$user->emp_id', $totnetpay);";
-                        $stmtinsert = $this->con()->prepare($sqlinsert);
-                        $stmtinsert->execute();
-                    } else if (preg_match("/{$end}/i", $mar)){
-                        $sqlinsert="INSERT INTO salary_report (empId, $mar) VALUES ('$user->emp_id', $totnetpay);";
-                        $stmtinsert = $this->con()->prepare($sqlinsert);
-                        $stmtinsert->execute();
-                    } else if (preg_match("/{$end}/i", $apr)){
-                        $sqlinsert="INSERT INTO salary_report (empId, $apr) VALUES ('$user->emp_id', $totnetpay);";
-                        $stmtinsert = $this->con()->prepare($sqlinsert);
-                        $stmtinsert->execute();
-                    } else if (preg_match("/{$end}/i", $may)){
-                        $sqlinsert="INSERT INTO salary_report (empId, $may) VALUES ('$user->emp_id', $totnetpay);";
-                        $stmtinsert = $this->con()->prepare($sqlinsert);
-                        $stmtinsert->execute();
-                    } else if (preg_match("/{$end}/i", $jun)){
-                        $sqlinsert="INSERT INTO salary_report (empId, $jun) VALUES ('$user->emp_id', $totnetpay);";
-                        $stmtinsert = $this->con()->prepare($sqlinsert);
-                        $stmtinsert->execute();
-                    } else if (preg_match("/{$end}/i", $jul)){
-                        $sqlinsert="INSERT INTO salary_report (empId, $july) VALUES ('$user->emp_id', $jtotnetpay);";
-                        $stmtinsert = $this->con()->prepare($sqlinsert);
-                        $stmtinsert->execute();
-                    } else if (preg_match("/{$end}/i", $aug)){
-                        $sqlinsert="INSERT INTO salary_report (empId, $aug) VALUES ('$user->emp_id', $totnetpay);";
-                        $stmtinsert = $this->con()->prepare($sqlinsert);
-                        $stmtinsert->execute();
-                    } else if (preg_match("/{$end}/i", $sep)){
-                        $sqlinsert="INSERT INTO salary_report (empId, $sep) VALUES ('$user->emp_id', $totnetpay);";
-                        $stmtinsert = $this->con()->prepare($sqlinsert);
-                        $stmtinsert->execute();
-                    } else if (preg_match("/{$end}/i", $oct)){
-                        $sqlinsert="INSERT INTO salary_report (empId, $oct) VALUES ('$user->emp_id', $totnetpay);";
-                        $stmtinsert = $this->con()->prepare($sqlinsert);
-                        $stmtinsert->execute();
-                    } else if (preg_match("/{$end}/i", $nov)){
-                        $sqlinsert="INSERT INTO salary_report (empId, $nov) VALUES ('$user->emp_id', $totnetpay);";
-                        $stmtinsert = $this->con()->prepare($sqlinsert);
-                        $stmtinsert->execute();
-                    } else if (preg_match("/{$end}/i", $dec)){
-                        $sqlinsert="INSERT INTO salary_report (empId, $dec) VALUES ('$user->emp_id', $totnetpay);";
-                        $stmtinsert = $this->con()->prepare($sqlinsert);
-                        $stmtinsert->execute();
+                        } 
                     } else {
-                    } 
-                }
-                ob_start();
-                $this->emailpdf($logid);
-                ob_end_flush();
-                }
-                $number += 1;
+                        if(preg_match("/{$end}/i", $jan))
+                        {
+                            $sqlinsert="INSERT INTO salary_report (empId, $jan) VALUES ('$empid', $totnetpay);";
+                            $stmtinsert = $this->con()->prepare($sqlinsert);
+                            $stmtinsert->execute();
+                        } else if (preg_match("/{$end}/i", $feb)){
+                            $sqlinsert="INSERT INTO salary_report (empId, $feb) VALUES ('$empid', $totnetpay);";
+                            $stmtinsert = $this->con()->prepare($sqlinsert);
+                            $stmtinsert->execute();
+                        } else if (preg_match("/{$end}/i", $mar)){
+                            $sqlinsert="INSERT INTO salary_report (empId, $mar) VALUES ('$empid', $totnetpay);";
+                            $stmtinsert = $this->con()->prepare($sqlinsert);
+                            $stmtinsert->execute();
+                        } else if (preg_match("/{$end}/i", $apr)){
+                            $sqlinsert="INSERT INTO salary_report (empId, $apr) VALUES ('$empid', $totnetpay);";
+                            $stmtinsert = $this->con()->prepare($sqlinsert);
+                            $stmtinsert->execute();
+                        } else if (preg_match("/{$end}/i", $may)){
+                            $sqlinsert="INSERT INTO salary_report (empId, $may) VALUES ('$empid', $totnetpay);";
+                            $stmtinsert = $this->con()->prepare($sqlinsert);
+                            $stmtinsert->execute();
+                        } else if (preg_match("/{$end}/i", $jun)){
+                            $sqlinsert="INSERT INTO salary_report (empId, $jun) VALUES ('$empid', $totnetpay);";
+                            $stmtinsert = $this->con()->prepare($sqlinsert);
+                            $stmtinsert->execute();
+                        } else if (preg_match("/{$end}/i", $jul)){
+                            $sqlinsert="INSERT INTO salary_report (empId, $july) VALUES ('$empid', $jtotnetpay);";
+                            $stmtinsert = $this->con()->prepare($sqlinsert);
+                            $stmtinsert->execute();
+                        } else if (preg_match("/{$end}/i", $aug)){
+                            $sqlinsert="INSERT INTO salary_report (empId, $aug) VALUES ('$empid', $totnetpay);";
+                            $stmtinsert = $this->con()->prepare($sqlinsert);
+                            $stmtinsert->execute();
+                        } else if (preg_match("/{$end}/i", $sep)){
+                            $sqlinsert="INSERT INTO salary_report (empId, $sep) VALUES ('$empid', $totnetpay);";
+                            $stmtinsert = $this->con()->prepare($sqlinsert);
+                            $stmtinsert->execute();
+                        } else if (preg_match("/{$end}/i", $oct)){
+                            $sqlinsert="INSERT INTO salary_report (empId, $oct) VALUES ('$empid', $totnetpay);";
+                            $stmtinsert = $this->con()->prepare($sqlinsert);
+                            $stmtinsert->execute();
+                        } else if (preg_match("/{$end}/i", $nov)){
+                            $sqlinsert="INSERT INTO salary_report (empId, $nov) VALUES ('$empid', $totnetpay);";
+                            $stmtinsert = $this->con()->prepare($sqlinsert);
+                            $stmtinsert->execute();
+                        } else if (preg_match("/{$end}/i", $dec)){
+                            $sqlinsert="INSERT INTO salary_report (empId, $dec) VALUES ('$empid', $totnetpay);";
+                            $stmtinsert = $this->con()->prepare($sqlinsert);
+                            $stmtinsert->execute();
+                        } else {
+                        } 
+                    }
+                    ob_start();
+                    $this->emailpdf($logid);
+                    ob_end_flush();
+                    }
+                    $number += 1;
                 }//all
                 $this->mergepdf($pdfsarray);
                 $action = "Generate ".$number." Salary";
@@ -1601,10 +1615,10 @@ Class Payroll
                 $stmtSecLog->execute([$id,$fullname, $action, $sectime, $secdate]);
                 $countRowSecLog = $stmtSecLog->rowCount();
                 if($countRowSecLog > 0){
-                        header('Location: releasedsalary.php?msg=Succesfully%20Released');
-                    } else {
-                        echo 'di pumasok sa act log';
-                    }
+                    header('Location: releasedsalary.php?msg=Succesfully%20Released');
+                } else {
+                    echo 'di pumasok sa act log';
+                }
     }
     public function deleteautomatedsalary($logid)
     {
@@ -1681,6 +1695,9 @@ Class Payroll
                     }
                 }
             }//isset
+            else if(isset($_POST['cancelded'])){
+                header('location: deductions.php');
+            }
     }
     public function deletededuction($logid)
     {
@@ -1835,6 +1852,9 @@ Class Payroll
                     }  
                 }//empty
         }//isset
+        else if(isset($_POST['cancel'])){
+            header('location: deductions.php');
+        }
     }
     public function deletecashadv($logid)
     {
@@ -1909,6 +1929,36 @@ Class Payroll
             <td>$row->expiration_date</td>
             </tr>";
             }
+    }
+    public function searchsched(){
+        if(isset($_POST['searchsched'])){
+            $ssched = $_POST['sched'];
+            $sql="SELECT * FROM schedule INNER JOIN employee WHERE employee.empId = schedule.empId;";
+            $stmt = $this->con()->prepare($sql);
+            $stmt->execute();
+            $found=false;
+            while($row = $stmt->fetch()){
+                if(preg_match("/{$ssched}/i", $row->empId) || preg_match("/{$ssched}/i", $row->firstname) || preg_match("/{$ssched}/i", $row->lastname) || 
+                preg_match("/{$ssched}/i", $row->company) || preg_match("/{$ssched}/i", $row->scheduleTimeIn) || preg_match("/{$ssched}/i", $row->scheduleTimeOut))
+                {   
+                    $found=true;
+                    echo "<tr>
+                    <td>$row->empId</td>
+                    <td>$row->firstname</td>
+                    <td>$row->lastname</td>
+                    <td>$row->company</td>
+                    <td>$row->scheduleTimeIn</td>
+                    <td>$row->scheduleTimeOut</td>
+                    <td>$row->expiration_date</td>
+                    </tr>";
+                }
+                }
+                if($found==false){
+                    echo "No Record";
+                    $this->displayschedule();
+                }
+
+        }
     }
     public function displayviolations()
     {
@@ -2083,67 +2133,60 @@ Class Payroll
                                 <td>$user->firstname $user->lastname</td>
                                 <td>$countattendance</td>
                                 <td>$tothrsShow</td>
-                                <td>$StandardtohrsShow</td>
-                                <td>$OTtohrsShow</td>
-                                <td>$StandardRate</td>
-                                <td>$OvertimeRate</td>
-                                <td>$GrossPayShow</td>
-                                <td>$StandardPayShow</td>
-                                <td>$OvertimePayShow</td>
                             </tr>";
                     }
             }
     }
-    public function searchempatt($fullname,$id){  //generateauto
-        if(isset($_POST['searchempatt']) && !empty($_POST['emp']))
-        {   
-            $found=false;
-            $emp=$_POST['emp'];
-            $sqls="SELECT * FROM employee;";
-            $stmts=$this->con()->prepare($sqls);
-            $stmts->execute();
-            while($users=$stmts->fetch())
-            {            // ex may 4 attendance siya
-                if(preg_match("/{$emp}/i", $users->empId) || preg_match("/{$emp}/i", $users->firstname) ||
-                preg_match("/{$emp}/i", $users->lastname))
-                {   
-                    $found=true;
-                    $tothrss=0;
-                    $foundempid=$users->empId;
-                    $foundname= $users->firstname." ".$users->lastname;
-                    $sql1s="SELECT * FROM emp_attendance WHERE empId = $users->empId AND salary_status != 'paid';";
-                    $stmt1s=$this->con()->prepare($sql1s);
-                    $stmt1s->execute();
-                    $countattendances=$stmt1s->rowCount();
-                    $users1s=$stmt1s->fetchall();
-                    foreach($users1s as $userss)
-                    {
-                        $timeins= date('H:i:s',strtotime($userss->timeIn));
-                        $timeouts= date('H:i:s',strtotime($userss->timeOut));
-                        $tothrss += abs(strtotime($timeins) - strtotime($timeouts)) / 3600 ;
-                    }
-                }
-            }   
+    // public function searchempatt($fullname,$id){  //generateauto
+    //     if(isset($_POST['searchempatt']) && !empty($_POST['emp']))
+    //     {   
+    //         $found=false;
+    //         $emp=$_POST['emp'];
+    //         $sqls="SELECT * FROM employee;";
+    //         $stmts=$this->con()->prepare($sqls);
+    //         $stmts->execute();
+    //         while($users=$stmts->fetch())
+    //         {            // ex may 4 attendance siya
+    //             if(preg_match("/{$emp}/i", $users->empId) || preg_match("/{$emp}/i", $users->firstname) ||
+    //             preg_match("/{$emp}/i", $users->lastname))
+    //             {   
+    //                 $found=true;
+    //                 $tothrss=0;
+    //                 $foundempid=$users->empId;
+    //                 $foundname= $users->firstname." ".$users->lastname;
+    //                 $sql1s="SELECT * FROM emp_attendance WHERE empId = $users->empId AND salary_status != 'paid';";
+    //                 $stmt1s=$this->con()->prepare($sql1s);
+    //                 $stmt1s->execute();
+    //                 $countattendances=$stmt1s->rowCount();
+    //                 $users1s=$stmt1s->fetchall();
+    //                 foreach($users1s as $userss)
+    //                 {
+    //                     $timeins= date('H:i:s',strtotime($userss->timeIn));
+    //                     $timeouts= date('H:i:s',strtotime($userss->timeOut));
+    //                     $tothrss += abs(strtotime($timeins) - strtotime($timeouts)) / 3600 ;
+    //                 }
+    //             }
+    //         }   
 
                 
-                if($found){
-                    $tothrss=number_format($tothrss,2);
-                    $tothrss = sprintf('%02d:%02d', (int) $tothrss, fmod($tothrss   , 1) * 60);
-                echo "<tr>
-                <td>$foundempid</td>
-                <td>$foundname</td>
-                <td>$countattendances</td>
-                <td>$tothrss</td>
-                <td> <a href='createsalary.php?empid=$foundempid'>Generate</a></td>
-                </tr>";
-                }else if($found==false){
-                    echo "No Record Found!";
-                    $this->displayempattendance($fullname,$id);
-                }
-        }else{
-            $this->displayempattendance($fullname,$id);
-        }
-    }
+    //             if($found){
+    //                 $tothrss=number_format($tothrss,2);
+    //                 $tothrss = sprintf('%02d:%02d', (int) $tothrss, fmod($tothrss   , 1) * 60);
+    //             echo "<tr>
+    //             <td>$foundempid</td>
+    //             <td>$foundname</td>
+    //             <td>$countattendances</td>
+    //             <td>$tothrss</td>
+    //             <td> <a href='createsalary.php?empid=$foundempid'>Generate</a></td>
+    //             </tr>";
+    //             }else if($found==false){
+    //                 echo "No Record Found!";
+    //                 $this->displayempattendance($fullname,$id);
+    //             }
+    //     }else{
+    //         $this->displayempattendance($fullname,$id);
+    //     }
+    // }
     public function generatepdf($id){
         if(isset($_POST['download'])){
         $sql = "SELECT *
@@ -3156,6 +3199,7 @@ Class Payroll
             ob_start ();
             date_default_timezone_set('Asia/Manila');
             $date = date('F d, Y');
+            $datef=date('F d, Y H:i:s A');
             $pdfname = '../SecretaryPortal/uploads/'.$rows->firstname .' '. $rows->lastname.', '.$date.'.pdf';
             // $dompdf->loadHtml($payslip);
             // $dompdf->set_option('isRemoteEnabled', TRUE);
@@ -3174,7 +3218,7 @@ Class Payroll
                 $pdf->addPDF($pathToPdf, 'all','landscape');
             }
             ob_start ();
-            $backup= '../SecretaryPortal/merged/'.$date.'.pdf';
+            $backup= '../SecretaryPortal/merged/'.$datef.'.pdf';
             $files = $date.'.pdf';
             $pdf->merge('download', $files);
             $pdf->merge('file',$backup);

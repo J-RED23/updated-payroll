@@ -79,8 +79,8 @@ $fullname = $sessionData['fullname'];
               <div class="employee_list__header">
                 <h1>Schedule Details</h1>
                   <form method="post">
-                        <button type="submit" name="empsearch">Search</button>
-                        <input type="search" name="employeesearch" placeholder="Search Employee">
+                        <button type="submit" name="searchsched">Search</button>
+                        <input type="search" name="sched" placeholder="Search Employee">
                   </form>
               </div>
 
@@ -98,7 +98,12 @@ $fullname = $sessionData['fullname'];
                                 <th>End Date</th>
                             </tr>
                         </thead>
-                        <?php $payroll->displayschedule();?>
+                        <?php if(isset($_POST['searchsched'])){
+                        $payroll->searchsched();
+                        }else{
+                        $payroll->displayschedule();
+                        }
+                        ?>
                         <tbody>
                             
                         </tbody>

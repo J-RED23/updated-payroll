@@ -89,7 +89,7 @@ $id = $sessionData['id'];
                                    <th>
                                         <form method="post">
                                              <button type="submit" name="adddeduction">
-                                                  <a href="adddeduction.php">Add
+                                                  <a href="generate-deduction-modal.php">Add
                                                   </a>
                                              </button>
                                         </form>
@@ -119,7 +119,7 @@ $id = $sessionData['id'];
                                    <th>
                                         <form method="post">
                                              <button type="submit" name="addcashadvance">
-                                                  <a href="addcashadvance.php">Add
+                                                  <a href="generate-cashadvance-modal.php">Add
                                                   </a>
                                              </button>
                                         </form>

@@ -77,15 +77,6 @@
         <div class="auto-generated-payroll-attendance">
             <div class="auto-generated-payroll-attendance__header">
                 
-                <div class="searchbar">
-                    <span class="material-icons">
-                        search
-                    </span>
-                    <form method="post">
-                    <input type="text" placeholder="Search" name="emp">
-                    <button type="submit" name="searchempatt">Search</button>
-                    </form>
-                </div>
             </div>
 
             <div class="auto-generated-payroll-attendance__content">
