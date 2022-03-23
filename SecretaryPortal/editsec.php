@@ -57,25 +57,24 @@
                     <object data="../SVG/userprofilepic.svg" type=""></object>
                     <a href="#">Change Profile Photo</a>
                </div>
-
+               <?php
+               $sql="SELECT * FROM secretary WHERE id = ?";
+               $stmt = $payroll->con()->prepare($sql);
+               $stmt->execute([$id]);
+               $user = $stmt->fetch();
+               ?>
                <div class="edit-profile-card__form">
-                    <label for="" >First Name: </label>
-                    <input type="text">
-
-                    <label for="" name="address">Last Name: </label>
-                    <input type="text">
+                    <label for="" >Name: </label>
+                    <input type="text" placeholder= "<?php echo $user->fullname;?>" disabled>
 
                     <label for="">Contact Number : </label>
-                    <input type="text">
+                    <input type="text" name="contact" placeholder= "<?php echo $user->cpnumber;?>">
 
                     <label for="" >Address: </label>
-                    <input type="text">
+                    <input type="text" name="address" placeholder= "<?php echo $user->address;?>">
 
-                    <label for="" >Contact Number: </label>
-                    <input type="text">
-
-                    <label for="" >Email: </label>
-                    <input type="text">
+                    <label for="email" >Email: </label>
+                    <input type="text" id ="email" name="email" placeholder= "<?php echo $user->email;?>">
 
                     <button class="btn_primary">
                          <span class="material-icons"> description</span>

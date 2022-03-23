@@ -78,8 +78,8 @@ $fullname = $sessionData['fullname'];
               <div class="employee_list__header">
                 <h1>List of Released Salaries</h1>
                   <form method="post">
-                        <button type="submit" name="empsearch">Search</button>
-                        <input type="search" name="employeesearch" placeholder="Search">
+                        <button type="submit" name="searchreleased">Search</button>
+                        <input type="search" name="salary" placeholder="Search">
                   </form>
               </div>
 
@@ -99,7 +99,14 @@ $fullname = $sessionData['fullname'];
                         </thead>
 
                         <tbody>
-                        <?php $payroll->displayreleasedsalary();
+                        <?php 
+                        if(isset($_POST['searchreleased']))
+                        {
+                            $payroll->searchreleasedsalary();
+                        }else
+                        {
+                            $payroll->displayreleasedsalary();
+                        }
                         ?>
                         </tbody>
                   </table>

@@ -50,7 +50,7 @@
           </div>
 
           <div class="user-info">
-               <p>Profile Name</p>
+                <p><?php echo $fullname; ?></p>
                <div class="user-profile">
                </div>
           </div>
@@ -58,31 +58,36 @@
           <div class="user_edit_profile_header">
                <h1>Change Password</h1>
           </div>
-
           <div class="changepassword-card">
+          <form method="post">
                <div class="changepassword-card__form">
-                    <label for="" >Username: </label>
-                    <input type="text">
+               
+                    <label for="pass" name="">Old Password : </label>
+                    <input type="text" id="pass" name="oldpass">
 
-                    <label for="" name="">Old Password : </label>
-                    <input type="text">
+                    <label for="npass">New Password : </label>
+                    <input type="text" id="npass" name="newpass" pattern=".{8,}" title="Eight or more characters">
 
-                    <label for="">New Password : </label>
-                    <input type="text">
+                    <label for="cpass" >Confirm Password : </label>
+                    <input type="text" id="cpass" name="confirmpass"pattern=".{8,}" title="Eight or more characters">
 
-                    <label for="" >Confirm Password : </label>
-                    <input type="text">
-
-                    <p>Password must contains atleast 6 to 8 characters, Including Uppercase, Lowercase and Numbers.</p>
-
-                    <button class="btn_primary">
+                    <?php
+                    if(isset($_POST['changepass'])){
+                         $payroll->changepass($id,$fullname);
+                    }else{
+                    echo "<p>Password must contains atleast 6 to 8 characters.</p>";
+                    }
+                    ?>
+                    <button class="btn_primary" name="changepass">
                          <span class="material-icons"> description</span>
                          Save Password
                     </button>
+                    </form>
                </div>
               <div class="changepassword-card__svg">
                    <object data="../SVG/changepass-svg.svg" type=""></object>
               </div>
+              
           </div>
      </div>
 </body>

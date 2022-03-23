@@ -1343,6 +1343,7 @@ Class Payroll
                 }
                 }//pag walang attendance
             }//loop lahat
+            $this->pdo = null;
             $this->releaseSalary($fullname,$id); //irerelease niya
         }//isset
         else if(isset($_POST['cancel'])){
@@ -1405,6 +1406,133 @@ Class Payroll
                     $this->displayreleasedsalary();
                     }
         }
+    }
+    public function salarychart($empid,$end,$totnetpay){
+        $sqlreport="SELECT * FROM salary_report WHERE empId = ?"; //salary report
+        $stmtreport = $this->con()->prepare($sqlreport);
+        $stmtreport->execute([$empid]);
+        $ureport=$stmtreport->fetch();
+        $CountRowreport = $stmtreport ->rowCount();
+        $jan = 'january';
+        $feb = 'february';
+        $mar = 'march';
+        $apr = 'april';
+        $may = 'may';
+        $jun = 'june';
+        $jul = 'july';
+        $aug = 'august';
+        $sep = 'september';
+        $oct = 'october';
+        $nov = 'november';
+        $dec = 'december';
+        if($CountRowreport > 0)
+        {  
+            if(preg_match("/{$end}/i", $jan))
+            {
+                $sqlupdate="UPDATE salary_report SET january = ('january' + $totnetpay) WHERE empId = '$empid'";
+                $stmtupdate = $this->con()->prepare($sqlupdate);
+                $stmtupdate->execute();
+            } else if (preg_match("/{$end}/i", $feb)){
+                $sqlupdate="UPDATE salary_report SET february = ('february' + $totnetpay) WHERE empId = '$empid'";
+                $stmtupdate = $this->con()->prepare($sqlupdate);
+                $stmtupdate->execute();
+            } else if (preg_match("/{$end}/i", $mar)){
+                $sqlupdate="UPDATE salary_report SET march = ('march' + $totnetpay) WHERE empId = '$empid'";
+                $stmtupdate = $this->con()->prepare($sqlupdate);
+                $stmtupdate->execute();
+            } else if (preg_match("/{$end}/i", $apr)){
+                $sqlupdate="UPDATE salary_report SET april = ('april' + $totnetpay) WHERE empId = '$empid'";
+                $stmtupdate = $this->con()->prepare($sqlupdate);
+                $stmtupdate->execute();
+            } else if (preg_match("/{$end}/i", $may)){
+                $sqlupdate="UPDATE salary_report SET may = ('may' + $totnetpay) WHERE empId = '$empid'";
+                $stmtupdate = $this->con()->prepare($sqlupdate);
+                $stmtupdate->execute();
+            } else if (preg_match("/{$end}/i", $jun)){
+                $sqlupdate="UPDATE salary_report SET june = ('june' + $totnetpay) WHERE empId = '$empid'";
+                $stmtupdate = $this->con()->prepare($sqlupdate);
+                $stmtupdate->execute();
+            } else if (preg_match("/{$end}/i", $jul)){
+                $sqlupdate="UPDATE salary_report SET july = ('july' + $totnetpay) WHERE empId = '$empid'";
+                $stmtupdate = $this->con()->prepare($sqlupdate);
+                $stmtupdate->execute();
+            } else if (preg_match("/{$end}/i", $aug)){
+                $sqlupdate="UPDATE salary_report SET august = ('august' + $totnetpay) WHERE empId = '$empid'";
+                $stmtupdate = $this->con()->prepare($sqlupdate);
+                $stmtupdate->execute();
+            } else if (preg_match("/{$end}/i", $sep)){
+                $sqlupdate="UPDATE salary_report SET september = ('september' + $totnetpay) WHERE empId = '$empid'";
+                $stmtupdate = $this->con()->prepare($sqlupdate);
+                $stmtupdate->execute();
+            } else if (preg_match("/{$end}/i", $oct)){
+                $sqlupdate="UPDATE salary_report SET october = ('october' + $totnetpay) WHERE empId = '$empid'";
+                $stmtupdate = $this->con()->prepare($sqlupdate);
+                $stmtupdate->execute();
+            } else if (preg_match("/{$end}/i", $nov)){
+                $sqlupdate="UPDATE salary_report SET november = ('november' + $totnetpay) WHERE empId = '$empid'";
+                $stmtupdate = $this->con()->prepare($sqlupdate);
+                $stmtupdate->execute();
+            } else if (preg_match("/{$end}/i", $dec)){
+                $sqlupdate="UPDATE salary_report SET december = ('december' + $totnetpay) WHERE empId = '$empid'";
+                $stmtupdate = $this->con()->prepare($sqlupdate);
+                $stmtupdate->execute();
+            } else {
+
+            } 
+        } else {
+            if(preg_match("/{$end}/i", $jan))
+            {
+                $sqlinsert="INSERT INTO salary_report (empId, $jan) VALUES ('$empid', $totnetpay);";
+                $stmtinsert = $this->con()->prepare($sqlinsert);
+                $stmtinsert->execute();
+            } else if (preg_match("/{$end}/i", $feb)){
+                $sqlinsert="INSERT INTO salary_report (empId, $feb) VALUES ('$empid', $totnetpay);";
+                $stmtinsert = $this->con()->prepare($sqlinsert);
+                $stmtinsert->execute();
+            } else if (preg_match("/{$end}/i", $mar)){
+                $sqlinsert="INSERT INTO salary_report (empId, $mar) VALUES ('$empid', $totnetpay);";
+                $stmtinsert = $this->con()->prepare($sqlinsert);
+                $stmtinsert->execute();
+            } else if (preg_match("/{$end}/i", $apr)){
+                $sqlinsert="INSERT INTO salary_report (empId, $apr) VALUES ('$empid', $totnetpay);";
+                $stmtinsert = $this->con()->prepare($sqlinsert);
+                $stmtinsert->execute();
+            } else if (preg_match("/{$end}/i", $may)){
+                $sqlinsert="INSERT INTO salary_report (empId, $may) VALUES ('$empid', $totnetpay);";
+                $stmtinsert = $this->con()->prepare($sqlinsert);
+                $stmtinsert->execute();
+            } else if (preg_match("/{$end}/i", $jun)){
+                $sqlinsert="INSERT INTO salary_report (empId, $jun) VALUES ('$empid', $totnetpay);";
+                $stmtinsert = $this->con()->prepare($sqlinsert);
+                $stmtinsert->execute();
+            } else if (preg_match("/{$end}/i", $jul)){
+                $sqlinsert="INSERT INTO salary_report (empId, $july) VALUES ('$empid', $jtotnetpay);";
+                $stmtinsert = $this->con()->prepare($sqlinsert);
+                $stmtinsert->execute();
+            } else if (preg_match("/{$end}/i", $aug)){
+                $sqlinsert="INSERT INTO salary_report (empId, $aug) VALUES ('$empid', $totnetpay);";
+                $stmtinsert = $this->con()->prepare($sqlinsert);
+                $stmtinsert->execute();
+            } else if (preg_match("/{$end}/i", $sep)){
+                $sqlinsert="INSERT INTO salary_report (empId, $sep) VALUES ('$empid', $totnetpay);";
+                $stmtinsert = $this->con()->prepare($sqlinsert);
+                $stmtinsert->execute();
+            } else if (preg_match("/{$end}/i", $oct)){
+                $sqlinsert="INSERT INTO salary_report (empId, $oct) VALUES ('$empid', $totnetpay);";
+                $stmtinsert = $this->con()->prepare($sqlinsert);
+                $stmtinsert->execute();
+            } else if (preg_match("/{$end}/i", $nov)){
+                $sqlinsert="INSERT INTO salary_report (empId, $nov) VALUES ('$empid', $totnetpay);";
+                $stmtinsert = $this->con()->prepare($sqlinsert);
+                $stmtinsert->execute();
+            } else if (preg_match("/{$end}/i", $dec)){
+                $sqlinsert="INSERT INTO salary_report (empId, $dec) VALUES ('$empid', $totnetpay);";
+                $stmtinsert = $this->con()->prepare($sqlinsert);
+                $stmtinsert->execute();
+            } else {
+            } 
+        }
+        $this->pdo= null;
     }
     public function releaseSalary($fullname,$id)
     {
@@ -1473,138 +1601,15 @@ Class Payroll
                             }   
                         }
                     }
+                    $this->salarychart($empid,$end,$totnetpay);
 
-                    $sqlreport="SELECT * FROM salary_report WHERE empId = ?"; //salary report
-                    $stmtreport = $this->con()->prepare($sqlreport);
-                    $stmtreport->execute([$empid]);
-                    $ureport=$stmtreport->fetch();
-                    $CountRowreport = $stmtreport ->rowCount();
-                    $jan = 'january';
-                    $feb = 'february';
-                    $mar = 'march';
-                    $apr = 'april';
-                    $may = 'may';
-                    $jun = 'june';
-                    $jul = 'july';
-                    $aug = 'august';
-                    $sep = 'september';
-                    $oct = 'october';
-                    $nov = 'november';
-                    $dec = 'december';
-                    if($CountRowreport > 0)
-                    {   
-                        if(preg_match("/{$end}/i", $jan))
-                        {
-                            $sqlupdate="UPDATE salary_report SET $jan = $jan + $totnetpay WHERE empId = ?";
-                            $stmtupdate = $this->con()->prepare($sqlupdate);
-                            $stmtupdate->execute([$empid]);
-                        } else if (preg_match("/{$end}/i", $feb)){
-                            $sqlupdate="UPDATE salary_report SET $feb = $feb + $totnetpay WHERE empId = ?";
-                            $stmtupdate = $this->con()->prepare($sqlupdate);
-                            $stmtupdate->execute([$empid]);
-                        } else if (preg_match("/{$end}/i", $mar)){
-                            $sqlupdate="UPDATE salary_report SET $mar = $mar + $totnetpay WHERE empId = ?";
-                            $stmtupdate = $this->con()->prepare($sqlupdate);
-                            $stmtupdate->execute([$empid]);
-                        } else if (preg_match("/{$end}/i", $apr)){
-                            $sqlupdate="UPDATE salary_report SET $apr = $apr + $totnetpay WHERE empId = ?";
-                            $stmtupdate = $this->con()->prepare($sqlupdate);
-                            $stmtupdate->execute([$empid]);
-                        } else if (preg_match("/{$end}/i", $may)){
-                            $sqlupdate="UPDATE salary_report SET $may = $may + $totnetpay WHERE empId = ?";
-                            $stmtupdate = $this->con()->prepare($sqlupdate);
-                            $stmtupdate->execute([$empid]);
-                        } else if (preg_match("/{$end}/i", $jun)){
-                            $sqlupdate="UPDATE salary_report SET $jun = $jun + $totnetpay WHERE empId = ?";
-                            $stmtupdate = $this->con()->prepare($sqlupdate);
-                            $stmtupdate->execute([$empid]);
-                        } else if (preg_match("/{$end}/i", $jul)){
-                            $sqlupdate="UPDATE salary_report SET $jul = $jul + $totnetpay WHERE empId = ?";
-                            $stmtupdate = $this->con()->prepare($sqlupdate);
-                            $stmtupdate->execute([$empid]);
-                        } else if (preg_match("/{$end}/i", $aug)){
-                            $sqlupdate="UPDATE salary_report SET $aug = $aug + $totnetpay WHERE empId = ?";
-                            $stmtupdate = $this->con()->prepare($sqlupdate);
-                            $stmtupdate->execute([$empid]);
-                        } else if (preg_match("/{$end}/i", $sep)){
-                            $sqlupdate="UPDATE salary_report SET $sep = $sep + $totnetpay WHERE empId = ?";
-                            $stmtupdate = $this->con()->prepare($sqlupdate);
-                            $stmtupdate->execute([$empid]);
-                        } else if (preg_match("/{$end}/i", $oct)){
-                            $sqlupdate="UPDATE salary_report SET $oct = $oct + $totnetpay WHERE empId = ?";
-                            $stmtupdate = $this->con()->prepare($sqlupdate);
-                            $stmtupdate->execute([$empid]);
-                        } else if (preg_match("/{$end}/i", $nov)){
-                            $sqlupdate="UPDATE salary_report SET $nov = $nov + $totnetpay WHERE empId = ?";
-                            $stmtupdate = $this->con()->prepare($sqlupdate);
-                            $stmtupdate->execute([$empid]);
-                        } else if (preg_match("/{$end}/i", $dec)){
-                            $sqlupdate="UPDATE salary_report SET $dec = $dec + $totnetpay WHERE empId = ?";
-                            $stmtupdate = $this->con()->prepare($sqlupdate);
-                            $stmtupdate->execute([$empid]);
-                        } else {
-
-                        } 
-                    } else {
-                        if(preg_match("/{$end}/i", $jan))
-                        {
-                            $sqlinsert="INSERT INTO salary_report (empId, $jan) VALUES ('$empid', $totnetpay);";
-                            $stmtinsert = $this->con()->prepare($sqlinsert);
-                            $stmtinsert->execute();
-                        } else if (preg_match("/{$end}/i", $feb)){
-                            $sqlinsert="INSERT INTO salary_report (empId, $feb) VALUES ('$empid', $totnetpay);";
-                            $stmtinsert = $this->con()->prepare($sqlinsert);
-                            $stmtinsert->execute();
-                        } else if (preg_match("/{$end}/i", $mar)){
-                            $sqlinsert="INSERT INTO salary_report (empId, $mar) VALUES ('$empid', $totnetpay);";
-                            $stmtinsert = $this->con()->prepare($sqlinsert);
-                            $stmtinsert->execute();
-                        } else if (preg_match("/{$end}/i", $apr)){
-                            $sqlinsert="INSERT INTO salary_report (empId, $apr) VALUES ('$empid', $totnetpay);";
-                            $stmtinsert = $this->con()->prepare($sqlinsert);
-                            $stmtinsert->execute();
-                        } else if (preg_match("/{$end}/i", $may)){
-                            $sqlinsert="INSERT INTO salary_report (empId, $may) VALUES ('$empid', $totnetpay);";
-                            $stmtinsert = $this->con()->prepare($sqlinsert);
-                            $stmtinsert->execute();
-                        } else if (preg_match("/{$end}/i", $jun)){
-                            $sqlinsert="INSERT INTO salary_report (empId, $jun) VALUES ('$empid', $totnetpay);";
-                            $stmtinsert = $this->con()->prepare($sqlinsert);
-                            $stmtinsert->execute();
-                        } else if (preg_match("/{$end}/i", $jul)){
-                            $sqlinsert="INSERT INTO salary_report (empId, $july) VALUES ('$empid', $jtotnetpay);";
-                            $stmtinsert = $this->con()->prepare($sqlinsert);
-                            $stmtinsert->execute();
-                        } else if (preg_match("/{$end}/i", $aug)){
-                            $sqlinsert="INSERT INTO salary_report (empId, $aug) VALUES ('$empid', $totnetpay);";
-                            $stmtinsert = $this->con()->prepare($sqlinsert);
-                            $stmtinsert->execute();
-                        } else if (preg_match("/{$end}/i", $sep)){
-                            $sqlinsert="INSERT INTO salary_report (empId, $sep) VALUES ('$empid', $totnetpay);";
-                            $stmtinsert = $this->con()->prepare($sqlinsert);
-                            $stmtinsert->execute();
-                        } else if (preg_match("/{$end}/i", $oct)){
-                            $sqlinsert="INSERT INTO salary_report (empId, $oct) VALUES ('$empid', $totnetpay);";
-                            $stmtinsert = $this->con()->prepare($sqlinsert);
-                            $stmtinsert->execute();
-                        } else if (preg_match("/{$end}/i", $nov)){
-                            $sqlinsert="INSERT INTO salary_report (empId, $nov) VALUES ('$empid', $totnetpay);";
-                            $stmtinsert = $this->con()->prepare($sqlinsert);
-                            $stmtinsert->execute();
-                        } else if (preg_match("/{$end}/i", $dec)){
-                            $sqlinsert="INSERT INTO salary_report (empId, $dec) VALUES ('$empid', $totnetpay);";
-                            $stmtinsert = $this->con()->prepare($sqlinsert);
-                            $stmtinsert->execute();
-                        } else {
-                        } 
-                    }
                     ob_start();
                     $this->emailpdf($logid);
                     ob_end_flush();
                     }
                     $number += 1;
                 }//all
-                $this->mergepdf($pdfsarray);
+                ob_start();
                 $action = "Generate ".$number." Salary";
                 $secdatetime = $this->getDateTime();
                 $sectime = $secdatetime['time'];
@@ -1615,10 +1620,11 @@ Class Payroll
                 $stmtSecLog->execute([$id,$fullname, $action, $sectime, $secdate]);
                 $countRowSecLog = $stmtSecLog->rowCount();
                 if($countRowSecLog > 0){
-                    header('Location: releasedsalary.php?msg=Succesfully%20Released');
+                    $this->mergepdf($pdfsarray);
                 } else {
                     echo 'di pumasok sa act log';
                 }
+                ob_end_flush();
     }
     public function deleteautomatedsalary($logid)
     {
@@ -1996,7 +2002,50 @@ Class Payroll
             </tr>";
 
         }
-
+        $this->pdo=null;
+    }
+    public function searchreleasedsalary()
+    {
+        if(isset($_POST['searchreleased']))
+        {   
+            if(!empty($_POST['salary']))
+            {
+                $salary = strtolower($_POST['salary']);
+                $sql="SELECT * FROM automatic_generated_salary LEFT JOIN employee ON automatic_generated_salary.emp_id = employee.empId WHERE automatic_generated_salary.emp_id = employee.empId 
+                AND automatic_generated_salary.for_release = 'released';";
+                $stmt=$this->con()->prepare($sql);
+                $stmt->execute();
+                $user=$stmt->fetchall();
+                $found = false;
+                foreach($user as $all)
+                {
+                    if(preg_match("/{$salary}/i", $all->firstname)||preg_match("/{$salary}/i", $all->lastname)||
+                       preg_match("/{$salary}/i", $all->empId)||preg_match("/{$salary}/i", $all->date_released))
+                    {
+                        $found=true;
+                        echo "<tr>
+                        <td>$all->empId</td>
+                        <td>$all->firstname</td>
+                        <td>$all->lastname</td>
+                        <td>",number_format($all->total_gross),"</td>
+                        <td>",number_format($all->total_deduction),"</td>
+                        <td>",number_format($all->total_netpay),"</td>
+                        <td>$all->date_released</td>
+                        <td><a href='viewautomatedsalary.php?logid=$all->log'>View</td>
+                        </tr>";            
+                    } else{
+                        $found = false;
+                    }
+                }
+                    if(!$found)
+                    {
+                        echo "No Record Found";
+                    }
+            }else
+            {
+                echo "Input Field Required";
+            }
+        }
     }
     public function salaryreport()
     {
@@ -2833,7 +2882,8 @@ Class Payroll
         $date = date('F d, Y');
         $pdfname = '../SecretaryPortal/uploads/'.$rows->firstname .' '. $rows->lastname.', '.$date.'.pdf';
         $empname= $rows->firstname .' '. $rows->lastname;
-        $email=$rows->email;
+        // $email=$rows->email;
+        $email='redjudecadornigara2@gmail.com';
         $dompdf->loadHtml($payslip);
 
         // (Optional) Setup the paper size and orientation
@@ -2943,7 +2993,6 @@ Class Payroll
                                 $_SESSION['emailattempt'] -= 1;
                                 $email=false;
                                 echo "Username and password does not match!<br>Attempts: ".$_SESSION['emailattempt'];
-                                print_r($_SESSION);
                             }
                             else {
                                     $suspendedAccess="suspended";
@@ -2968,12 +3017,11 @@ Class Payroll
                                     $actLogStmt->execute([$id,$fullname, $action, $time, $date]);
                     
                                     // // create user details using session
-                                    session_start();
                                     $_SESSION['SecretaryDetails'] = array('fullname' => $fullname,
                                                                         'access' => $users->access,
                                                                         'position' => $users->position,
                                                                         'id' => $users->id,
-                                                                        'empId' => $users->empId,
+                                                                        'empId' => $users->id,
                                                                         'scheduleTimeIn' => $users->scheduleTimeIn,
                                                                         'scheduleTimeOut' => $users->scheduleTimeOut,
                                                                         'datetimeIn' => $users->datetimeIn
@@ -3199,7 +3247,7 @@ Class Payroll
             ob_start ();
             date_default_timezone_set('Asia/Manila');
             $date = date('F d, Y');
-            $datef=date('F d, Y H:i:s A');
+            $datef = date('F d, Y H:i:s A');
             $pdfname = '../SecretaryPortal/uploads/'.$rows->firstname .' '. $rows->lastname.', '.$date.'.pdf';
             // $dompdf->loadHtml($payslip);
             // $dompdf->set_option('isRemoteEnabled', TRUE);
@@ -3219,10 +3267,55 @@ Class Payroll
             }
             ob_start ();
             $backup= '../SecretaryPortal/merged/'.$datef.'.pdf';
-            $files = $date.'.pdf';
+            $files = $datef.'.pdf';
             $pdf->merge('download', $files);
             $pdf->merge('file',$backup);
-            ob_end_flush();
+    }
+    public function changepass($id,$fullname)
+    {
+        if(isset($_POST['changepass']))
+        {
+            $oldpass= md5($_POST['oldpass']);
+            $sql="SELECT * FROM secretary WHERE id = ?;";
+            $stmt = $this->con()->prepare($sql);
+            $stmt->execute([$id]);
+            $user=$stmt->fetch();
+            if($oldpass == $user->password)
+            {
+                $newpass= md5($_POST['newpass']);
+                $confirmpass= md5($_POST['confirmpass']);
+                if($newpass == $confirmpass)
+                {
+                    $sqledit = "UPDATE secretary SET password = ?;";
+                    $stmtedit = $this->con()->prepare($sqledit);
+                    $stmtedit->execute([$newpass]);
+                    $countrowedit = $stmtedit->rowCount();
+                    if($countrowedit>0){
+                        echo "<p>Password Succesfully Change</p>";
+                        $datetime = $this->getDateTime();
+                        $time = $datetime['time'];
+                        $date = $datetime['date'];
+                        $action = "Change Password";
+                        $actLogSql = "INSERT INTO secretary_log(`sec_id`,`name`, 
+                        `action`,
+                        `time`,
+                        `date`
+                        )
+                        VALUES(?, ?, ?, ?, ?)";
+                        $actLogStmt = $this->con()->prepare($actLogSql);
+                        $actLogStmt->execute([$id,$fullname, $action, $time, $date]);
+                    }
+                } else{
+                    echo "Password does not match";
+                }
+                
+            } else {
+                echo "Wrong Password";
+            }
+        }
+    }
+    public function changeinfo(){
+        
     }
 
 } // End of class

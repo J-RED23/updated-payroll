@@ -1,0 +1,32 @@
+DELETE FROM `emp_attendance` WHERE empId = '2022-41';
+
+INSERT INTO `emp_attendance` (`id`, `empId`, `timeIn`, `timeOut`, `datetimeIn`, `datetimeOut`, `location`, `status`, `login_session`, `salary_status`) 
+VALUES 
+(NULL, '2022-32', '6:05:00 am', '2:00:00 pm', '2022/01/01', '2022/01/01', 'Davies Paint Qc', 'late', 'false', 'unpaid'), 
+(NULL, '2022-32', '6:00:00 am', '2:05:00 pm', '2022/01/02', '2022/01/02', 'Davies Paint Qc', 'Good', 'false', 'unpaid'),
+(NULL, '2022-32', '6:05:00 am', '2:00:00 pm', '2022/01/03', '2022/01/03', 'Davies Paint Qc', 'late', 'false', 'unpaid'), 
+(NULL, '2022-32', '6:00:00 am', '2:05:00 pm', '2022/01/04', '2022/01/04', 'Davies Paint Qc', 'Good', 'false', 'unpaid'), 
+(NULL, '2022-32', '6:05:00 am', '2:00:00 pm', '2022/01/05', '2022/01/05', 'Davies Paint Qc', 'late', 'false', 'unpaid'), 
+(NULL, '2022-32', '6:05:00 am', '2:00:00 pm', '2022/01/06', '2022/01/06', 'Davies Paint Qc', 'late', 'false', 'unpaid'), 
+(NULL, '2022-32', '6:05:00 am', '2:00:00 pm', '2022/01/07', '2022/01/07', 'Davies Paint Qc', 'late', 'false', 'unpaid'), 
+(NULL, '2022-32', '6:05:00 am', '2:00:00 pm', '2022/01/08', '2022/01/08', 'Davies Paint Qc', 'late', 'false', 'unpaid'), 
+(NULL, '2022-32', '6:05:00 am', '2:00:00 pm', '2022/01/09', '2022/01/09', 'Davies Paint Qc', 'late', 'false', 'unpaid'), 
+(NULL, '2022-32', '6:05:00 am', '2:00:00 pm', '2022/01/10', '2022/01/10', 'Davies Paint Qc', 'late', 'false', 'unpaid'), 
+(NULL, '2022-32', '6:05:00 am', '2:00:00 pm', '2022/01/11', '2022/01/11', 'Davies Paint Qc', 'late', 'false', 'unpaid'), 
+(NULL, '2022-32', '6:05:00 am', '2:00:00 pm', '2022/01/12', '2022/01/12', 'Davies Paint Qc', 'late', 'false', 'unpaid');
+
+
+INSERT INTO `emp_attendance` (`id`, `empId`, `timeIn`, `timeOut`, `datetimeIn`, `datetimeOut`, `location`, `status`, `login_session`, `salary_status`) 
+VALUES 
+(NULL, '2022-41', '6:05:00 am', '6:00:00 pm', '2022/01/01', '2022/01/01', 'Unilab Qc', 'late', 'false', 'unpaid'),
+(NULL, '2022-41', '6:05:00 am', '6:00:00 pm', '2022/01/02', '2022/01/02', 'Unilab Qc', 'late', 'false', 'unpaid'),
+(NULL, '2022-41', '6:05:00 am', '6:00:00 pm', '2022/01/03', '2022/01/03', 'Unilab Qc', 'late', 'false', 'unpaid'), 
+(NULL, '2022-41', '6:00:00 am', '6:05:00 pm', '2022/01/04', '2022/01/04', 'Unilab Qc', 'Good', 'false', 'unpaid'), 
+(NULL, '2022-41', '6:05:00 am', '6:00:00 pm', '2022/01/05', '2022/01/05', 'Unilab Qc', 'late', 'false', 'unpaid'), 
+(NULL, '2022-41', '6:05:00 am', '6:00:00 pm', '2022/01/06', '2022/01/06', 'Unilab Qc', 'late', 'false', 'unpaid'), 
+(NULL, '2022-41', '6:05:00 am', '6:00:00 pm', '2022/01/07', '2022/01/07', 'Unilab Qc', 'late', 'false', 'unpaid'), 
+(NULL, '2022-41', '6:05:00 am', '6:00:00 pm', '2022/01/08', '2022/01/08', 'Unilab Qc', 'late', 'false', 'unpaid'), 
+(NULL, '2022-41', '6:05:00 am', '6:00:00 pm', '2022/01/09', '2022/01/09', 'Unilab Qc', 'late', 'false', 'unpaid'), 
+(NULL, '2022-41', '6:05:00 am', '6:00:00 pm', '2022/01/10', '2022/01/10', 'Unilab Qc', 'late', 'false', 'unpaid'), 
+(NULL, '2022-41', '6:05:00 am', '6:00:00 pm', '2022/01/11', '2022/01/11', 'Unilab Qc', 'late', 'false', 'unpaid'), 
+(NULL, '2022-41', '6:05:00 am', '6:00:00 pm', '2022/01/12', '2022/01/12', 'Unilab Qc', 'late', 'false', 'unpaid');
