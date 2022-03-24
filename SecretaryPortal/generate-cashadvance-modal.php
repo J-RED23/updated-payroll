@@ -42,7 +42,7 @@
                   </div>
 
                   <button class="btn_success" type="submit" name="add">
-                    Generate Deduction
+                    Generate Cashadvance
                   </button>
 
                   <button class="cancel" type="submit" name="cancel">

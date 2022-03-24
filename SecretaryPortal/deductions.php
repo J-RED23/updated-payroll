@@ -86,6 +86,7 @@ $id = $sessionData['id'];
                               <tr>
                                    <th>Name</th>
                                    <th>Deduction</th>
+                                   <th></th>
                                    <th>
                                         <form method="post">
                                              <button type="submit" name="adddeduction">
@@ -115,6 +116,7 @@ $id = $sessionData['id'];
                          <thead>
                               <tr>
                                    <th>Employee ID</th>
+                                   <th>Date</th>
                                    <th>Amount</th>
                                    <th>
                                         <form method="post">

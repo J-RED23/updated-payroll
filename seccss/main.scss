@@ -136,7 +136,7 @@
                 
             }
 
-            input[type="text"]{
+            input[type="text"],input[type="number"]{
                 height: 40px;
                 margin-bottom: 40px;
                 width: 40%;
@@ -189,7 +189,7 @@
                 
             }
 
-            input[type="text"]{
+            input[type="text"],input[type="password"]{
                 height: 40px;
                 margin-bottom: 40px;
                 width: 40%; 
@@ -1313,11 +1313,13 @@
                 position: relative;
 
                 table {
-                    margin-left: 40px;
-                    width: 95%;
+                    margin-left: 10px;
+                    width: 105%;
+                    border-collapse: separate;
+                    border-spacing: 0 15px;
 
                     thead > tr > th {
-                        text-align: left;
+                        text-align: center;
                         color: $black;
                         font-weight: $semibold;
                         padding: 30px 0;
@@ -1329,9 +1331,10 @@
                     }
 
                     tbody > tr > td {
-                        padding: 15px 5px;
+                        padding: 30px 10px;
                         font-size: $table-modal-paragraph;
                         font-weight: $medium;
+                        background-color: $back;
 
                     }
 
@@ -3471,7 +3474,7 @@
                 font-weight: $semibold;
                 position: relative;
                 top: 25px;
-                right: 770px;
+                right: 960px;
             }
 
             .searchbar {
@@ -3504,12 +3507,15 @@
             table {
                 margin-left: 40px;
                 width: 95%;
+                border-collapse: separate;
+                border-spacing: 0 15px;
+              
 
                 thead > tr > th {
                     text-align: left;
                     color: $black;
                     font-weight: $semibold;
-                    padding: 30px 0;
+                    padding: 15px 20px;
                     padding-left: 5px;
 
                     button {
@@ -3528,16 +3534,18 @@
                 }
 
                 tbody > tr > td {
-                    padding: 15px 5px;
+                    padding: 15px 20px;
                     font-size: $table-modal-paragraph;
                     font-weight: $medium;
+                    background-color: $back;
+                  
 
                 }
 
-                .th-action {
-                    display: flex;
-                    justify-content: space-between;
-                    width: 35%;
+                .td-action {
+                    display: flex; 
+                    justify-content: space-around;
+                    width: 100%;
 
                     a {
                         margin-top: 5px;
@@ -3575,13 +3583,14 @@
             position: relative;
             bottom: 5px;
             width: 97%;
+            
 
             h1 {
                 font-size: $header;
                 font-weight: $semibold;
                 position: relative;
                 top: 25px;
-                right: 730px;
+                right: 925px;
             }
 
             .searchbar {
@@ -3614,6 +3623,8 @@
             table {
                 margin-left: 40px;
                 width: 95%;
+                border-collapse: separate;
+                border-spacing: 0 15px;
 
                 thead > tr > th {
                     text-align: left;
@@ -3638,9 +3649,10 @@
                 }
 
                 tbody > tr > td {
-                    padding: 15px 5px;
+                    padding: 15px 20px;
                     font-size: $table-modal-paragraph;
                     font-weight: $medium;
+                    background-color: $back;
 
                 }
 

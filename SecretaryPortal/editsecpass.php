@@ -63,13 +63,13 @@
                <div class="changepassword-card__form">
                
                     <label for="pass" name="">Old Password : </label>
-                    <input type="text" id="pass" name="oldpass">
+                    <input type="password" id="pass" name="oldpass">
 
                     <label for="npass">New Password : </label>
-                    <input type="text" id="npass" name="newpass" pattern=".{8,}" title="Eight or more characters">
+                    <input type="password" id="npass" name="newpass" pattern=".{8,}" title="Eight or more characters">
 
                     <label for="cpass" >Confirm Password : </label>
-                    <input type="text" id="cpass" name="confirmpass"pattern=".{8,}" title="Eight or more characters">
+                    <input type="password" id="cpass" name="confirmpass"pattern=".{8,}" title="Eight or more characters">
 
                     <?php
                     if(isset($_POST['changepass'])){

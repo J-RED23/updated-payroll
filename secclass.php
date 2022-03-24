@@ -20,7 +20,7 @@ Class Payroll
 
     public function con()
     {
-        $this->pdo = new PDO($this->dns, $this->username, $this->password);
+        $this->pdo = new PDO($this->dns, $this->username, $this->password,array(PDO::ATTR_PERSISTENT => true));
         $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
         return $this->pdo;
     }
@@ -618,8 +618,7 @@ Class Payroll
             while($row = $stmt->fetch()){
             echo "<tr>
             <td>$row->empId</td>
-            <td>$row->firstname</td>
-            <td>$row->lastname</td>
+            <td>$row->firstname $row->lastname</td>
             <td>$row->location</td>
             <td>$row->timeIn</td>
             <td>",date('F j, Y', strtotime($row->datetimeIn)),"</td>
@@ -628,6 +627,7 @@ Class Payroll
             <td>$row->status</td>
             </tr>";   
                                         }
+    $this->pdo= null;
     }
     public function displayGeneratedSalary()
     {
@@ -703,7 +703,7 @@ Class Payroll
             header('location: manualpayroll.php');
         }else{
         }
-
+        $this->pdo= null;
     }
     public function search()
     {
@@ -753,304 +753,9 @@ Class Payroll
                 echo "Please Input Fields!";
                 $this->displayAttendance();
                 }
+                $this->pdo= null;
     }
-    public function generateSalary($id,$fullname)
-    {
-        if(isset($_POST['generate']))
-        {
-            if(isset($_POST['empid']) &&
-            isset($_POST['rate']) &&
-            isset($_POST['hrsduty']) &&
-            isset($_POST['location']) &&
-            isset($_POST['noofdayswork']) &&
-            isset($_POST['regholiday']) &&
-            isset($_POST['hrslate']) &&
-            isset($_POST['sss']) &&
-            isset($_POST['pagibig']) &&
-            isset($_POST['philhealth']) &&
-            isset($_POST['cashbond']) &&
-            isset($_POST['specialholiday']) &&
-            isset($_POST['thirteenmonth']) &&
-            isset($_POST['cvale']))
-            {
-                    $empid=$_POST['empid'];
-                    $rate=(float)$_POST['rate'];
-                    $hrsduty=(int)$_POST['hrsduty'];
-                    $location = $_POST['location'];
-                    $noofdayswork = (int)$_POST['noofdayswork'];
-                    $regholiday = $_POST['regholiday'];
-                    $hrslate=$_POST['hrslate'];
-                    $sss=$_POST['sss'];
-                    $pagibig=$_POST['pagibig'];
-                    $philhealth=$_POST['philhealth'];
-                    $cashbond=$_POST['cashbond'];
-                    $specialholiday=$_POST['specialholiday'];
-                    $thirteenmonth=$_POST['thirteenmonth'];
-                    $netpay="";
-                    $vale=$_POST['cvale'];
-                    $totaldaysalary = $hrsduty * $rate ; // sahod sa isang araw depende sa duty at rate 
-                    $totalhoursofwork = $hrsduty * $noofdayswork;
-                    $standardpay = $totalhoursofwork * $rate;
-                    $totalregholidayhoursalary = $regholiday * $rate;
-                    $totalregholidaysalary = $totalregholidayhoursalary;                        // sahod pag regular holiday
 
-                    $totalspecialholidayhoursalary = $specialholiday * $rate;
-                    $totalspecialholidaysalary  = $totalspecialholidayhoursalary * 0.30;
-                    
-                    
-                    $totalhrs = $hrsduty * $noofdayswork; // oras ng trabaho
-                    $totalsalaryfortotalhours = $totalhrs * $rate;  // sahod sa oras nang tinrabaho
-
-                    $totalholidaysalary = (float)$totalregholidaysalary + (float)$totalspecialholidaysalary;
-                    $totg = (float)$totalholidaysalary + (float)$thirteenmonth;
-                    $totalgross = (float)$totalsalaryfortotalhours + (float)$totg;
-
-                    $totalsalaryforlate = (float)$hrslate * $rate;
-                    $totaldeduction = (float)$vale + (float)$cashbond + (float)$sss + (float)$pagibig + (float)$philhealth + (float)$totalsalaryforlate;
-
-                    $netpay = $totalgross - $totaldeduction;
-                    // set timezone and get date and time
-                    $datetime = $this->getDateTime();
-                    $time = $datetime['time'];
-                    $date = $datetime['date']; 
-                    $sql = "INSERT INTO generated_salary (emp_id,
-                                                location,
-                                                rate_hour,
-                                                date,
-                                                hours_duty,
-                                                standard_pay,
-                                                regular_holiday,
-                                                special_holiday,
-                                                hrs_late,
-                                                no_of_work,
-                                                sss,
-                                                pagibig,
-                                                philhealth,
-                                                cashbond,
-                                                vale,
-                                                thirteenmonth,
-                                                total_hours,
-                                                regular_pay,
-                                                regular_holiday_pay,
-                                                special_holiday_pay,
-                                                total_deduction,
-                                                total_gross,
-                                                total_netpay,
-                                                dateandtime_created
-                                                )
-                                                VALUES(?, ?, ?,?, ?,?, ?,?, ?,?, ?, ?,?,?,?,?,?,?,? ,?, ?, ?, ?,?);";
-                $stmt = $this->con()->prepare($sql);
-                $stmt->execute([$empid, $location, $rate, $date, $hrsduty,$standardpay,$regholiday, $specialholiday, $hrslate,  $noofdayswork, $sss,$pagibig,$philhealth, $cashbond, $vale, $thirteenmonth,$totalhrs, $totalsalaryfortotalhours, $totalregholidaysalary, $totalspecialholidaysalary, $totaldeduction,$totalgross,$netpay, $time]);
-                $users = $stmt->fetch();
-                $countRow = $stmt->rowCount();
-
-                if($countRow > 0)
-                {
-                echo 'Added';
-
-                $action = "Add Salary";
-
-                $sqlSecLog = "INSERT INTO secretary_log (sec_id, name, action, time, date)
-                                VALUES(?, ?, ?, ?, ?)";
-                $stmtSecLog = $this->con()->prepare($sqlSecLog);
-                $stmtSecLog->execute([$id,$fullname, $action, $time, $date]);
-                $countRowSecLog = $stmtSecLog->rowCount();
-
-                if($countRowSecLog > 0){
-                    echo 'pumasok na sa act log';
-                } else {
-                    echo 'di pumasok sa act log';
-                }
-
-                } else {
-                echo 'Error in adding salary!';
-                }
-                
-                } else {
-                echo "All inputs are requireds!" .$_POST['rate'] .$_POST['empid'].
-                $_POST['empid'].
-                $_POST['rate'].
-                $_POST['hrsduty'].
-                $_POST['location'].
-                $_POST['noofdayswork'].
-                $_POST['regholiday'].
-                $_POST['hrslate'].
-                $_POST['sss'].
-                $_POST['pagibig'].
-                $_POST['philhealth'].
-                $_POST['cashbond'].
-                $_POST['specialholiday'].
-                $_POST['thirteenmonth'].
-                $_POST['cvale'];
-            
-            }
-
-        }
-    }
-    public function showSpecificSalary()
-    {
-        if(isset($_GET['empid'])){
-            $id = $_GET['empid'];
-            $sql = "SELECT * FROM generated_salary WHERE emp_id = ?";
-            $stmt = $this->con()->prepare($sql);
-            $stmt->execute([$id]);
-            $user = $stmt->fetch();
-            $countRow = $stmt->rowCount();
-
-            if($countRow > 0){
-                $empid = $user->emp_id;
-                $location = $user->location;
-                $date = $user->date;
-                $late = $user->day_late; 
-                $absent = $user->day_absent;
-                $noofdayswork = $user->no_of_work; 
-                $sss= $user->sss;
-                $cashbond = $user->cashbond;
-                $vale = $user->vale;
-                $thirteenmonth = $user->thirteenmonth;
-                $gross = $user->total_gross;
-                $netpay = $user->total_netpay;
-                $time = $user->dateandtime_created;
-                echo"location ".$location;
-            }
-        }
-    }
-    public function updateSalary($id,$fullname)
-    {
-        if(isset($_POST['edit']))
-        {
-            // if( isset($_POST['empid']) &&
-            // !isset($_POST['rate']) &&
-            // isset($_POST['hrsduty']) &&
-            // isset($_POST['location']) &&
-            // isset($_POST['noofdayswork']) &&
-            // isset($_POST['regholiday']) &&
-            // isset($_POST['daylate']) &&
-            // isset($_POST['minlate']) &&
-            // isset($_POST['dayabsent']) &&
-            // isset($_POST['sss']) &&
-            // isset($_POST['cashbond']) &&
-            // isset($_POST['specialholiday']) &&
-            // isset($_POST['thirteenmonth']) &&
-            // isset($_POST['cvale']))
-            // {
-                $empid=$_POST['empid'];
-                $rate=(int)$_POST['rate'];
-                $hrsduty=(int)$_POST['hrsduty'];
-                $location = $_POST['location'];
-                $noofdayswork = (int)$_POST['noofdayswork'];
-                $regholiday = $_POST['regholiday'];
-                $daylate=$_POST['daylate'];
-                $minlate=$_POST['hrslate'];
-                // $dayabsent=$_POST['dayabsent'];
-                $sss=$_POST['sss'];
-                $pagibig=$_POST['pagibig'];
-                $philhealth = $_POST['philhealth'];
-                $cashbond=$_POST['cashbond'];
-                $specialholiday=$_POST['specialholiday'];
-                $thirteenmonth=$_POST['thirteenmonth'];
-                $netpay="";
-                $vale=$_POST['cvale'];
-                $logid=$_GET['logid'];
-                $totaldaysalary = $hrsduty * $rate ; // sahod sa isang araw depende sa duty at rate
- 
-                $totalregholidayhoursalary = $regholiday * $rate;
-                $totalregholidaysalary = $totalregholidayhoursalary;                        // sahod pag regular holiday
-
-                $totalspecialholidayhoursalary = $specialholiday * $rate;
-                $totalspecialholidayhoursalarypercent = $totalspecialholidayhoursalary * 0.30;
-                $totalspecialholidaysalary = $totalspecialholidayhoursalarypercent;
-                
-                $totalhrs = $hrsduty * $noofdayswork; // oras ng trabaho
-                $totalsalaryfortotalhours = $totalhrs * $rate;  // sahod sa oras nang tinrabaho
-
-                $totalholidaysalary = $totalregholidaysalary + $totalspecialholidaysalary;
-                $totg = $totalholidaysalary + $thirteenmonth;
-                $totalgross = $totalsalaryfortotalhours + $totg;
-
-                // $totalhourfordayabsent = $dayabsent * $hrsduty; // total hours ng absent
-                // $totaldaysalaryfordayabsent = $totalhourfordayabsent * $rate; //sahod absent
-
-                $totalsalaryforlate = $minlate * 59.523;
-                $totaldeduction = (float)$vale + (float)$cashbond + (float)$sss + (float)$pagibig + (float)$philhealth + (float)$totalsalaryforlate;
-
-                $netpay = $totalgross - $totaldeduction;
-                        // else if (!empty($empid) &&
-                        // !empty($location)&&
-                        // !empty($noofdayswork) &&
-                        // !empty($cashbond) &&
-                        // !empty($hrsduty) &&
-                        // !empty($sss) &&
-                        // !empty($rate) &&
-                        // !empty($vale) &&
-                        // !empty($daylate) &&
-                        // !empty($hrslate) &&
-                        // !empty($dayabsent) &&
-                        // !empty($hrsabsent) &&
-                        // !empty($thirteenmonth)
-                        // ){
-                        // set timezone and get date and time
-                        $datetime = $this->getDateTime();
-                        $time = $datetime['time'];
-                        $date = $datetime['date']; 
-                    $sql = "UPDATE generated_salary SET emp_id = ?,
-                    location = ?,
-                    rate_hour = ?,
-                    date = ?,
-                    hours_duty = ?,
-                    regular_holiday = ?,
-                    special_holiday = ?,
-                    day_late = ?,
-                    hrs_late = ?,
-                    -- day_absent = ?,
-                    -- hours_absent = ?,
-                    no_of_work = ?,
-                    sss = ?,
-                    cashbond = ?,
-                    vale = ?,
-                    thirteenmonth = ?,
-                    total_hours = ?,
-                    regular_pay = ?,
-                    regular_holiday_pay = ?,
-                    special_holiday_pay = ?,
-                    total_deduction = ?,
-                    total_gross = ?,
-                    total_netpay = ?,
-                    dateandtime_created = ?
-                    WHERE log = $logid;";
-                    $stmt = $this->con()->prepare($sql);
-                    $stmt->execute([$empid, $location, $rate, $date,$hrsduty,$regholiday,$specialholiday,$daylate, $minlate, $noofdayswork, $sss, $cashbond, $vale, $thirteenmonth ,$totalhrs ,$totalsalaryfortotalhours,$totalregholidaysalary,$totalspecialholidaysalary,$totaldeduction,$totalgross,$netpay ,$time]);
-                    $users = $stmt->fetch();
-                    $countRow = $stmt->rowCount();
-
-                        if($countRow > 0){
-                            echo 'Updated';
-
-                            $action = "Edit Salary";
-
-                            $sqlSecLog = "INSERT INTO secretary_log (sec_id, name, action, time, date)
-                                            VALUES(?, ?, ?, ?, ?)";
-                            $stmtSecLog = $this->con()->prepare($sqlSecLog);
-                            $stmtSecLog->execute([$id,$fullname, $action, $time, $date]);
-                            $countRowSecLog = $stmtSecLog->rowCount();
-
-                            if($countRowSecLog > 0){
-                                echo 'pumasok na sa act log';
-                                header('location: manualpayroll.php');
-                            } else {
-                                echo 'di pumasok sa act log';
-                            }
-
-                        } else {
-                            echo 'Error in updating salary!';
-                        }
-            // } else {
-            // echo "All inputs are required!";
-            // }
-        }else {
-            header('location: manualpayroll.php');
-        }
-    }
     public function employeeList()
     {
         $sql ="SELECT * FROM employee";
@@ -1068,13 +773,14 @@ Class Payroll
                         <td>$user->availability</td>
                         <td class='td-action'>
                             <div class='ic ic__add'>
-                                <a href='viewemployee.php?empId=$user->empId' class='td-view'>
+                                <a href='viewemp.php?empId=$user->empId' class='td-view'>
                                     <span class='material-icons'>visibility</span>
                                 </a>
                             </div>
                         </td>
                         </tr>";
                     }
+                    $this->pdo= null;
     }
     public function searchEmployee()
     {
@@ -1124,6 +830,7 @@ Class Payroll
                     $this->employeeList();
                     }
         }
+        $this->pdo= null;
     }
     public function automaticGenerateSalary($fullname,$id)
     {
@@ -1367,6 +1074,7 @@ Class Payroll
             </tr>";
             // $this->deleteSalary($row->log);
             }
+            $this->pdo= null;
     }
     public function searchAutomaticGeneratedSalary()
     {
@@ -1406,6 +1114,7 @@ Class Payroll
                     $this->displayreleasedsalary();
                     }
         }
+        $this->pdo= null;
     }
     public function salarychart($empid,$end,$totnetpay){
         $sqlreport="SELECT * FROM salary_report WHERE empId = ?"; //salary report
@@ -1625,6 +1334,7 @@ Class Payroll
                     echo 'di pumasok sa act log';
                 }
                 ob_end_flush();
+                $this->pdo= null;
     }
     public function deleteautomatedsalary($logid)
     {
@@ -1661,6 +1371,7 @@ Class Payroll
             header('location: automaticpayroll.php');
         }else{
         }
+        $this->pdo= null;
     }
     public function adddeduction($fullname,$id)
     {
@@ -1704,6 +1415,7 @@ Class Payroll
             else if(isset($_POST['cancelded'])){
                 header('location: deductions.php');
             }
+            $this->pdo= null;
     }
     public function deletededuction($logid)
     {
@@ -1741,6 +1453,7 @@ Class Payroll
         }else{
 
         }
+        $this->pdo= null;
 
     }
     public function displaydeduction()
@@ -1755,17 +1468,14 @@ Class Payroll
         {
             echo "<tr>
             <td>$row->deduction</td>
-            <td>$row->amount</td>
-            <td>$row->percentage </td>
+            <td>$row->amount $row->percentage </td>
             <td></td>
-            
             <td class='td-action'>
-            <div class='ic ic__edit'>
-                <a href='editdeduction.php?logid=$row->id' class='td-edit'>
-                    <span class='material-icons'>edit</span>
-                </a>
-            </div>
-            <td class='td-action'>
+                <div class='ic ic__edit'>
+                    <a href='editdeduction.php?logid=$row->id' class='td-edit'>
+                        <span class='material-icons'>edit</span>
+                    </a>
+                </div>
                 <div class='ic ic__delete'>
                     <a href='deletededuction.php?logid=$row->id' class='td-delete'>
                         <span class='material-icons'>delete</span>
@@ -1775,6 +1485,7 @@ Class Payroll
             </tr>";
             $this->deletededuction($row->id);
         }
+        $this->pdo= null;
     }
     public function cashadvance($fullname,$id)
     {
@@ -1861,6 +1572,7 @@ Class Payroll
         else if(isset($_POST['cancel'])){
             header('location: deductions.php');
         }
+        $this->pdo= null;
     }
     public function deletecashadv($logid)
     {
@@ -1897,6 +1609,7 @@ Class Payroll
             header('location: deductions.php');
         }else{
         }
+        $this->pdo= null;
     }
     public function displaycashadvance()
     {
@@ -1918,6 +1631,7 @@ Class Payroll
         </tr>";
         $this->deletecashadv($row->id);
         }
+        $this->pdo= null;
     }
     public function displayschedule()
     {
@@ -1935,6 +1649,7 @@ Class Payroll
             <td>$row->expiration_date</td>
             </tr>";
             }
+            $this->pdo= null;
     }
     public function searchsched(){
         if(isset($_POST['searchsched'])){
@@ -2454,6 +2169,7 @@ Class Payroll
         $file = $dompdf->output();
         $dompdf->stream($pdfname);
         }
+        $this->pdo= null;
     }
     public function generatemanualpdf($id){
         if(isset($_POST['download'])){
@@ -3313,6 +3029,7 @@ Class Payroll
                 echo "Wrong Password";
             }
         }
+        $this->pdo= null;
     }
     public function changeinfo(){
         

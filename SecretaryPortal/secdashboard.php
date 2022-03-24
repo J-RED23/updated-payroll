@@ -91,9 +91,8 @@ $fullname = $sessionData['fullname'];
                          <table>
                               <thead>
                                    <tr>
-                                        <th>Employee ID</th>
-                                        <th>Firstname</th>
-                                        <th>Lastname</th>
+                                        <th>ID</th>
+                                        <th>Name</th>
                                         <th>Company</th>
                                         <th>Time-In</th>
                                         <th>Date</th>

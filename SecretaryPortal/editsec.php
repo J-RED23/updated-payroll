@@ -68,7 +68,7 @@
                     <input type="text" placeholder= "<?php echo $user->fullname;?>" disabled>
 
                     <label for="">Contact Number : </label>
-                    <input type="text" name="contact" placeholder= "<?php echo $user->cpnumber;?>">
+                    <input type="number" name="contact" placeholder= "<?php echo $user->cpnumber;?>">
 
                     <label for="" >Address: </label>
                     <input type="text" name="address" placeholder= "<?php echo $user->address;?>">

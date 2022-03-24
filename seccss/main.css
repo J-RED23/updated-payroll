@@ -1448,7 +1448,7 @@ button.btn_cancel:hover {
   font-weight: 600 !important;
 }
 
-.main-container .edit-profile-card .edit-profile-card__form input[type="text"] {
+.main-container .edit-profile-card .edit-profile-card__form input[type="text"], .main-container .edit-profile-card .edit-profile-card__form input[type="number"] {
   height: 40px;
   margin-bottom: 40px;
   width: 40%;
@@ -1508,7 +1508,7 @@ button.btn_cancel:hover {
   font-weight: 600 !important;
 }
 
-.main-container .changepassword-card .changepassword-card__form input[type="text"] {
+.main-container .changepassword-card .changepassword-card__form input[type="text"], .main-container .changepassword-card .changepassword-card__form input[type="password"] {
   height: 40px;
   margin-bottom: 40px;
   width: 40%;
@@ -2815,12 +2815,14 @@ button.btn_cancel:hover {
 }
 
 .main-container .attendance_monitoring .card__content table {
-  margin-left: 40px;
-  width: 95%;
+  margin-left: 10px;
+  width: 105%;
+  border-collapse: separate;
+  border-spacing: 0 15px;
 }
 
 .main-container .attendance_monitoring .card__content table thead > tr > th {
-  text-align: left;
+  text-align: center;
   color: #464646;
   font-weight: 600 !important;
   padding: 30px 0;
@@ -2832,9 +2834,10 @@ button.btn_cancel:hover {
 }
 
 .main-container .attendance_monitoring .card__content table tbody > tr > td {
-  padding: 15px 5px;
+  padding: 30px 10px;
   font-size: 1rem !important;
   font-weight: 500 !important;
+  background-color: #F4F6FA;
 }
 
 .main-container .attendance_monitoring .card__content table .td-action {
@@ -5330,7 +5333,7 @@ button.btn_cancel:hover {
   font-weight: 600 !important;
   position: relative;
   top: 25px;
-  right: 770px;
+  right: 960px;
 }
 
 .main-container .generate-deduction-table__header .searchbar {
@@ -5368,13 +5371,15 @@ button.btn_cancel:hover {
 .main-container .generate-deduction-table__content table {
   margin-left: 40px;
   width: 95%;
+  border-collapse: separate;
+  border-spacing: 0 15px;
 }
 
 .main-container .generate-deduction-table__content table thead > tr > th {
   text-align: left;
   color: #464646;
   font-weight: 600 !important;
-  padding: 30px 0;
+  padding: 15px 20px;
   padding-left: 5px;
 }
 
@@ -5392,34 +5397,34 @@ button.btn_cancel:hover {
 }
 
 .main-container .generate-deduction-table__content table tbody > tr > td {
-  padding: 15px 5px;
+  padding: 15px 20px;
   font-size: 1rem !important;
   font-weight: 500 !important;
+  background-color: #F4F6FA;
 }
 
-.main-container .generate-deduction-table__content table .th-action {
+.main-container .generate-deduction-table__content table .td-action {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  -webkit-box-pack: justify;
-      -ms-flex-pack: justify;
-          justify-content: space-between;
-  width: 35%;
+  -ms-flex-pack: distribute;
+      justify-content: space-around;
+  width: 100%;
 }
 
-.main-container .generate-deduction-table__content table .th-action a {
+.main-container .generate-deduction-table__content table .td-action a {
   margin-top: 5px;
 }
 
-.main-container .generate-deduction-table__content table .th-action .td-edit {
+.main-container .generate-deduction-table__content table .td-action .td-edit {
   color: #19C773;
 }
 
-.main-container .generate-deduction-table__content table .th-action .td-view {
+.main-container .generate-deduction-table__content table .td-action .td-view {
   color: #359EFF;
 }
 
-.main-container .generate-deduction-table__content table .th-action .td-delete {
+.main-container .generate-deduction-table__content table .td-action .td-delete {
   color: #FF6C6C;
 }
 
@@ -5454,7 +5459,7 @@ button.btn_cancel:hover {
   font-weight: 600 !important;
   position: relative;
   top: 25px;
-  right: 730px;
+  right: 925px;
 }
 
 .main-container .generate-cashadvance-table__header .searchbar {
@@ -5492,6 +5497,8 @@ button.btn_cancel:hover {
 .main-container .generate-cashadvance-table__content table {
   margin-left: 40px;
   width: 95%;
+  border-collapse: separate;
+  border-spacing: 0 15px;
 }
 
 .main-container .generate-cashadvance-table__content table thead > tr > th {
@@ -5516,9 +5523,10 @@ button.btn_cancel:hover {
 }
 
 .main-container .generate-cashadvance-table__content table tbody > tr > td {
-  padding: 15px 5px;
+  padding: 15px 20px;
   font-size: 1rem !important;
   font-weight: 500 !important;
+  background-color: #F4F6FA;
 }
 
 .main-container .generate-cashadvance-table__content table .th-action {
