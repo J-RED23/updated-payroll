@@ -33,7 +33,6 @@ $payroll->AutomaticGenerateSalary($fullname,$id);
                 <button class="btn_success" type="submit" name="createsalary">
                     Create
                 </button>
-
             </div>
 
             <div class="modal__delete__content">

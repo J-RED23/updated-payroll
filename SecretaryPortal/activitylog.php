@@ -46,7 +46,7 @@
                         </li>
 
                         <li class="li__report">
-                            <a href="#">Salary</a>
+                            <a href="#">Salary Report</a>
                             <ul>
                                 <li><a href="../SecretaryPortal/releasedsalary.php">Released Salary</a></li>
                                 <li><a href="../SecretaryPortal/salaryreport.php">Salary Chart</a></li>

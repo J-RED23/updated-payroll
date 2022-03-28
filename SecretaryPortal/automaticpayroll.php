@@ -75,18 +75,8 @@
         </div>
 
         <div class="auto-generated-payroll-attendance">
-            <div class="auto-generated-payroll-attendance__header">
+            <div class="employee_list__header">
                 <h1>Generate Salary</h1>
-                <form method="post">
-                <div class="searchbar">
-                    <span class="material-icons">
-                    <button type="submit" name="searchempatt">Search</button>
-                    </span>
-                    
-                    <input type="text" placeholder="Search" name="emp">
-                    
-                    </form>
-                </div>
             </div>
             <div style='display: flex; justify-content: right; margin-right: 100px;'>
                 <form method="post">
