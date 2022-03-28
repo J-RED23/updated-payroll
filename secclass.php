@@ -458,7 +458,13 @@ Class Payroll
         return array($dateExpired, $timeExpired);
     }
     
-
+    public function generatedPassword($pword)
+    {
+        $keyword = "%15@!#Fa4%#@kE";
+        $generatedPassword = md5($pword.$keyword);
+        return array($generatedPassword, $pword.$keyword);
+    }
+    
     public function checkAccountTimer($id)
     {
         $sql = "SELECT * FROM super_admin WHERE id = ?";
@@ -578,13 +584,6 @@ Class Payroll
         }
     }
 
-    public function generatedPassword($fullname)
-    {
-        $keyword = "%15@!#Fa4%#@kE";
-        $generatedPassword = md5($fullname.$keyword);
-        return array($generatedPassword, $fullname.$keyword);
-    }
-
     // for secretary table only
     public function checkSecEmailExist($email)
     {
@@ -620,10 +619,10 @@ Class Payroll
             <td>$row->empId</td>
             <td>$row->firstname $row->lastname</td>
             <td>$row->location</td>
-            <td>$row->timeIn</td>
-            <td>",date('F j, Y', strtotime($row->datetimeIn)),"</td>
-            <td>$row->timeOut</td>
-            <td>",date('F j, Y', strtotime($row->datetimeOut)),"</td>
+            <td>",date('h:i A',strtotime($row->timeIn)),"</td>
+            <td>",date('M j, Y', strtotime($row->datetimeIn)),"</td>
+            <td>",date('h:i A',strtotime($row->timeOut)),"</td>
+            <td>",date('M j, Y', strtotime($row->datetimeOut)),"</td>
             <td>$row->status</td>
             </tr>";   
                                         }
@@ -976,78 +975,97 @@ Class Payroll
                                 }
                         }
 
-                $sql0="SELECT emp_attendance.timeIn, emp_attendance.timeOut, employee.ratesperDay, emp_attendance.datetimeIn, emp_attendance.datetimeOut, employee.position
-                FROM emp_attendance INNER JOIN employee ON emp_attendance.empId = employee.empId WHERE emp_attendance.empId = ?;";
-                $stmt0 = $this->con()->prepare($sql0);
-                $stmt0->execute([$empid]);
-                $users0 = $stmt0->fetch();
-                $countRow0 = $stmt0->rowCount();                 
-                if($countRow0 >= 1)
-                {
-                    $getin=$countRow0;
-                    while($countRow0 >= $getin)
-                    {
-                        $start = $users0->datetimeIn;
-                        $getin++;
-                    }
-                        $end = $start;
-                        $users01 = $stmt0->fetchall();                        
-                    foreach($users01 as $user0)
-                    {
-                            $end = $user0->datetimeOut;
-                    }
-                            $sql1="SELECT * FROM cashadvance WHERE empId = ?;";
-                            $stmt1 = $this->con()->prepare($sql1);
-                            $stmt1->execute([$empid]);
-                            $users1 = $stmt1->fetchall();
-                            $countRow1 = $stmt1->rowCount();
-                            $vale = 0;
-                    foreach($users1 as $cadv)
-                    {
-                            $vale = $vale + $cadv->amount;
-                    }
-                            $position = $users0->position; //get the position of selected employee
+                        $sqlvio="SELECT * FROM violationsandremarks WHERE empId = '$empid' AND paid = 'unpaid';";
+                        $stmtvio = $this->con()->prepare($sqlvio);
+                        $stmtvio->execute();
+                        $countRowvio = $stmtvio->rowCount();
+                        $usersvio = $stmtvio->fetchall();
+                        $violationdeduction=0;
+                        if($countRowvio>0)
+                        {
+                            foreach($usersvio as $countv)
+                            {
+                                $sqlpen="SELECT amount FROM uniform_penalty WHERE violation = 'uniform';";
+                                $stmtpen = $this->con()->prepare($sqlpen);
+                                $stmtpen->execute();
+                                $userspen = $stmtpen->fetch();
+                                $violationdeduction += $userspen->amount;
+                            }
+                        }
 
-                }
-                $overtimepay = 0;
-                $standardpay = 0;
-                $thirteenmonth = 0;
-                $laterate = 0;
-                $totalgross = 0;
-                $totaldeduction = 0;
-                $totalnetpay = 0;
+                    $sql0="SELECT emp_attendance.timeIn, emp_attendance.timeOut, employee.ratesperDay, emp_attendance.datetimeIn, emp_attendance.datetimeOut, employee.position
+                    FROM emp_attendance INNER JOIN employee ON emp_attendance.empId = employee.empId WHERE emp_attendance.empId = ?;";
+                    $stmt0 = $this->con()->prepare($sql0);
+                    $stmt0->execute([$empid]);
+                    $users0 = $stmt0->fetch();
+                    $countRow0 = $stmt0->rowCount();                 
+                    if($countRow0 >= 1)
+                    {
+                        $getin=$countRow0;
+                        while($countRow0 >= $getin)
+                        {
+                            $start = $users0->datetimeIn;
+                            $getin++;
+                        }
+                            $end = $start;
+                            $users01 = $stmt0->fetchall();                        
+                        foreach($users01 as $user0)
+                        {
+                                $end = $user0->datetimeOut;
+                        }
 
-                $total_hours_late = $totallate;
-                $overtimepay = number_format($totalovertime) * $overtimerate;
-                $standardpay = number_format($totalaccumulated) * $rate;
-                $regholidaybasicpay = $regholiday * $rate;
-                $regholidayotpay = $regholidayot * $overtimerate;
-                $regholidaypay = $regholidaybasicpay + $regholidayotpay;
-                $regholiday =  number_format($regholiday) + number_format($regholidayot);
+                                $sql1="SELECT * FROM cashadvance WHERE empId = ?;";
+                                $stmt1 = $this->con()->prepare($sql1);
+                                $stmt1->execute([$empid]);
+                                $users1 = $stmt1->fetchall();
+                                $countRow1 = $stmt1->rowCount();
+                                $vale = 0;
+                        foreach($users1 as $cadv)
+                        {
+                                $vale = $vale + $cadv->amount;
+                        }
+                                $position = $users0->position; //get the position of selected employee
 
-                $specholidaybasicpay = $specholiday * $rate;
-                $specholidayotpay = $specholidayot * $overtimerate;
-                $specholidaytotal = $specholidaybasicpay + $specholidayotpay;                           //generate salary
-                $specpercent = $specholidaytotal * 0.30;
-                $specholidaypay = $specpercent;
-                $specholiday = number_format($specholiday) + number_format($specholidayot);
-                $thirteenmonth = 0;
-                $laterate = number_format($totallate * $ratelate);                                      
-                $totalgross = ($standardpay + $regholidaypay + $specholidaypay + $thirteenmonth + $overtimepay);
-                $totaldeduction = ($sss + $pagibig + $philhealth + $otheramount + $cashbond + $vale + $laterate);
-                $totalnetpay = $totalgross - $totaldeduction;
-                $salary_status="for release";
-                date_default_timezone_set('Asia/Manila');
-                $date = date('F j, Y h:i:s A');
-                $sql1="INSERT INTO `automatic_generated_salary`(`emp_id`, `total_hours`,`total_overtime`,`standard_pay`,`overtime_pay`,`regular_holiday`, 
-                `regular_holiday_pay`, `special_holiday`, `special_holiday_pay`, `thirteenmonth`, `sss`,`pagibig`,`philhealth`, `cashbond`, `other`,
-                `other_amount`,`vale`, `total_hours_late`,`late_total`, `total_gross`, `total_deduction`, `total_netpay` ,`start`,`end`,`for_release`,`date_created`,`process_by`) 
-                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
-                $stmt1 = $this->con()->prepare($sql1);
-                $stmt1->execute([$empid,$totalaccumulated,$totalovertime,$standardpay,$overtimepay,$regholiday,$regholidaypay,$specholiday,$specholidaypay,$thirteenmonth,$sss,$pagibig,$philhealth,$cashbond,$other,$otheramount,$vale,$total_hours_late,$laterate,$totalgross,$totaldeduction,$totalnetpay,$start,$end,$salary_status,$date,$id]);
-                $CountRow01 = $stmt1 ->rowCount();
-                if($CountRow01 > 0){
-                }
+                    }
+                    $overtimepay = 0;
+                    $standardpay = 0;
+                    $thirteenmonth = 0;
+                    $laterate = 0;
+                    $totalgross = 0;
+                    $totaldeduction = 0;
+                    $totalnetpay = 0;
+
+                    $total_hours_late = $totallate;
+                    $overtimepay = number_format($totalovertime) * $overtimerate;
+                    $standardpay = number_format($totalaccumulated) * $rate;
+                    $regholidaybasicpay = $regholiday * $rate;
+                    $regholidayotpay = $regholidayot * $overtimerate;
+                    $regholidaypay = $regholidaybasicpay + $regholidayotpay;
+                    $regholiday =  number_format($regholiday) + number_format($regholidayot);
+
+                    $specholidaybasicpay = $specholiday * $rate;
+                    $specholidayotpay = $specholidayot * $overtimerate;
+                    $specholidaytotal = $specholidaybasicpay + $specholidayotpay;                           //generate salary
+                    $specpercent = $specholidaytotal * 0.30;
+                    $specholidaypay = $specpercent;
+                    $specholiday = number_format($specholiday) + number_format($specholidayot);
+                    $thirteenmonth = 0;
+                    $laterate = number_format($totallate * $ratelate);                                      
+                    $totalgross = ($standardpay + $regholidaypay + $specholidaypay + $thirteenmonth + $overtimepay);
+                    $totaldeduction = ($sss + $pagibig + $philhealth + $otheramount + $cashbond + $vale + $laterate + $violationdeduction);
+                    $totalnetpay = $totalgross - $totaldeduction;
+                    $salary_status="for release";
+                    date_default_timezone_set('Asia/Manila');
+                    $date = date('F j, Y h:i:s A');
+                    $sql1="INSERT INTO `automatic_generated_salary`(`emp_id`, `total_hours`,`total_overtime`,`standard_pay`,`overtime_pay`,`regular_holiday`, 
+                    `regular_holiday_pay`, `special_holiday`, `special_holiday_pay`, `thirteenmonth`, `sss`,`pagibig`,`philhealth`,`violation`, `cashbond`, `other`,
+                    `other_amount`,`vale`, `total_hours_late`,`late_total`, `total_gross`, `total_deduction`, `total_netpay` ,`start`,`end`,`for_release`,`date_created`,`process_by`) 
+                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+                    $stmt1 = $this->con()->prepare($sql1);
+                    $stmt1->execute([$empid,$totalaccumulated,$totalovertime,$standardpay,$overtimepay,$regholiday,$regholidaypay,$specholiday,$specholidaypay,$thirteenmonth,$sss,$pagibig,$philhealth,$violationdeduction,$cashbond,$other,$otheramount,$vale,$total_hours_late,$laterate,$totalgross,$totaldeduction,$totalnetpay,$start,$end,$salary_status,$date,$id]);
+                    $CountRow01 = $stmt1 ->rowCount();
+                    if($CountRow01 > 0){
+                    }
                 }//pag walang attendance
             }//loop lahat
             $this->pdo = null;
@@ -1252,8 +1270,8 @@ Class Payroll
             $number=0;
             $this->pdo = null;
             foreach($userall as $all){
+                $release[] =$all->log;
                 $logid=$all->log;
-                $pdfsarray[]=$all->log;
                 $sql = "SELECT * FROM automatic_generated_salary WHERE log = ? AND for_release='for release';";
                 $stmt = $this->con()->prepare($sql);
                 $stmt->execute([$logid]);
@@ -1271,7 +1289,7 @@ Class Payroll
                     echo "Not for release";
                     header('location: automaticpayroll.php');
                 }else{
-                        $sql1="UPDATE automatic_generated_salary SET for_release = 'released', date_released=CURRENT_TIMESTAMP() WHERE log = $logid;";
+                        $sql1="UPDATE automatic_generated_salary SET for_release = 'for email', date_released=CURRENT_TIMESTAMP() WHERE log = $logid;";
                         $stmt1 = $this->con()->prepare($sql1);
                         $stmt1->execute();
                         $CountRow01 = $stmt1 ->rowCount();
@@ -1311,14 +1329,9 @@ Class Payroll
                         }
                     }
                     $this->salarychart($empid,$end,$totnetpay);
-
-                    ob_start();
-                    $this->emailpdf($logid);
-                    ob_end_flush();
                     }
                     $number += 1;
                 }//all
-                ob_start();
                 $action = "Generate ".$number." Salary";
                 $secdatetime = $this->getDateTime();
                 $sectime = $secdatetime['time'];
@@ -1329,12 +1342,13 @@ Class Payroll
                 $stmtSecLog->execute([$id,$fullname, $action, $sectime, $secdate]);
                 $countRowSecLog = $stmtSecLog->rowCount();
                 if($countRowSecLog > 0){
-                    $this->mergepdf($pdfsarray);
+                    
                 } else {
-                    echo 'di pumasok sa act log';
+                    echo 'Error in Generating Salary';
                 }
-                ob_end_flush();
                 $this->pdo= null;
+                ob_start();
+                $this->emailpdf();
     }
     public function deleteautomatedsalary($logid)
     {
@@ -1375,40 +1389,97 @@ Class Payroll
     }
     public function adddeduction($fullname,$id)
     {
-            if(isset($_POST['generatededuction'])){
+            if(isset($_POST['generatededuction']))
+            {
                 $countrow = 0;
-                $deduction = $_POST['deduction'];
-                if($deduction == 'other'){
-                    $name = $_POST['name'];
-                    $amount = $_POST['amount'];
-                    $sqla="INSERT INTO  deductions (`deduction`,`amount`) VALUES (?,?);";
-                    $stmta = $this->con()->prepare($sqla);
-                    $stmta->execute([$name,$amount]);
-                    $countrowa = $stmta->rowCount();
+                $deduction = strtolower($_POST['deduction']);
+                $name = $_POST['name'];
+                $amount = $_POST['amount'];
+                $sqlcheck="SELECT * FROM deductions WHERE deduction = ?";
+                $stmt = $this->con()->prepare($sqlcheck);
+                $stmt->execute([$deduction]);
+                $countrowc = $stmt->rowCount();
+                $user = $stmt->fetch();
+                if ($countrowc > 0)
+                {   
+                    if($deduction != 'other'){
+                        $percentage = (float)$_POST['percentage'];
+                        $sql="UPDATE deductions SET deduction = ?, percentage = ? WHERE id = $user->id;";
+                        $stmt = $this->con()->prepare($sql);
+                        $stmt->execute([$deduction,$percentage]);
+                        $countrow = $stmt->rowCount();
+                        if($countrow>0){
+                            echo "Succesfully Updated";
+                            header('location: deductions.php');
+                        }
+                    }
+                        if($countrow > 0) {
+                        $action = "Update Deduction";
+                        $datetime = $this->getDateTime();
+                        $time = $datetime['time'];
+                        $date = $datetime['date'];
+                        $sqlSecLog = "INSERT INTO secretary_log (sec_id, name, action, time, date)
+                                            VALUES(?, ?, ?, ?, ?)";
+                        $stmtSecLog = $this->con()->prepare($sqlSecLog);
+                        $stmtSecLog->execute([$id,$fullname, $action, $time, $date]);
+                        $countRowSecLog = $stmtSecLog->rowCount();
+                        if($countRowSecLog > 0){
+                            echo 'Succesfully Added';
+                        } else {
+                            echo 'Error in Adding';
+                            header('location:deductions.php');
+                        }
+                    }
                 }
-                else 
+                else
                 {
-                    $percentage = (float)$_POST['percentage'];
-                    $sql="INSERT INTO  deductions (`deduction`,`percentage`) VALUES (?,?);";
-                    $stmt = $this->con()->prepare($sql);
-                    $stmt->execute([$deduction,$percentage]);
-                    $countrow = $stmt->rowCount();
-                }
-                    if($countrow > 0 || $countrowa > 0) {
-                    $action = "Add Deduction";
-                    $datetime = $this->getDateTime();
-                    $time = $datetime['time'];
-                    $date = $datetime['date'];
-                    $sqlSecLog = "INSERT INTO secretary_log (sec_id, name, action, time, date)
-                                        VALUES(?, ?, ?, ?, ?)";
-                    $stmtSecLog = $this->con()->prepare($sqlSecLog);
-                    $stmtSecLog->execute([$id,$fullname, $action, $time, $date]);
-                    $countRowSecLog = $stmtSecLog->rowCount();
-                    if($countRowSecLog > 0){
-                        echo 'pumasok na sa act log';
-                    } else {
-                        echo 'di pumasok sa act log';
-                        header('location:deductions.php');
+                    if($deduction == 'other')
+                    {   
+                        $sqlcheck2="SELECT * FROM deductions WHERE deduction = ?";
+                        $stmt2 = $this->con()->prepare($sqlcheck2);
+                        $stmt2->execute([$name]);
+                        $user2 = $stmt2->fetch();
+                        $countrow2 = $stmt2->rowCount();
+                        if($countrow2 > 0)
+                        {
+                            $sqla="UPDATE deductions SET deduction = ?, amount = ? WHERE id = $user2->id;";
+                            $stmta = $this->con()->prepare($sqla);
+                            $stmta->execute([$name,$amount]);
+                            $countrowa = $stmta->rowCount();
+                        }else
+                        {
+                            $name = $_POST['name'];
+                            $amount = $_POST['amount'];
+                            $sqla="INSERT INTO  deductions (`deduction`,`amount`) VALUES (?,?);";
+                            $stmta = $this->con()->prepare($sqla);
+                            $stmta->execute([$name,$amount]);
+                            $countrowa = $stmta->rowCount();
+                        }
+                    }
+                    else 
+                    {
+                        $percentage = (float)$_POST['percentage'];
+                        $sql="INSERT INTO  deductions (`deduction`,`percentage`) VALUES (?,?);";
+                        $stmt = $this->con()->prepare($sql);
+                        $stmt->execute([$deduction,$percentage]);
+                        $countrow = $stmt->rowCount();
+                    }
+                        if($countrow > 0 || $countrowa > 0) {
+                        $action = "Add Deduction";
+                        $datetime = $this->getDateTime();
+                        $time = $datetime['time'];
+                        $date = $datetime['date'];
+                        $sqlSecLog = "INSERT INTO secretary_log (sec_id, name, action, time, date)
+                                            VALUES(?, ?, ?, ?, ?)";
+                        $stmtSecLog = $this->con()->prepare($sqlSecLog);
+                        $stmtSecLog->execute([$id,$fullname, $action, $time, $date]);
+                        $countRowSecLog = $stmtSecLog->rowCount();
+                        if($countRowSecLog > 0){
+                            echo 'pumasok na sa act log';
+                        } else {
+                            echo 'di pumasok sa act log';
+                            header('location:deductions.php');
+                        }
                     }
                 }
             }//isset
@@ -2390,14 +2461,17 @@ Class Payroll
             $dompdf->stream($pdfname);
             }
     }
-    public function emailpdf($logid){
+    public function emailpdf(){
         $sql = "SELECT *
         FROM automatic_generated_salary
         INNER JOIN employee ON automatic_generated_salary.emp_id = employee.empId
-        WHERE automatic_generated_salary.log = ?;";
+        WHERE automatic_generated_salary.for_release = 'for email';";
         $stmt = $this->con()->prepare($sql);
-        $stmt->execute([$logid]);
-        $rows = $stmt->fetch();
+        $stmt->execute();
+        $rowss = $stmt->fetchall();
+        foreach($rowss as $rows){
+        $pdfsarray[]=$rows->log;
+        $logid=$rows->log;
         $dompdf = new Dompdf();
         $path = '../img/icon.png';
         $type = pathinfo($path, PATHINFO_EXTENSION);
@@ -2574,19 +2648,30 @@ Class Payroll
                 <td>$rows->other_amount</td>
                 <td></td>
               </tr>":"";
-              $payslip.="<tr>
-                <td>Cash Advance</td>
-                <td></td>
-                <td></td>
-                <td>".number_format($rows->vale)."</td>
+              $payslip.=
+              ($rows->vale > 0)?
+              "<tr>
+              <td>Cash Advance</td>
+              <td></td>
+              <td></td>
+              <td>".number_format($rows->vale)."</td>
+              </tr>":"";
+              $payslip.=
+              ($rows->violation > 0)?
+              "<tr>
+              <td>Violations</td>
+              <td></td>
+              <td></td>
+              <td>".number_format($rows->violation)."</td>
               </tr>
+              <tr>":"";
+              $payslip.="
               <tr>
                 <td>Total Deduction</td>
                 <td></td>
                 <td></td>
                 <td>".number_format($rows->total_deduction)."</td>
               </tr>
-              
             </table>
             <h3>Salary From: $rows->start  - $rows->end </h3>
           </div>
@@ -2646,15 +2731,19 @@ Class Payroll
             $mail->AddAttachment($pdfname);                        // textarea
 
             if($mail->send()){
-                $status = "success";
-                $response = "Email is sent!";
-
+                $sql1="UPDATE automatic_generated_salary SET for_release = 'released' WHERE log = $logid;";
+                $stmt1 = $this->con()->prepare($sql1);
+                $stmt1->execute();
+                $CountRow01 = $stmt1 ->rowCount();
+                $this->pdo = null;
             } else {
                 $status = "failed";
                 $response = "Something is wrong: <br/>". $mail->ErrorInfo ;
                 echo $response ;
             }
         }
+    }//lahat ieemail foreach
+    $this->mergepdf($pdfsarray);
     }
     public function activitylog(){
         $sql="SELECT * FROM secretary_log ORDER BY id DESC ;";
@@ -2687,7 +2776,7 @@ Class Payroll
             }
 
             $username = $_POST['username'];
-            $password = md5($_POST['password']);
+            $password = $this->generatedPassword($_POST['password']);
             $sql="SELECT * FROM secretary WHERE email = ?;";
             $stmt = $this->con()->prepare($sql);
             $stmt->execute([$username]);
@@ -2702,7 +2791,7 @@ Class Payroll
                 }
                             $sqlpass="SELECT * FROM secretary WHERE password = ?";
                             $stmtpass = $this->con()->prepare($sqlpass);
-                            $stmtpass->execute([$password]);
+                            $stmtpass->execute([$password[0]]);
                             $countrowpass = $stmtpass->rowCount();
                             $users=$stmtpass->fetch();
                             if($countrowpass<1){
@@ -2986,25 +3075,46 @@ Class Payroll
             $files = $datef.'.pdf';
             $pdf->merge('download', $files);
             $pdf->merge('file',$backup);
+            $total = 100;
+            $arr_content = array();
+            // Loop through process
+            for($i=1; $i<=$total; $i++){
+            // Calculate the percentatage.
+            $percent = intval($i/$total * 100);
+            
+
+            // Put the progress percentage and message to array.
+            $arr_content['percent'] = $percent;
+            $arr_content['message'] = $i . " row(s) processed.";
+            
+
+            // Write the progress into file and serialize the PHP array into JSON format.
+            // The file name is the session id.
+            file_put_contents("tmp/" . session_id() . ".txt", json_encode($arr_content));
+            
+
+            // Sleep one second so we can see the delay
+            sleep(1);
+            }
     }
     public function changepass($id,$fullname)
     {
         if(isset($_POST['changepass']))
         {
-            $oldpass= md5($_POST['oldpass']);
+            $oldpass= $this->generatedPassword($_POST['oldpass']);
             $sql="SELECT * FROM secretary WHERE id = ?;";
             $stmt = $this->con()->prepare($sql);
             $stmt->execute([$id]);
             $user=$stmt->fetch();
-            if($oldpass == $user->password)
+            if($oldpass[0] == $user->password)
             {
-                $newpass= md5($_POST['newpass']);
-                $confirmpass= md5($_POST['confirmpass']);
-                if($newpass == $confirmpass)
+                $newpass= $this->generatedPassword($_POST['newpass']);
+                $confirmpass= $this->generatedPassword($_POST['confirmpass']);
+                if($newpass[0] == $confirmpass[0])
                 {
                     $sqledit = "UPDATE secretary SET password = ?;";
                     $stmtedit = $this->con()->prepare($sqledit);
-                    $stmtedit->execute([$newpass]);
+                    $stmtedit->execute([$newpass[0]]);
                     $countrowedit = $stmtedit->rowCount();
                     if($countrowedit>0){
                         echo "<p>Password Succesfully Change</p>";
@@ -3030,11 +3140,8 @@ Class Payroll
             }
         }
         $this->pdo= null;
+    
     }
-    public function changeinfo(){
-        
-    }
-
 } // End of class
 
 $payroll = new Payroll;
