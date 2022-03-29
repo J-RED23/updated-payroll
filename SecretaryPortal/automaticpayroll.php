@@ -45,11 +45,12 @@
                             </ul>
                         </li>
 
-                        <li class="li__report">
+                        <li class="li__activities">
                             <a href="#">Salary Report</a>
                             <ul>
                                 <li><a href="../SecretaryPortal/releasedsalary.php">Released Salary</a></li>
                                 <li><a href="../SecretaryPortal/salaryreport.php">Salary Chart</a></li>
+                                <li><a href="../SecretaryPortal/thirteen.php">13 Month Pay</a></li>
                                 <li><a href="../SecretaryPortal/contributions.php">Contributions</a></li>
                             </ul>
                          </li>
@@ -77,11 +78,12 @@
         <div class="auto-generated-payroll-attendance">
             <div class="employee_list__header">
                 <h1>Generate Salary</h1>
-            </div>
+            
             <div style='display: flex; justify-content: right; margin-right: 100px;'>
                 <form method="post">
                     <button type="submit" name="generateall"><a href="createsalary.php">GENERATE ALL</a></button>
                 </form>
+            </div>
             </div>
 
 
@@ -99,7 +101,7 @@
                     <tbody>
                     <?php
                         $payroll->displayempattendance($fullname, $id);
-                        ?>
+                    ?>
                     </tbody>
                 </table>
             </div>

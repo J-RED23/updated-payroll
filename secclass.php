@@ -859,7 +859,8 @@ Class Payroll
                 $countRowa = $stmta->rowCount();
    
                 if($countRowa > 0) 
-                {
+                {   
+                    $startlog = 0;
                     $regholidaybasicpay = 0;
                     $regholiday = 0;
                     $regholidayotpay = 0;
@@ -875,10 +876,13 @@ Class Payroll
                     $totalhoursofwork =0;
                     $tothrs=0;
                     $totalovertime=0;
+                    $endlog = 0;
+                    $noatt = $countRowa;
                     $sqlsched=" SELECT * FROM schedule WHERE empId = ?";
                     $stmtsched = $this->con()->prepare($sqlsched);
-                    foreach($usera as $att)
-                    {
+                    foreach($usera as $att) //attendance
+                    {   
+                        $endlog = $att->id;
                         $stmtsched->execute([$att->empId]);
                         $usersched = $stmtsched->fetch();
                         $late=0;    
@@ -1034,7 +1038,7 @@ Class Payroll
                     $totalgross = 0;
                     $totaldeduction = 0;
                     $totalnetpay = 0;
-
+                    $startlog = $endlog - $noatt;
                     $total_hours_late = $totallate;
                     $overtimepay = number_format($totalovertime) * $overtimerate;
                     $standardpay = number_format($totalaccumulated) * $rate;
@@ -1059,10 +1063,13 @@ Class Payroll
                     $date = date('F j, Y h:i:s A');
                     $sql1="INSERT INTO `automatic_generated_salary`(`emp_id`, `total_hours`,`total_overtime`,`standard_pay`,`overtime_pay`,`regular_holiday`, 
                     `regular_holiday_pay`, `special_holiday`, `special_holiday_pay`, `thirteenmonth`, `sss`,`pagibig`,`philhealth`,`violation`, `cashbond`, `other`,
-                    `other_amount`,`vale`, `total_hours_late`,`late_total`, `total_gross`, `total_deduction`, `total_netpay` ,`start`,`end`,`for_release`,`date_created`,`process_by`) 
-                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+                    `other_amount`,`vale`, `total_hours_late`,`late_total`, `total_gross`, `total_deduction`, `total_netpay` ,`start`,`end`,`start_id`,`end_id`,`for_release`,`date_created`,`process_by`) 
+                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
                     $stmt1 = $this->con()->prepare($sql1);
-                    $stmt1->execute([$empid,$totalaccumulated,$totalovertime,$standardpay,$overtimepay,$regholiday,$regholidaypay,$specholiday,$specholidaypay,$thirteenmonth,$sss,$pagibig,$philhealth,$violationdeduction,$cashbond,$other,$otheramount,$vale,$total_hours_late,$laterate,$totalgross,$totaldeduction,$totalnetpay,$start,$end,$salary_status,$date,$id]);
+                    $stmt1->execute([$empid,$totalaccumulated,$totalovertime,$standardpay,$overtimepay,$regholiday,$regholidaypay,
+                    $specholiday,$specholidaypay,$thirteenmonth,$sss,$pagibig,$philhealth,$violationdeduction,$cashbond,$other,
+                    $otheramount,$vale,$total_hours_late,$laterate,$totalgross,$totaldeduction,$totalnetpay,$start,
+                    $end,$startlog,$endlog,$salary_status,$date,$id]);
                     $CountRow01 = $stmt1 ->rowCount();
                     if($CountRow01 > 0){
                     }
@@ -1348,7 +1355,7 @@ Class Payroll
                 }
                 $this->pdo= null;
                 ob_start();
-                $this->emailpdf();
+                // $this->emailpdf();
     }
     public function deleteautomatedsalary($logid)
     {
@@ -1465,7 +1472,7 @@ Class Payroll
                         $countrow = $stmt->rowCount();
                     }
                         if($countrow > 0 || $countrowa > 0) {
-                        $action = "Add Deduction";
+                        $action = "Edit Deduction";
                         $datetime = $this->getDateTime();
                         $time = $datetime['time'];
                         $date = $datetime['date'];
@@ -1475,7 +1482,7 @@ Class Payroll
                         $stmtSecLog->execute([$id,$fullname, $action, $time, $date]);
                         $countRowSecLog = $stmtSecLog->rowCount();
                         if($countRowSecLog > 0){
-                            echo 'pumasok na sa act log';
+                            echo 'Succesfully Edited';
                         } else {
                             echo 'di pumasok sa act log';
                             header('location:deductions.php');
@@ -1490,19 +1497,20 @@ Class Payroll
     }
     public function deletededuction($logid)
     {
-        if(isset($_POST['deletededuction'])){
-        $sql = "DELETE FROM deductions WHERE id = ?;";
-        $stmt = $this->con()->prepare($sql);
-        $stmt->execute([$logid]);
-        $countrow = $stmt->rowCount();
-        if($countrow > 0) {
-        $action = "Delete Deduction";
-        $sessionData = $this->getSessionSecretaryData();
-        $fullname = $sessionData['fullname'];
-        $secid = $sessionData['id'];
-        $datetime = $this->getDateTime();
-        $time = $datetime['time'];
-        $date = $datetime['date'];
+        if(isset($_POST['deletededuction']))
+        {
+            $sql = "DELETE FROM deductions WHERE id = ?;";
+            $stmt = $this->con()->prepare($sql);
+            $stmt->execute([$logid]);
+            $countrow = $stmt->rowCount();
+            if($countrow > 0) {
+            $action = "Delete Deduction";
+            $sessionData = $this->getSessionSecretaryData();
+            $fullname = $sessionData['fullname'];
+            $secid = $sessionData['id'];
+            $datetime = $this->getDateTime();
+            $time = $datetime['time'];
+            $date = $datetime['date'];
             $sqlSecLog = "INSERT INTO secretary_log (sec_id, name, action, time, date)
                                 VALUES(?, ?, ?, ?, ?)";
             $stmtSecLog = $this->con()->prepare($sqlSecLog);
@@ -1519,13 +1527,12 @@ Class Payroll
                 echo 'Error in deleting deduction!';
             }
         }
-        else if(isset($_POST['cancel'])){
+        else if(isset($_POST['cancel']))
+        {
             header('location: deductions.php');
         }else{
-
         }
         $this->pdo= null;
-
     }
     public function displaydeduction()
     {
@@ -1783,7 +1790,7 @@ Class Payroll
             <td>",number_format($row->total_gross),"</td>
             <td>",number_format($row->total_deduction),"</td>
             <td>",number_format($row->total_netpay),"</td>
-            <td>$row->date_released</td>
+            <td>".date('M j, Y-h:i A',strtotime($row->date_released))."</td>
             <td><a href='viewautomatedsalary.php?logid=$row->log'>View</td>
             </tr>";
 
@@ -3075,27 +3082,6 @@ Class Payroll
             $files = $datef.'.pdf';
             $pdf->merge('download', $files);
             $pdf->merge('file',$backup);
-            $total = 100;
-            $arr_content = array();
-            // Loop through process
-            for($i=1; $i<=$total; $i++){
-            // Calculate the percentatage.
-            $percent = intval($i/$total * 100);
-            
-
-            // Put the progress percentage and message to array.
-            $arr_content['percent'] = $percent;
-            $arr_content['message'] = $i . " row(s) processed.";
-            
-
-            // Write the progress into file and serialize the PHP array into JSON format.
-            // The file name is the session id.
-            file_put_contents("tmp/" . session_id() . ".txt", json_encode($arr_content));
-            
-
-            // Sleep one second so we can see the delay
-            sleep(1);
-            }
     }
     public function changepass($id,$fullname)
     {
@@ -3142,7 +3128,138 @@ Class Payroll
         $this->pdo= null;
     
     }
-} // End of class
+    public function displaybonus(){
+        $sql="SELECT * FROM employee;";
+        $stmt=$this->con()->prepare($sql);
+        $stmt->execute();
+        $rows=$stmt->fetchall();
+        foreach($rows as $row){
+        $found = false;
+        $sql1 = "SELECT * FROM automatic_generated_salary WHERE emp_id = ? AND for_release = 'released' AND bonus_status IS NULL;";
+        $stmt1=$this->con()->prepare($sql1);
+        $stmt1->execute([$row->empId]);
+        $countRow1=$stmt1->rowCount();
+        $rows1=$stmt1->fetchall();
+        if($countRow1 > 0 )
+        {
+            foreach($rows1 as $row1){
+                date_default_timezone_set('Asia/Manila');
+                $curryear = date('Y');
+                $year=date('Y',strtotime($row1->end));
+                if($year == $curryear)
+                {   
+                    $found=true;
+                    $total_gross=0;
+                    $total_late=0;
+                    $grossjan=0;
+                    $grossfeb=0;
+                    $grossmar=0;
+                    $grossapr=0;
+                    $grossmay=0;
+                    $grossjun=0;
+                    $grossjul=0;
+                    $grossaug=0;
+                    $grosssep=0;
+                    $grossoct=0;
+                    $grossnov=0;
+                    $grossdec=0;
+                    $latejan=0;
+                    $latefeb=0;
+                    $latemar=0;
+                    $lateapr=0;
+                    $latemay=0;
+                    $latejun=0;
+                    $latejul=0;
+                    $lateaug=0;
+                    $latesep=0;
+                    $lateoct=0;
+                    $latenov=0;
+                    $latedec=0;
+                    $month=date('F',strtotime($row1->end));
+                        if(strtolower($month)=='january')
+                        {   
+                            $grossjan = $row1->total_gross;
+                            $latejan = $row1->late_total;
+                        } else if(strtolower($month)=='february'){
+                            $grossfeb = $row1->total_gross;
+                            $latefeb = $row1->late_total;
+                        } else if(strtolower($month)=='march'){
+                            $grossmar = $row1->total_gross;
+                            $latemar = $row1->late_total;
+                        } else if(strtolower($month)=='april'){
+                            $grossapr = $row1->total_gross;
+                            $lateapr = $row1->late_total;
+                        } else if(strtolower($month)=='may'){
+                            $grossmay = $row1->total_gross;
+                            $latemay = $row1->late_total;
+                        } else if(strtolower($month)=='june'){
+                            $grossjun = $row1->total_gross;
+                            $latejun = $row1->late_total;
+                        } else if(strtolower($month)=='july'){
+                            $grossjul = $row1->total_gross;
+                            $latejul = $row1->late_total;
+                        } else if(strtolower($month)=='august'){
+                            $grossaug = $row1->total_gross;
+                            $lateaug = $row1->late_total;
+                        } else if(strtolower($month)=='september'){
+                            $grosssep = $row1->total_gross;
+                            $latesep = $row1->late_total;
+                        } else if(strtolower($month)=='october'){
+                            $grossoct = $row1->total_gross;
+                            $lateoct = $row1->late_total;
+                        } else if(strtolower($month)=='november'){
+                            $grossnov = $row1->total_gross;
+                            $latenov = $row1->late_total;
+                        } else if(strtolower($month)=='december'){
+                            $grossdec = $row1->total_gross;
+                            $latedec = $row1->late_total;
+                        } else {
+
+                        }
+                        $total_gross = $grossjan + $grossfeb + $grossmar + $grossapr + $grossmay + $grossjun +
+                        $grossjul + $grossaug + $grosssep + $grossoct + $grossnov + $grossdec;
+                        $total_late = $latejan + $latefeb + $latemar + $lateapr + $latemay + $latejun + $latejul + 
+                        $lateaug + $latesep + $lateoct + $latenov + $latedec;
+                }// pag di current year
+            }// foreach ng salary
+        }//kapag walang salary
+        if($found){
+        echo "<tr>
+        <td>$row->firstname $row->lastname</td>
+        <td>$total_gross</td>
+        <td>$total_late</td>
+            </tr>";
+        }
+        }//all
+
+    }
+    public function createbonus(){
+        if(isset($_POST['bonus'])){
+            date_default_timezone_set('Asia/Manila');
+            $date = date('F d, Y');
+            $sql="SELECT * FROM salary_report;";
+            $stmt=$this->con()->prepare($sql);
+            $stmt->execute();
+            $rows=$stmt->fetchall();
+            foreach($rows as $row){
+                $sql1="SELECT * FROM salary_report WHERE empId = ?";
+                $stmt1=$this->con()->prepare($sql1);
+                $stmt1->execute([$row->empId]);
+                $rows1=$stmt1->fetchall();
+                $bonus=0;
+                foreach($rows1 as $row1){
+                $bonus = ($row1->january + $row1->february + $row1->march + $row1->april + $row1->may + $row1->june +
+                $row1->july + $row1->august + $row1->september + $row1->october + $row1->november + $row1->december) / 12;
+                }
+                    $sql2="INSERT INTO thirteenmonth (empId,amount,date) VALUES (?,?,?)";
+                    $stmt2=$this->con()->prepare($sql2);
+                    $stmt2->execute([$row->empId,$bonus,$date]);
+            }//foreach
+        }else if(isset($_POST['cancel'])){
+            header('location: salaryreport.php');
+        }
+    }
+}// End of class
 
 $payroll = new Payroll;
 

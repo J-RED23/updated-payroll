@@ -43,11 +43,12 @@ $fullname = $sessionData['fullname'];
                             </ul>
                         </li>
 
-                        <li class="li__report active">
+                        <li class="li__activities active">
                             <a href="#" class="active">Salary Report</a>
                             <ul>
                                 <li><a href="../SecretaryPortal/releasedsalary.php" >Released Salary</a></li>
                                 <li><a href="../SecretaryPortal/salaryreport.php" >Salary Chart</a></li>
+                                <li><a href="../SecretaryPortal/thirteen.php">13 Month Pay</a></li>
                                 <li><a href="../SecretaryPortal/contributions.php" class="active">Contributions</a></li>
                             </ul>
                          </li>

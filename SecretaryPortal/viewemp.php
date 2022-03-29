@@ -65,16 +65,16 @@ $countRow = $stmt->rowCount();
                     </div>
                     <br>
 
-                     <div class="modal__form__content__spaces">
-                     <?php 
+                
+                        <button class="btn_cancel" type = "submit" name ="back">
+                            Back
+                        </button>
+                   
+                    <?php 
                         if(isset($_POST['back'])){
                             header('location: employeelist.php');
                             }
                         ?>
-                        <button class="btn_danger" type = "submit" name ="back">
-                            Cancel
-                        </button>
-                    </div>
                 </div>
             </form>
         </div>

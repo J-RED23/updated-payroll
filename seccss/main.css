@@ -1374,7 +1374,7 @@ button.btn_cancel:hover {
   width: 30px;
   border-radius: 50%;
   background: crimson;
-  margin-left: 20px;
+  margin-left: 30px;
 }
 
 .main-container .user_edit_profile_header {
@@ -1439,7 +1439,7 @@ button.btn_cancel:hover {
       -ms-flex-direction: column;
           flex-direction: column;
   position: relative;
-  left: 325px;
+  left: 250px;
   bottom: 200px;
 }
 
@@ -5317,23 +5317,21 @@ button.btn_cancel:hover {
 }
 
 .main-container .generate-deduction-table__header {
+  margin-top: 25px;
+  margin-bottom: 10px;
+  margin-right: 25px;
+  margin-left: 25px;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  -webkit-box-pack: end;
-      -ms-flex-pack: end;
-          justify-content: flex-end;
-  position: relative;
-  bottom: 5px;
-  width: 97%;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
 }
 
 .main-container .generate-deduction-table__header h1 {
   font-size: 1.22rem !important;
   font-weight: 600 !important;
-  position: relative;
-  top: 25px;
-  right: 960px;
 }
 
 .main-container .generate-deduction-table__header .searchbar {
@@ -5443,23 +5441,21 @@ button.btn_cancel:hover {
 }
 
 .main-container .generate-cashadvance-table__header {
+  margin-top: 25px;
+  margin-bottom: 10px;
+  margin-right: 25px;
+  margin-left: 25px;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  -webkit-box-pack: end;
-      -ms-flex-pack: end;
-          justify-content: flex-end;
-  position: relative;
-  bottom: 5px;
-  width: 97%;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
 }
 
 .main-container .generate-cashadvance-table__header h1 {
   font-size: 1.22rem !important;
   font-weight: 600 !important;
-  position: relative;
-  top: 25px;
-  right: 925px;
 }
 
 .main-container .generate-cashadvance-table__header .searchbar {

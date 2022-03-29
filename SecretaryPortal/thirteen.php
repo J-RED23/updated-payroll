@@ -3,15 +3,15 @@ require_once('../secclass.php');
 $sessionData = $payroll->getSessionSecretaryData();
 $payroll->verifyUserAccess($sessionData['access'], $sessionData['fullname'],2);
 $fullname = $sessionData['fullname'];
+$payroll->createbonus();
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Released Salaries</title>
+    <title>13 Month Pay</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="../seccss/main.css">
@@ -48,9 +48,9 @@ $fullname = $sessionData['fullname'];
                         <li class="li__activities active">
                             <a href="#" class="active">Salary Report</a>
                             <ul>
-                                <li><a href="../SecretaryPortal/releasedsalary.php" class="active">Released Salary</a></li>
-                                <li><a href="../SecretaryPortal/salaryreport.php">Salary Chart</a></li>
-                                <li><a href="../SecretaryPortal/thirteen.php">13 Month Pay</a></li>
+                                <li><a href="../SecretaryPortal/releasedsalary.php" >Released Salary</a></li>
+                                <li><a href="../SecretaryPortal/salaryreport.php" >Salary Chart</a></li>
+                                <li><a href="../SecretaryPortal/thirteen.php" class="active">13 Month Pay</a></li>
                                 <li><a href="../SecretaryPortal/contributions.php" >Contributions</a></li>
                             </ul>
                          </li>
@@ -65,7 +65,7 @@ $fullname = $sessionData['fullname'];
             </div>
 
           <div class="page-info-head">
-               Released Salaries
+               13 Month Pay
           </div>
 
         <div class="user-info">
@@ -77,43 +77,31 @@ $fullname = $sessionData['fullname'];
 
           <div class="employee_list">
               <div class="employee_list__header">
-                <h1>List of Released Salaries</h1>
-                  <form method="post">
-                        <button type="submit" name="searchreleased">Search</button>
-                        <input type="search" name="salary" placeholder="Search">
-                  </form>
-              </div>
-
+                <h1>Employee with their basic salary for <?php echo date("Y"); ?> </h1>
+              
+                    <div style='display: flex; justify-content: right; margin-right: 100px;'>
+                        <form method="post">
+                            <button type="submit" name="bonus"><a href="bonus.php">Generate</a></button>
+                        </form>
+                    </div>
+                </div>
 
               <div class="employee_list__content">
                   <table>
                         <thead>
                             <tr>
-                                <th>Employee ID</th>
-                                <th>Firstname</th>
-                                <th>Lastname</th>
-                                <th>Gross</th>
-                                <th>Deduction</th>
-                                <th>Netpay</th>
-                                <th>Date</th>
+                                <th>Employee</th>
+                                <th>Total Basic Salary</th>
+                                <th>Total Deductions(Late)</th>
                             </tr>
                         </thead>
-
                         <tbody>
-                        <?php 
-                        if(isset($_POST['searchreleased']))
-                        {
-                            $payroll->searchreleasedsalary();
-                        }else
-                        {
-                            $payroll->displayreleasedsalary();
-                        }
-                        ?>
+                            <?php $payroll->displaybonus()  ?>
                         </tbody>
                   </table>
               </div>
           </div>
+
     </div>
-    
 </body>
 </html>

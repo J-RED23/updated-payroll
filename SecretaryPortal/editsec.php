@@ -28,13 +28,13 @@
                     <nav>
                          <ul>
                               <li class="li__records">
-                                   <a href="../SecretaryPortal/secdashboard.php" class="">DASHBOARD</a>
+                                   <a href="../SecretaryPortal/secdashboard.php" class="">Dashboard</a>
                               </li>
                               <li class="li__user">
                                    <a href="" class="active">User Profile</a>
                                    <ul>
-                                        <li><a href="../SecretaryPortal/editsec.php" class="active">Edit Profile</a></li>
-                                        <li><a href="../SecretaryPortal/editsecpass.php" class="">Change Password</a></li>
+                                        <li><a href="../SecretaryPortal/editsec.php" class="active">View Profile</a></li>
+                                        <li><a href="../SecretaryPortal/editsecpass.php" class="">Edit Password</a></li>
                                    </ul>
                               </li>
                          </ul>
@@ -45,7 +45,7 @@
           </div>
 
           <div class="page-info-head">
-               Edit Profile
+               Profile
           </div>
 
           <div class="user_edit_profile_header">
@@ -68,13 +68,13 @@
                     <input type="text" placeholder= "<?php echo $user->fullname;?>" disabled>
 
                     <label for="">Contact Number : </label>
-                    <input type="number" name="contact" placeholder= "<?php echo $user->cpnumber;?>">
+                    <input type="number" name="contact" placeholder= "<?php echo $user->cpnumber;?>"disabled>
 
                     <label for="" >Address: </label>
-                    <input type="text" name="address" placeholder= "<?php echo $user->address;?>">
+                    <input type="text" name="address" placeholder= "<?php echo $user->address;?>"disabled>
 
                     <label for="email" >Email: </label>
-                    <input type="text" id ="email" name="email" placeholder= "<?php echo $user->email;?>">
+                    <input type="text" id ="email" name="email" placeholder= "<?php echo $user->email;?>"disabled>
 
                     <button class="btn_primary">
                          <span class="material-icons"> description</span>

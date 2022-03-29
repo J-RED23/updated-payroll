@@ -45,11 +45,12 @@
                             </ul>
                         </li>
 
-                        <li class="li__report">
+                        <li class="li__activities">
                             <a href="#">Salary Report</a>
                             <ul>
                                 <li><a href="../SecretaryPortal/releasedsalary.php">Released Salary</a></li>
                                 <li><a href="../SecretaryPortal/salaryreport.php">Salary Chart</a></li>
+                                <li><a href="../SecretaryPortal/thirteen.php">13 Month Pay</a></li>
                                 <li><a href="../SecretaryPortal/contributions.php">Contributions</a></li>
                             </ul>
                          </li>

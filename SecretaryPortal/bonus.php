@@ -5,7 +5,7 @@ $id = $sessionData['id'];
 $fullname = $sessionData['fullname'];
 $payroll->verifyUserAccess($sessionData['access'], $sessionData['fullname'],2);
 $payroll->AutomaticGenerateSalary($fullname,$id);
-
+$payroll->createbonus();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -29,8 +29,8 @@ $payroll->AutomaticGenerateSalary($fullname,$id);
   
 
             <div class="modal__delete__content">
-                <h1>Create salary to this employee/s?</h1>
-                <button class="btn_success" type="submit" name="createsalary">
+                <h1>Generate 13 Month Pay to this employee/s?</h1>
+                <button class="btn_success" type="submit" name="bonus">
                     Create
                 </button>
             </div>

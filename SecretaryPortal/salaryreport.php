@@ -3,7 +3,6 @@ require_once('../secclass.php');
 $sessionData = $payroll->getSessionSecretaryData();
 $payroll->verifyUserAccess($sessionData['access'], $sessionData['fullname'],2);
 $fullname = $sessionData['fullname'];
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -45,11 +44,12 @@ $fullname = $sessionData['fullname'];
                             </ul>
                         </li>
 
-                        <li class="li__report active">
+                        <li class="li__activities active">
                             <a href="#" class="active">Salary Report</a>
                             <ul>
                                 <li><a href="../SecretaryPortal/releasedsalary.php" >Released Salary</a></li>
                                 <li><a href="../SecretaryPortal/salaryreport.php" class="active">Salary Chart</a></li>
+                                <li><a href="../SecretaryPortal/thirteen.php">13 Month Pay</a></li>
                                 <li><a href="../SecretaryPortal/contributions.php" >Contributions</a></li>
                             </ul>
                          </li>
@@ -76,9 +76,8 @@ $fullname = $sessionData['fullname'];
 
           <div class="employee_list">
               <div class="employee_list__header">
-                <h1>List of Salary Report</h1>
-              </div>
-
+                <h1>Salary Chart for <?php echo date("Y"); ?> </h1>
+            </div>
 
               <div class="employee_list__content">
                   <table>

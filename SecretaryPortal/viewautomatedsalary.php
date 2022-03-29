@@ -206,14 +206,24 @@ tr:nth-child(even) {
         <td></td>
       </tr>";
       }
-      ?>
-      <tr>
+      if($rows->vale > 0){
+      echo "<tr>
         <td>Cash Advance</td>
         <td></td>
         <td></td>
-        <td><?php echo " ",number_format($rows->vale);?></td>
-      </tr>
-      <tr>
+        <td>".number_format($rows->vale)."</td>
+      </tr>";
+      }
+      if($rows->violation > 0){
+      echo "<tr>
+              <td>Violations</td>
+              <td></td>
+              <td></td>
+              <td>".number_format($rows->violation)."</td>
+            </tr>
+      <tr>";
+      }
+      ?>
         <td>Total Deduction</td>
         <td></td>
         <td></td>

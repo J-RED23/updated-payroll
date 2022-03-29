@@ -30,7 +30,7 @@ $id = $sessionData['id'];
                             <a href="../SecretaryPortal/secdashboard.php">Attendance</a>
                          </li>
                         <li class="li__user active">
-                            <a href="../SecretaryPortal/employeelist.php">Employees</a>
+                            <a href="../SecretaryPortal/employeelist.php" class = "active">Employees</a>
                             <ul>
                                 <li><a href="../SecretaryPortal/empschedule.php">Schedule</a></li>
                                 <li><a href="../SecretaryPortal/deductions.php" class="active">Deductions</a></li>
@@ -46,11 +46,12 @@ $id = $sessionData['id'];
                             </ul>
                         </li>
 
-                        <li class="li__report">
+                        <li class="li__activities">
                             <a href="#">Salary Report</a>
                             <ul>
                                 <li><a href="../SecretaryPortal/releasedsalary.php" >Released Salary</a></li>
                                 <li><a href="../SecretaryPortal/salaryreport.php">Salary Chart</a></li>
+                                <li><a href="../SecretaryPortal/thirteen.php">13 Month Pay</a></li>
                                 <li><a href="../SecretaryPortal/contributions.php" >Contributions</a></li>
                             </ul>
                          </li>

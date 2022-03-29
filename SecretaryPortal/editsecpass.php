@@ -29,13 +29,13 @@
                     <nav>
                          <ul>
                               <li class="li__records">
-                                   <a href="../SecretaryPortal/secdashboard.php" class="">DASHBOARD</a>
+                                   <a href="../SecretaryPortal/secdashboard.php" class="">Dashboard</a>
                               </li>
                               <li class="li__user">
                                    <a href="" class="active">User Profile</a>
                                    <ul>
-                                        <li><a href="../SecretaryPortal/editsec.php" class="">Edit Profile</a></li>
-                                        <li><a href="../SecretaryPortal/editsecpass.php" class="active">Change Password</a></li>
+                                        <li><a href="../SecretaryPortal/editsec.php" class="">View Profile</a></li>
+                                        <li><a href="../SecretaryPortal/editsecpass.php" class="active">Edit Password</a></li>
                                    </ul>
                               </li>
                          </ul>
@@ -46,7 +46,7 @@
           </div>
 
           <div class="page-info-head">
-               User Profile
+               User Password
           </div>
 
           <div class="user-info">
