@@ -102,7 +102,6 @@ $fullname = $sessionData['fullname'];
                                         <th>Status</th>
                                    </tr>
                               </thead>
-
                               <tbody>
                                 <?php 
                                     if(isset($_POST['print'])){

@@ -126,7 +126,7 @@ require_once('secclass.php');
                 {   
                     if(preg_match("/{$holidate->type}/i", $regular))
                     {
-                        $regholiday += number_format($totalaccumulatedstime);
+                        $regholiday += number_format($totalaccumulatedtime);
                         $regholidayot += number_format($valueOvertime);
                         echo "Holiday: $holidate->type $holidate->date_holiday $holidate->name";
                     }else if(preg_match("/{$holidate->type}/i", $special))              //detect holidays
@@ -140,8 +140,8 @@ require_once('secclass.php');
                 }
             }
 
-            $diff =  $getdateTimeOut - $getdateTimeIn;
-            $interval = $diff / (60*60); 
+            $diff =  $getdateTimeOut - $getdateTimeIn  / (60*60);
+            $interval = $diff; 
 
                 $StandardSchedule = date("h:i:s A", strtotime($users->scheduleTimeIn) + 8*60*60); 
                 $diff2 = $getdateTimeOut - strtotime($StandardSchedule);
@@ -198,8 +198,8 @@ require_once('secclass.php');
                 <th></th>
                 <th></th>
                 <th>$totallate mins</th>
-                <th>".number_format($totalaccumulatedtime)." hrs</th>
-                <th>".number_format($totalovertime)." hrs</th>
+                <th>".number_format($totalaccumulatedtime,2)." hrs</th>
+                <th>".number_format($totalovertime,2)." hrs</th>
                 </tr></thead>";
                 $stmta->execute([$empid,$status]);
                 $rowss=$stmta->fetch();

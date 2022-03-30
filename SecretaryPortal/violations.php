@@ -78,14 +78,12 @@ $fullname = $sessionData['fullname'];
 
           <div class="employee_list">
               <div class="employee_list__header">
-                <h1>List of Violator</h1>
+                <h1>List of Violations</h1>
                   <form method="post">
-                        <button type="submit" name="empsearch">Search</button>
-                        <input type="search" name="employeesearch" placeholder="Search Employee">
+                        <button type="submit" name="searchvio">Search</button>
+                        <input type="search" name="svio" placeholder="Search Employee">
                   </form>
               </div>
-
-
               <div class="employee_list__content">
                   <table>
                         <thead>
@@ -100,7 +98,11 @@ $fullname = $sessionData['fullname'];
                         </thead>
                         <tbody>
                         <?php
+                        if(isset($_POST['searchvio'])){
+                        $payroll->searchviolation();
+                        }else{
                         $payroll->displayviolations();
+                        }
                         ?>
                         </tbody>
                   </table>

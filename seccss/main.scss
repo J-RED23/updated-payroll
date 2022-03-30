@@ -40,7 +40,9 @@
         grid-column: 1 / 2;
         margin-right: 10px;
         position: fixed;
+        
     }
+
 
     .page-info-head {
         grid-row: 1 / 2;
@@ -3399,15 +3401,12 @@
             font-weight: $medium;
             overflow-x: scroll;
             
-            
             table {
                 margin-left: 20px;
                 margin-right: 20px;
                 width: 100%;
                 border-collapse: separate;
                 border-spacing: 0 15px;
-                
-                
 
                 thead > tr > th {
                     text-align: left;
@@ -3421,7 +3420,6 @@
                     
                    background-color: $back;   
                    
-                    
                     td {
                         padding: 10px 25px;
                         font-size: $table-modal-paragraph;
@@ -3468,11 +3466,15 @@
             margin-left: 25px;
             display: flex;
             justify-content: space-between;
+            button {
+                background-color: $btn-primary;
+                    font-weight: $semibold;
+                    color: $front;
+            }
             h1 {
                 font-size: $header;
                 font-weight: $semibold;
             }
-
             .searchbar {
                 display: flex;
                 justify-content: space-between;

@@ -745,11 +745,9 @@ Class Payroll
                 }
                 }
                 if($found!==true){
-                    echo"No Record Found!";
-                    $this->displayAttendance();
+                    echo "<tr><td><center>No Result<td><td><td><td><td><td><td></tr>";
                 }
             }else{
-                echo "Please Input Fields!";
                 $this->displayAttendance();
                 }
                 $this->pdo= null;
@@ -788,8 +786,8 @@ Class Payroll
         
                 if(!empty($search)){
                     $sql ="SELECT empId, firstname, lastname, address, cpnumber, position, availability
-        FROM employee;";
-        $found=false;
+                    FROM employee;";
+                    $found=false;
                     $stmt = $this->con()->prepare($sql);
                     $stmt->execute();
                     $users = $stmt->fetchAll();
@@ -811,7 +809,7 @@ Class Payroll
                                 <td>&nbsp;$user->availability&nbsp;</td>
                                 <td class='td-action'>
                                     <div class='ic ic__add'>
-                                        <a href='viewemployee.php?empId=$user->empId' class='td-view'>
+                                        <a href='viewemp.php?empId=$user->empId' class='td-view'>
                                             <span class='material-icons'>visibility</span>
                                         </a>
                                     </div>
@@ -821,11 +819,9 @@ Class Payroll
                     }
                     }
                     if($found!==true){
-                        echo"No Record Found!";
-                        $this->employeeList();
+                        echo "<tr><td>No Result<td><td><td><td><td><td><td></tr>";
                     }
                     }else{
-                    echo "Please Input Fields!";
                     $this->employeeList();
                     }
         }
@@ -857,9 +853,15 @@ Class Payroll
                 $stmta->execute();
                 $usera = $stmta->fetchall();
                 $countRowa = $stmta->rowCount();
-   
+                $sqlsched=" SELECT * FROM schedule WHERE empId = ?";
+                $stmtsched = $this->con()->prepare($sqlsched);
+                $stmtsched->execute([$empid]);
+                $usersched = $stmtsched->fetch();
+                $countRowsched = $stmtsched->rowCount();
                 if($countRowa > 0) 
-                {   
+                {
+                    if($countRowsched>0)
+                    {//need may sched para magpush through
                     $startlog = 0;
                     $regholidaybasicpay = 0;
                     $regholiday = 0;
@@ -878,13 +880,9 @@ Class Payroll
                     $totalovertime=0;
                     $endlog = 0;
                     $noatt = $countRowa;
-                    $sqlsched=" SELECT * FROM schedule WHERE empId = ?";
-                    $stmtsched = $this->con()->prepare($sqlsched);
                     foreach($usera as $att) //attendance
                     {   
                         $endlog = $att->id;
-                        $stmtsched->execute([$att->empId]);
-                        $usersched = $stmtsched->fetch();
                         $late=0;    
                         $getdateTimeIn = strtotime($att->timeIn); 
                         $getdateTimeOut = strtotime($att->timeOut);
@@ -1040,8 +1038,8 @@ Class Payroll
                     $totalnetpay = 0;
                     $startlog = $endlog - $noatt;
                     $total_hours_late = $totallate;
-                    $overtimepay = number_format($totalovertime) * $overtimerate;
-                    $standardpay = number_format($totalaccumulated) * $rate;
+                    $overtimepay = number_format($totalovertime,2) * $overtimerate;
+                    $standardpay = number_format($totalaccumulated,2) * $rate;
                     $regholidaybasicpay = $regholiday * $rate;
                     $regholidayotpay = $regholidayot * $overtimerate;
                     $regholidaypay = $regholidaybasicpay + $regholidayotpay;
@@ -1071,9 +1069,10 @@ Class Payroll
                     $otheramount,$vale,$total_hours_late,$laterate,$totalgross,$totaldeduction,$totalnetpay,$start,
                     $end,$startlog,$endlog,$salary_status,$date,$id]);
                     $CountRow01 = $stmt1 ->rowCount();
-                    if($CountRow01 > 0){
-                    }
-                }//pag walang attendance
+                        if($CountRow01 > 0){
+                        }
+                    }//pag walang attendance
+                } //pag walang sched
             }//loop lahat
             $this->pdo = null;
             $this->releaseSalary($fullname,$id); //irerelease niya
@@ -1402,6 +1401,7 @@ Class Payroll
                 $deduction = strtolower($_POST['deduction']);
                 $name = $_POST['name'];
                 $amount = $_POST['amount'];
+                $percentage = (float)$_POST['percentage'];
                 $sqlcheck="SELECT * FROM deductions WHERE deduction = ?";
                 $stmt = $this->con()->prepare($sqlcheck);
                 $stmt->execute([$deduction]);
@@ -1421,7 +1421,7 @@ Class Payroll
                         }
                     }
                         if($countrow > 0) {
-                        $action = "Update Deduction";
+                        $action = "Edit Deduction";
                         $datetime = $this->getDateTime();
                         $time = $datetime['time'];
                         $date = $datetime['date'];
@@ -1453,6 +1453,23 @@ Class Payroll
                             $stmta = $this->con()->prepare($sqla);
                             $stmta->execute([$name,$amount]);
                             $countrowa = $stmta->rowCount();
+                            if( $countrowa > 0) {
+                                $action = "Edit Deduction";
+                                $datetime = $this->getDateTime();
+                                $time = $datetime['time'];
+                                $date = $datetime['date'];
+                                $sqlSecLog = "INSERT INTO secretary_log (sec_id, name, action, time, date)
+                                                    VALUES(?, ?, ?, ?, ?)";
+                                $stmtSecLog = $this->con()->prepare($sqlSecLog);
+                                $stmtSecLog->execute([$id,$fullname, $action, $time, $date]);
+                                $countRowSecLog = $stmtSecLog->rowCount();
+                                if($countRowSecLog > 0){
+                                    header('location:deductions.php');
+                                } else {
+                                    echo 'di pumasok sa act log';
+                                    header('location:deductions.php');
+                                }
+                            }
                         }else
                         {
                             $name = $_POST['name'];
@@ -1461,6 +1478,23 @@ Class Payroll
                             $stmta = $this->con()->prepare($sqla);
                             $stmta->execute([$name,$amount]);
                             $countrowa = $stmta->rowCount();
+                            if( $countrowa > 0) {
+                                $action = "Add Deduction";
+                                $datetime = $this->getDateTime();
+                                $time = $datetime['time'];
+                                $date = $datetime['date'];
+                                $sqlSecLog = "INSERT INTO secretary_log (sec_id, name, action, time, date)
+                                                    VALUES(?, ?, ?, ?, ?)";
+                                $stmtSecLog = $this->con()->prepare($sqlSecLog);
+                                $stmtSecLog->execute([$id,$fullname, $action, $time, $date]);
+                                $countRowSecLog = $stmtSecLog->rowCount();
+                                if($countRowSecLog > 0){
+                                    header('location:deductions.php');
+                                } else {
+                                    echo 'di pumasok sa act log';
+                                    header('location:deductions.php');
+                                }
+                            }
                         }
                     }
                     else 
@@ -1471,8 +1505,8 @@ Class Payroll
                         $stmt->execute([$deduction,$percentage]);
                         $countrow = $stmt->rowCount();
                     }
-                        if($countrow > 0 || $countrowa > 0) {
-                        $action = "Edit Deduction";
+                        if($countrow > 0) {
+                        $action = "Add Deduction";
                         $datetime = $this->getDateTime();
                         $time = $datetime['time'];
                         $date = $datetime['date'];
@@ -1482,7 +1516,7 @@ Class Payroll
                         $stmtSecLog->execute([$id,$fullname, $action, $time, $date]);
                         $countRowSecLog = $stmtSecLog->rowCount();
                         if($countRowSecLog > 0){
-                            echo 'Succesfully Edited';
+                            header('location:deductions.php');
                         } else {
                             echo 'di pumasok sa act log';
                             header('location:deductions.php');
@@ -1753,8 +1787,7 @@ Class Payroll
                 }
                 }
                 if($found==false){
-                    echo "No Record";
-                    $this->displayschedule();
+                    echo "<tr><td>No Result<td><td><td><td><td><td></tr>";
                 }
 
         }
@@ -1773,6 +1806,41 @@ Class Payroll
             <td>$row->remark</td>
             <td>$row->date_created</td>
             </tr>";
+        }
+    }
+    public function searchviolation(){
+        if(isset($_POST['searchvio']))
+        {   
+            $found=false;
+            if(!empty($_POST['svio']))
+            {   
+                $search=$_POST['svio'];
+                $sql="SELECT * FROM violationsandremarks LEFT JOIN employee ON employee.empId = violationsandremarks.empId;";
+                $stmt = $this->con()->prepare($sql);
+                $stmt->execute();
+                $rows=$stmt->fetchall();
+                foreach($rows as $row)
+                {
+                    if(preg_match("/{$search}/i", strtolower($row->firstname)) || preg_match("/{$search}/i", strtolower($row->firstname)) || preg_match("/{$search}/i", date('Y/m/j',strtotime($row->date_created)))){
+                        $found = true;
+                        echo "<tr>
+                        <td>$row->empId</td>
+                        <td>$row->firstname</td>
+                        <td>$row->lastname</td>
+                        <td>$row->violation</td>
+                        <td>$row->remark</td>
+                        <td>$row->date_created</td>
+                        </tr>";
+                    }
+            
+
+                }
+                    if(!$found){
+                        echo "<tr><td>No Result<td><td><td><td><td></tr>";
+                    }
+            } else {
+                $this->displayviolations();
+            }
         }
     }
     public function displayreleasedsalary()
@@ -1842,10 +1910,46 @@ Class Payroll
     }
     public function salaryreport()
     {
-        $sql="SELECT * FROM salary_report INNER JOIN employee WHERE salary_report.empId = employee.empId;";
+        $sql="SELECT * FROM salary_report INNER JOIN employee WHERE salary_report.empId = employee.empId; AND status!='paid'";
         $stmt=$this->con()->prepare($sql);
         $stmt->execute();
         while($row = $stmt->fetch()){
+           if($row->january < 0){
+               $row->january = 0;
+           }
+            if($row->february < 0){
+                $row->february = 0;
+            }
+            if($row->march<0){
+                $row->march = 0;
+            }
+            if($row->april<0){
+                $row->april = 0;
+            }
+            if($row->may<0){
+                $row->may=0;
+            }
+            if($row->june<0){
+                $row->june=0;
+            }
+            if($row->july<0){
+                $row->july=0;
+            }
+            if($row->august<0){
+                $row->august=0;
+            }
+            if($row->september<0){
+                $row->september=0;
+            }
+            if($row->october<0){
+                $row->october=0;
+            }
+            if($row->november<0){
+                $row->november=0;
+            }
+            if($row->december<0){
+                $row->december=0;
+            }
             echo "<tr>
                 <td>$row->firstname $row->lastname</td>
                 <td>".number_format($row->january)."</td>
@@ -1974,8 +2078,8 @@ Class Payroll
                                 <td>$user->empId</td>
                                 <td>$user->firstname $user->lastname</td>
                                 <td>$countattendance</td>
-                                <td>$tothrsShow</td>
                             </tr>";
+                           
                     }
             }
     }
@@ -3059,7 +3163,7 @@ Class Payroll
             ob_start ();
             date_default_timezone_set('Asia/Manila');
             $date = date('F d, Y');
-            $datef = date('F d, Y H:i:s A');
+            $datef = date('F d, Y H-i-s A');
             $pdfname = '../SecretaryPortal/uploads/'.$rows->firstname .' '. $rows->lastname.', '.$date.'.pdf';
             // $dompdf->loadHtml($payslip);
             // $dompdf->set_option('isRemoteEnabled', TRUE);
@@ -3082,6 +3186,7 @@ Class Payroll
             $files = $datef.'.pdf';
             $pdf->merge('download', $files);
             $pdf->merge('file',$backup);
+            ob_end_flush();
     }
     public function changepass($id,$fullname)
     {
@@ -3134,129 +3239,212 @@ Class Payroll
         $stmt->execute();
         $rows=$stmt->fetchall();
         foreach($rows as $row){
+        $length = 0;
         $found = false;
-        $sql1 = "SELECT * FROM automatic_generated_salary WHERE emp_id = ? AND for_release = 'released' AND bonus_status IS NULL;";
-        $stmt1=$this->con()->prepare($sql1);
-        $stmt1->execute([$row->empId]);
-        $countRow1=$stmt1->rowCount();
-        $rows1=$stmt1->fetchall();
-        if($countRow1 > 0 )
-        {
-            foreach($rows1 as $row1){
-                date_default_timezone_set('Asia/Manila');
-                $curryear = date('Y');
-                $year=date('Y',strtotime($row1->end));
-                if($year == $curryear)
-                {   
-                    $found=true;
-                    $total_gross=0;
-                    $total_late=0;
-                    $grossjan=0;
-                    $grossfeb=0;
-                    $grossmar=0;
-                    $grossapr=0;
-                    $grossmay=0;
-                    $grossjun=0;
-                    $grossjul=0;
-                    $grossaug=0;
-                    $grosssep=0;
-                    $grossoct=0;
-                    $grossnov=0;
-                    $grossdec=0;
-                    $latejan=0;
-                    $latefeb=0;
-                    $latemar=0;
-                    $lateapr=0;
-                    $latemay=0;
-                    $latejun=0;
-                    $latejul=0;
-                    $lateaug=0;
-                    $latesep=0;
-                    $lateoct=0;
-                    $latenov=0;
-                    $latedec=0;
-                    $month=date('F',strtotime($row1->end));
-                        if(strtolower($month)=='january')
-                        {   
-                            $grossjan = $row1->total_gross;
-                            $latejan = $row1->late_total;
-                        } else if(strtolower($month)=='february'){
-                            $grossfeb = $row1->total_gross;
-                            $latefeb = $row1->late_total;
-                        } else if(strtolower($month)=='march'){
-                            $grossmar = $row1->total_gross;
-                            $latemar = $row1->late_total;
-                        } else if(strtolower($month)=='april'){
-                            $grossapr = $row1->total_gross;
-                            $lateapr = $row1->late_total;
-                        } else if(strtolower($month)=='may'){
-                            $grossmay = $row1->total_gross;
-                            $latemay = $row1->late_total;
-                        } else if(strtolower($month)=='june'){
-                            $grossjun = $row1->total_gross;
-                            $latejun = $row1->late_total;
-                        } else if(strtolower($month)=='july'){
-                            $grossjul = $row1->total_gross;
-                            $latejul = $row1->late_total;
-                        } else if(strtolower($month)=='august'){
-                            $grossaug = $row1->total_gross;
-                            $lateaug = $row1->late_total;
-                        } else if(strtolower($month)=='september'){
-                            $grosssep = $row1->total_gross;
-                            $latesep = $row1->late_total;
-                        } else if(strtolower($month)=='october'){
-                            $grossoct = $row1->total_gross;
-                            $lateoct = $row1->late_total;
-                        } else if(strtolower($month)=='november'){
-                            $grossnov = $row1->total_gross;
-                            $latenov = $row1->late_total;
-                        } else if(strtolower($month)=='december'){
-                            $grossdec = $row1->total_gross;
-                            $latedec = $row1->late_total;
-                        } else {
-
-                        }
-                        $total_gross = $grossjan + $grossfeb + $grossmar + $grossapr + $grossmay + $grossjun +
-                        $grossjul + $grossaug + $grosssep + $grossoct + $grossnov + $grossdec;
-                        $total_late = $latejan + $latefeb + $latemar + $lateapr + $latemay + $latejun + $latejul + 
-                        $lateaug + $latesep + $lateoct + $latenov + $latedec;
-                }// pag di current year
-            }// foreach ng salary
-        }//kapag walang salary
-        if($found){
-        echo "<tr>
-        <td>$row->firstname $row->lastname</td>
-        <td>$total_gross</td>
-        <td>$total_late</td>
-            </tr>";
-        }
+        $sqlc="SELECT * FROM salary_report WHERE empId = ? AND status IS NULL;";
+        $stmtc=$this->con()->prepare($sqlc);
+        $stmtc->execute([$row->empId]);
+        $countRowc=$stmtc->rowCount();
+        if($countRowc > 0){
+                $sqlsr="SELECT
+                    SUM(case when january >0 then 1 else 0 end) a, 
+                    SUM(case when february > 0 then 1 else 0 end) b,
+                    SUM(case when march >0 then 1 else 0 end)c,
+                    SUM(case when april > 0 then 1 else 0 end)d,
+                    SUM(case when may >0 then 1 else 0 end)e,
+                    SUM(case when june > 0 then 1 else 0 end)f,
+                    SUM(case when july >0 then 1 else 0 end)g,
+                    SUM(case when august > 0 then 1 else 0 end)h,
+                    SUM(case when september >0 then 1 else 0 end)i,
+                    SUM(case when october > 0 then 1 else 0 end)j,
+                    SUM(case when november >0 then 1 else 0 end)k,
+                    SUM(case when december > 0 then 1 else 0 end)l
+                  FROM salary_report WHERE empId= ? and status IS NULL;";
+                $stmtsr=$this->con()->prepare($sqlsr);
+                $stmtsr->execute([$row->empId]);
+                $countRowsr=$stmtsr->rowCount();
+                $rowssr=$stmtsr->fetch();
+            if($countRowsr >0)
+            {
+                $found=true;
+                $length= $rowssr->a + $rowssr->b + $rowssr->c + $rowssr->d + $rowssr->e + $rowssr->f + $rowssr->g +
+                $rowssr->h + $rowssr->i + $rowssr->j + $rowssr->k + $rowssr->l;
+                if($length > 1){
+                    $month="Months";
+                }else{
+                    $month="Month";
+                }
+                echo "<tr>
+                <td>$row->firstname $row->lastname</td>
+                <td></td>
+                <td>$length $month</td>
+                    </tr>";
+            }
+        }//kung may salary report
         }//all
-
     }
     public function createbonus(){
         if(isset($_POST['bonus'])){
-            date_default_timezone_set('Asia/Manila');
-            $date = date('F d, Y');
-            $sql="SELECT * FROM salary_report;";
+            
+            $sql="SELECT * FROM employee;";
             $stmt=$this->con()->prepare($sql);
             $stmt->execute();
             $rows=$stmt->fetchall();
             foreach($rows as $row){
-                $sql1="SELECT * FROM salary_report WHERE empId = ?";
-                $stmt1=$this->con()->prepare($sql1);
-                $stmt1->execute([$row->empId]);
-                $rows1=$stmt1->fetchall();
-                $bonus=0;
+            $found = false;
+            $sql1 = "SELECT * FROM automatic_generated_salary WHERE emp_id = ? AND for_release = 'released' AND bonus_status IS NULL;";
+            $stmt1=$this->con()->prepare($sql1);
+            $stmt1->execute([$row->empId]);
+            $countRow1=$stmt1->rowCount();
+            $rows1=$stmt1->fetchall();
+            if($countRow1 > 0 )
+            {
                 foreach($rows1 as $row1){
-                $bonus = ($row1->january + $row1->february + $row1->march + $row1->april + $row1->may + $row1->june +
-                $row1->july + $row1->august + $row1->september + $row1->october + $row1->november + $row1->december) / 12;
-                }
-                    $sql2="INSERT INTO thirteenmonth (empId,amount,date) VALUES (?,?,?)";
-                    $stmt2=$this->con()->prepare($sql2);
-                    $stmt2->execute([$row->empId,$bonus,$date]);
-            }//foreach
+                    $log=$row1->log;
+                    $empid=$row1->emp_id;
+                    date_default_timezone_set('Asia/Manila');
+                    $curryear = date('Y');
+                    $year=date('Y',strtotime($row1->end));
+                    if($year == $curryear)
+                    {   
+                        $found=true;
+                        $total_gross=0;
+                        $total_late=0;
+                        $grossjan=0;
+                        $grossfeb=0;
+                        $grossmar=0;
+                        $grossapr=0;
+                        $grossmay=0;
+                        $grossjun=0;
+                        $grossjul=0;
+                        $grossaug=0;
+                        $grosssep=0;
+                        $grossoct=0;
+                        $grossnov=0;
+                        $grossdec=0;
+                        $latejan=0;
+                        $latefeb=0;
+                        $latemar=0;
+                        $lateapr=0;
+                        $latemay=0;
+                        $latejun=0;
+                        $latejul=0;
+                        $lateaug=0;
+                        $latesep=0;
+                        $lateoct=0;
+                        $latenov=0;
+                        $latedec=0;
+                        $month=date('F',strtotime($row1->end));
+                            if(strtolower($month)=='january')
+                            {   
+                                $grossjan = $row1->total_gross;
+                                $latejan = $row1->late_total;
+                            } else if(strtolower($month)=='february'){
+                                $grossfeb = $row1->total_gross;
+                                $latefeb = $row1->late_total;
+                            } else if(strtolower($month)=='march'){
+                                $grossmar = $row1->total_gross;
+                                $latemar = $row1->late_total;
+                            } else if(strtolower($month)=='april'){
+                                $grossapr = $row1->total_gross;
+                                $lateapr = $row1->late_total;
+                            } else if(strtolower($month)=='may'){
+                                $grossmay = $row1->total_gross;
+                                $latemay = $row1->late_total;
+                            } else if(strtolower($month)=='june'){
+                                $grossjun = $row1->total_gross;
+                                $latejun = $row1->late_total;
+                            } else if(strtolower($month)=='july'){
+                                $grossjul = $row1->total_gross;
+                                $latejul = $row1->late_total;
+                            } else if(strtolower($month)=='august'){
+                                $grossaug = $row1->total_gross;
+                                $lateaug = $row1->late_total;
+                            } else if(strtolower($month)=='september'){
+                                $grosssep = $row1->total_gross;
+                                $latesep = $row1->late_total;
+                            } else if(strtolower($month)=='october'){
+                                $grossoct = $row1->total_gross;
+                                $lateoct = $row1->late_total;
+                            } else if(strtolower($month)=='november'){
+                                $grossnov = $row1->total_gross;
+                                $latenov = $row1->late_total;
+                            } else if(strtolower($month)=='december'){
+                                $grossdec = $row1->total_gross;
+                                $latedec = $row1->late_total;
+                            } else {
+    
+                            }
+                            $total_gross = $grossjan + $grossfeb + $grossmar + $grossapr + $grossmay + $grossjun +
+                            $grossjul + $grossaug + $grosssep + $grossoct + $grossnov + $grossdec;
+                            $total_late = $latejan + $latefeb + $latemar + $lateapr + $latemay + $latejun + $latejul + 
+                            $lateaug + $latesep + $lateoct + $latenov + $latedec;
+                            $amount = $total_gross / 12;
+                    }// pag di current year
+                }// foreach ng salary
+                            date_default_timezone_set('Asia/Manila');
+                            $date = date('F d, Y');
+                            $sqlb="INSERT INTO thirteenmonth (empId,total_gross,late,amount,date_created) VALUES (?,?,?,?,?)";
+                            $stmtb=$this->con()->prepare($sqlb);
+                            $stmtb->execute([$row->empId,$total_gross,$total_late,$amount,$date]);
+                            $countRowb=$stmtb->rowCount();
+                            if($countRowb>0){
+                                $sqlu="UPDATE automatic_generated_salary SET bonus_status = 'paid' WHERE log = ?;";
+                                $stmtu=$this->con()->prepare($sqlu);
+                                $stmtu->execute([$log]);
+                                $sqlu1="UPDATE salary_report SET status = 'paid' WHERE empId = ?;";
+                                $stmtu1=$this->con()->prepare($sqlu1);
+                                $stmtu1->execute([$empid]);
+                                $countRowu=$stmtu->rowCount();
+                                if($countRowu>0){
+                                header('location: thirteen.php');
+                                }
+                            }else {
+                                echo "";
+                            }
+                }//kapag walang salary
+            }//all
+
         }else if(isset($_POST['cancel'])){
-            header('location: salaryreport.php');
+            header('location: thirteen.php');
+        }
+    }
+    public function displaythirteen(){
+        $sql="SELECT * FROM thirteenmonth INNER JOIN employee WHERE thirteenmonth.empId = employee.empId;";
+        $stmt=$this->con()->prepare($sql);
+        $stmt->execute();
+        while($row=$stmt->fetch()){
+            echo"<tr>
+            <td>$row->firstname $row->lastname</td>
+            <td>$row->total_gross</td>
+            <td>$row->late</td>
+            <td>$row->amount</td>
+            <td>$row->date_created</td>
+            </tr>";
+        }
+    }
+    public function feedback(){
+        if(isset($_POST['feedback'])){
+            $fname=$_POST['fname'];
+            $lname=$_POST['lname'];
+            $email=$_POST['email'];
+            $fullname = $fname." ".$lname;
+            if(isset($_POST['satisfaction']) || isset($satisfaction))
+            {
+                $comment=$_POST['comment'];
+                $satisfaction=$_POST['satisfaction'];
+                $sql="INSERT INTO secfeedback (fullname,email,satisfaction,comment) VALUES (?,?,?,?)";
+                $stmt=$this->con()->prepare($sql);
+                $stmt->execute([$fullname,$email,$satisfaction,$comment]);
+                $countRow=$stmt->rowCount();
+                if($countRow>0){
+                    header('location:../seclogin.php');
+                }else{
+                    echo"Error";
+                }
+            }else{
+                echo "Please Rate your Satisfaction<br>";
+            }
         }
     }
 }// End of class

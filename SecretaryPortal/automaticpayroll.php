@@ -94,7 +94,6 @@
                             <th>ID</th>
                             <th>Employees</th>
                             <th>Attendance</th>
-                            <th>Total Hours</th>
                         </tr>
                     </thead>
           

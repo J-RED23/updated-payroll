@@ -75,31 +75,33 @@ $payroll->createbonus();
             </div>
         </div>
 
-          <div class="employee_list">
-              <div class="employee_list__header">
-                <h1>Employee with their basic salary for <?php echo date("Y"); ?> </h1>
-              
-                    <div style='display: flex; justify-content: right; margin-right: 100px;'>
-                        <form method="post">
-                            <button type="submit" name="bonus"><a href="bonus.php">Generate</a></button>
-                        </form>
-                    </div>
-                </div>
+       
+          <div class="generate-deduction-table">
+               <div class="generate-deduction-table__header">
+                    <h1>Generated 13 Month Pay</h1>
+                            <a href="generatebonus.php"><button type="submit">
+                                Generate
+                           </button> </a>
+               </div>
 
-              <div class="employee_list__content">
-                  <table>
-                        <thead>
-                            <tr>
-                                <th>Employee</th>
-                                <th>Total Basic Salary</th>
-                                <th>Total Deductions(Late)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php $payroll->displaybonus()  ?>
-                        </tbody>
-                  </table>
-              </div>
+               <div class="generate-deduction-table__content">
+                    <table>
+                         <thead>
+                              <tr>
+                                   <th>Employee</th>
+                                   <th>Annual Gross</th>
+                                   <th>Deductions</th>
+                                   <th>13 Month Pay</th>
+                                   <th>Date</th>
+                              </tr>
+                         </thead>
+
+                         <tbody>
+                         <?php $payroll->displaythirteen(); ?>
+                         </tbody>
+
+                    </table>
+               </div>
           </div>
 
     </div>

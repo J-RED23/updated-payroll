@@ -55,7 +55,7 @@
           <div class="edit-profile-card">
                <div class="changeprofile">
                     <object data="../SVG/userprofilepic.svg" type=""></object>
-                    <a href="#">Change Profile Photo</a>
+                    <input type="file">Change Profile Photo</input>
                </div>
                <?php
                $sql="SELECT * FROM secretary WHERE id = ?";

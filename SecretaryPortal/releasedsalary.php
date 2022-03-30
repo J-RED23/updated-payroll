@@ -15,6 +15,7 @@ $fullname = $sessionData['fullname'];
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="../seccss/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body>
 <div class="main-container">
@@ -72,6 +73,7 @@ $fullname = $sessionData['fullname'];
                 <a href="editsec.php">[ Edit Account ]</a>
                 <p><?php echo $fullname; ?></p>
             <div class="user-profile">
+                
             </div>
         </div>
 
@@ -79,6 +81,7 @@ $fullname = $sessionData['fullname'];
               <div class="employee_list__header">
                 <h1>List of Released Salaries</h1>
                   <form method="post">
+                  <a href="filemodal.php"><button type="button"><i class="fa fa-download"></i>&nbsp;Files</button></a>
                         <button type="submit" name="searchreleased">Search</button>
                         <input type="search" name="salary" placeholder="Search">
                   </form>

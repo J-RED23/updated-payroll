@@ -55,7 +55,7 @@
                             </ul>
                          </li>
                          <li class="li__report">
-                         <a href="../SecretaryPortal/activitylog.php" class="active">Activity log</a>
+                            <a href="../SecretaryPortal/activitylog.php" class="active">Activity log</a>
                          </li>
                     </ul>
                 </nav>

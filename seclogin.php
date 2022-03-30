@@ -47,8 +47,10 @@ if(isset($_GET['message'])){
                 <input type="password" id="password" name="password" placeholder="Enter password" required/>
             </div>
             <button type="submit" name="login">Login</button>
-            <a href="seclogout.php">Destroy Session</a>
+            <!-- <a href="seclogout.php">Destroy Session</a> -->
+            <a href="./SecretaryPortal/feedback.php" style="transform:rotate(20deg);">Submit Feedback</a>
         </form>
+           
         </div>
 
     </div>
